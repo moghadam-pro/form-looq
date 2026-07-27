@@ -6,7 +6,7 @@ This document describes the current data behavior of the development version of 
 
 After a valid form submission, the plugin stores a private `fmpf_submission` post inside the same WordPress installation.
 
-The stored record currently contains:
+The stored record contains:
 
 - The form ID.
 - The configured submission type.
@@ -14,7 +14,7 @@ The stored record currently contains:
 - Sanitized values for the configured form fields.
 - An internal workflow status.
 
-The core plugin does not currently send the submission to an external service and does not add analytics or telemetry.
+The core plugin does not send submissions to an external service and does not add analytics or telemetry.
 
 ## Access
 
@@ -39,32 +39,58 @@ The plugin handles this state as follows:
 
 WordPress transients are temporary storage rather than a guaranteed immediate-deletion mechanism. A transient can remain in the database or object cache until WordPress or the cache backend removes the expired record. The release documentation will disclose this behavior.
 
+## Retention
+
+The default retention setting is **keep submissions until manually deleted**. An administrator can instead select automatic deletion after 30, 60, 90, 180, 365, 730, or 1,825 days.
+
+A daily WordPress cron task permanently deletes submissions older than the selected period in bounded batches. If no retention period is selected, the cleanup task exits without deleting data.
+
+Temporary invalid-submission state remains independent of permanent retention and expires after five minutes.
+
+## WordPress personal-data export
+
+Free MPRO Forms registers an exporter with WordPress **Tools → Export Personal Data**.
+
+For each submission, the exporter:
+
+- Identifies fields configured with the `email` field type.
+- Matches the requested address case-insensitively after email sanitization.
+- Exports the form name, received time, submission type, workflow status, and stored field values.
+- Uses stored field labels when the original form still exists.
+- Falls back to email-like field names only when the original form definition is unavailable.
+
+A form submission is not assumed to belong to a registered WordPress account; matching is based on the submitted email address.
+
+## WordPress personal-data erasure
+
+Free MPRO Forms registers an eraser with WordPress **Tools → Erase Personal Data**.
+
+For a matching submission, the eraser:
+
+- Removes all submitted field values.
+- Keeps the non-personal record shell, received time, form relationship, and submission type for operational counting and audit continuity.
+- Changes the internal status to `erased`.
+
+The eraser intentionally redacts the values instead of deleting the post during paginated privacy processing. Administrators can still permanently delete individual records through WordPress Admin, automatic retention, or the explicit uninstall setting.
+
 ## Deactivation
 
-Deactivation currently stops plugin behavior but preserves forms and submissions. This prevents accidental data loss during troubleshooting or temporary deactivation.
+Deactivation clears the plugin's scheduled retention event but preserves forms, submissions, settings, and temporary state. This prevents accidental data loss during troubleshooting or temporary deactivation.
+
+When the plugin is activated again, the daily retention schedule is restored automatically.
 
 ## Uninstall
 
-The uninstall policy is not final.
+The default uninstall behavior preserves forms, submissions, and settings. The scheduled retention event is cleared because the plugin code will no longer be available.
 
-Before the first stable release, the plugin must provide an explicit and documented choice between:
+A dedicated setting allows an administrator to opt in to permanent uninstall cleanup. When enabled, uninstall deletes:
 
-- Preserving forms and submissions during uninstall, or
-- Permanently deleting all plugin data when the site owner has enabled a dedicated opt-in setting.
+- All Free MPRO Forms submissions.
+- All Free MPRO Forms form definitions.
+- Retention and uninstall settings.
+- Temporary validation transients stored in the WordPress options table.
 
-No stable release will silently delete submissions on uninstall.
-
-## Export and erasure
-
-WordPress personal-data exporter and eraser integration is planned for Phase 1. Because field names are configurable, the implementation must identify email-address fields carefully and must not assume that every submission belongs to a registered WordPress user.
-
-Until that integration is complete, administrators can view and delete individual submission records through WordPress Admin. This manual workflow is not considered sufficient for the stable release privacy gate.
-
-## Retention
-
-There is currently no automatic retention schedule for permanent submissions. Phase 1 must add a documented retention setting or a clear manual-retention policy before stable release.
-
-Temporary invalid-submission state is limited to five minutes and is consumed on first successful render.
+The option is disabled by default, displays an irreversible-action warning, and does not affect ordinary deactivation.
 
 ## External integrations
 
