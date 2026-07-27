@@ -2,18 +2,19 @@
 /**
  * Plugin Name: Free MPRO Forms
  * Description: Free, privacy-first WordPress forms with local submissions and first-class RTL/LTR support.
- * Version: 0.1.0-dev
+ * Version: 0.1.0
  * Author: Sayid Moghadam
  * Requires at least: 6.5
  * Requires PHP: 8.1
- * Update URI: https://github.com/moghadam-pro/free-forms-wp-plugin
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: free-mpro-forms
  * Domain Path: /languages
  */
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'FREE_MPRO_FORMS_VERSION', '0.1.0-dev' );
+define( 'FREE_MPRO_FORMS_VERSION', '0.1.0' );
 define( 'FREE_MPRO_FORMS_FILE', __FILE__ );
 define( 'FREE_MPRO_FORMS_DIR', plugin_dir_path( __FILE__ ) );
 
