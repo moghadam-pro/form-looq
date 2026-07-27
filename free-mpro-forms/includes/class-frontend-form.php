@@ -16,6 +16,19 @@ final class Frontend_Form {
 		remove_action( 'admin_post_nopriv_fmpf_submit', array( Form_Manager::class, 'handle_submission' ) );
 		add_action( 'admin_post_fmpf_submit', array( self::class, 'handle_submission' ) );
 		add_action( 'admin_post_nopriv_fmpf_submit', array( self::class, 'handle_submission' ) );
+		add_action( 'template_redirect', array( self::class, 'protect_state_page' ), 0 );
+	}
+
+	public static function protect_state_page(): void {
+		if ( ! isset( $_GET['fmpf_state'] ) ) {
+			return;
+		}
+
+		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			define( 'DONOTCACHEPAGE', true );
+		}
+
+		nocache_headers();
 	}
 
 	public static function shortcode( array $atts ): string {
@@ -56,8 +69,9 @@ final class Frontend_Form {
 		$is_rtl      = 'rtl' === $direction;
 		$select      = $atts['select'] ?: ( $is_rtl ? 'انتخاب کنید' : __( 'Select', 'free-mpro-forms' ) );
 		$yes         = $atts['yes'] ?: ( $is_rtl ? 'بله' : __( 'Yes', 'free-mpro-forms' ) );
-		$status      = isset( $_GET['fmpf_status'] ) ? sanitize_key( wp_unslash( $_GET['fmpf_status'] ) ) : '';
-		$token       = isset( $_GET['fmpf_state'] ) ? sanitize_text_field( wp_unslash( $_GET['fmpf_state'] ) ) : '';
+		$status_form = isset( $_GET['fmpf_form'] ) ? absint( $_GET['fmpf_form'] ) : 0;
+		$status      = $status_form === $form_id && isset( $_GET['fmpf_status'] ) ? sanitize_key( wp_unslash( $_GET['fmpf_status'] ) ) : '';
+		$token       = $status_form === $form_id && isset( $_GET['fmpf_state'] ) ? sanitize_text_field( wp_unslash( $_GET['fmpf_state'] ) ) : '';
 		$state       = 'error' === $status && $token ? Submission_State::consume( $token, $form_id ) : array();
 		$values      = is_array( $state['values'] ?? null ) ? $state['values'] : array();
 		$errors      = is_array( $state['errors'] ?? null ) ? $state['errors'] : array();
@@ -172,15 +186,15 @@ final class Frontend_Form {
 			return;
 		}
 
-		$field_id    = self::field_id( $form_id, $index, $field );
-		$help_id     = $field['help'] ? $field_id . '-help' : '';
-		$error       = isset( $errors[ $field['name'] ] ) ? (string) $errors[ $field['name'] ] : '';
-		$error_id    = $error ? $field_id . '-error' : '';
+		$field_id     = self::field_id( $form_id, $index, $field );
+		$help_id      = $field['help'] ? $field_id . '-help' : '';
+		$error        = isset( $errors[ $field['name'] ] ) ? (string) $errors[ $field['name'] ] : '';
+		$error_id     = $error ? $field_id . '-error' : '';
 		$described_by = trim( $help_id . ' ' . $error_id );
-		$value       = isset( $values[ $field['name'] ] ) ? (string) $values[ $field['name'] ] : '';
-		$required    = $field['required'];
-		$wide        = in_array( $field['type'], array( 'textarea', 'radio', 'scale', 'checkbox' ), true );
-		$class       = $wide ? 'fmpf-field fmpf-field--wide' : 'fmpf-field';
+		$value        = isset( $values[ $field['name'] ] ) ? (string) $values[ $field['name'] ] : '';
+		$required     = $field['required'];
+		$wide         = in_array( $field['type'], array( 'textarea', 'radio', 'scale', 'checkbox' ), true );
+		$class        = $wide ? 'fmpf-field fmpf-field--wide' : 'fmpf-field';
 
 		if ( in_array( $field['type'], array( 'radio', 'scale' ), true ) ) {
 			echo '<fieldset id="' . esc_attr( $field_id ) . '" class="' . esc_attr( $class . ' fmpf-fieldset' . ( $error ? ' is-invalid' : '' ) ) . '"' . ( $described_by ? ' aria-describedby="' . esc_attr( $described_by ) . '"' : '' ) . ( $error ? ' aria-invalid="true" tabindex="-1"' : '' ) . '>';
@@ -264,8 +278,11 @@ final class Frontend_Form {
 
 	private static function redirect( string $url, string $status, int $form_id, string $token = '' ): void {
 		$url  = preg_replace( '/#.*$/', '', $url ) ?: home_url( '/' );
-		$url  = remove_query_arg( array( 'fmpf_status', 'fmpf_state' ), $url );
-		$args = array( 'fmpf_status' => $status );
+		$url  = remove_query_arg( array( 'fmpf_status', 'fmpf_state', 'fmpf_form' ), $url );
+		$args = array(
+			'fmpf_status' => $status,
+			'fmpf_form'   => $form_id,
+		);
 
 		if ( $token ) {
 			$args['fmpf_state'] = $token;
