@@ -23,10 +23,14 @@ require_once FREE_MPRO_FORMS_DIR . 'includes/class-submission-state.php';
 require_once FREE_MPRO_FORMS_DIR . 'includes/class-form-manager.php';
 require_once FREE_MPRO_FORMS_DIR . 'includes/class-submission-manager.php';
 require_once FREE_MPRO_FORMS_DIR . 'includes/class-frontend-form.php';
+require_once FREE_MPRO_FORMS_DIR . 'includes/class-privacy-manager.php';
+require_once FREE_MPRO_FORMS_DIR . 'includes/class-settings.php';
 
 \FreeMPROForms\Form_Manager::init();
 \FreeMPROForms\Submission_Manager::init();
 \FreeMPROForms\Frontend_Form::init();
+\FreeMPROForms\Privacy_Manager::init();
+\FreeMPROForms\Settings::init();
 
 function free_mpro_forms_store_submission( string $type, string $title, array $data, int $form_id = 0 ): int {
 	return \FreeMPROForms\Submission_Manager::store( $type, $title, $data, $form_id );
@@ -37,8 +41,15 @@ register_activation_hook(
 	static function (): void {
 		\FreeMPROForms\Form_Manager::register_post_type();
 		\FreeMPROForms\Submission_Manager::register_post_type();
+		\FreeMPROForms\Settings::activate();
 		flush_rewrite_rules();
 	}
 );
 
-register_deactivation_hook( __FILE__, 'flush_rewrite_rules' );
+register_deactivation_hook(
+	__FILE__,
+	static function (): void {
+		\FreeMPROForms\Settings::deactivate();
+		flush_rewrite_rules();
+	}
+);
