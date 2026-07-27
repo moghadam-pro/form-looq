@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<ruleset name="Free MPRO Forms">
+	<description>WordPress Coding Standards for the Free MPRO Forms plugin.</description>
+
+	<file>free-mpro-forms</file>
+
+	<arg name="basepath" value="."/>
+	<arg name="colors"/>
+	<arg value="sp"/>
+
+	<config name="minimum_supported_wp_version" value="6.5"/>
+
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+
+	<rule ref="WordPress"/>
+</ruleset>
