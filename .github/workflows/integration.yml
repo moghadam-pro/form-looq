@@ -78,4 +78,20 @@ jobs:
           wp plugin activate free-mpro-forms --path=/tmp/fmpf-wordpress
 
       - name: Run privacy, retention, and uninstall checks
-        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/privacy-retention-uninstall.php" --path=/tmp/fmpf-wordpress
+        shell: bash
+        run: |
+          set +e
+          wp eval-file "$GITHUB_WORKSPACE/tests/integration/privacy-retention-uninstall.php" --path=/tmp/fmpf-wordpress 2>&1 | tee integration-output.txt
+          echo "${PIPESTATUS[0]}" > integration-exit-code
+          set -e
+
+      - name: Upload integration output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-wp-${{ matrix.wordpress }}-php-${{ matrix.php }}
+          path: integration-output.txt
+          if-no-files-found: error
+
+      - name: Enforce integration checks
+        run: test "$(cat integration-exit-code)" -eq 0
