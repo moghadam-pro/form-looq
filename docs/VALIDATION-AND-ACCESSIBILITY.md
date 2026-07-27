@@ -1,70 +1,64 @@
 # Validation and Accessibility Baseline
 
-## Status
+This document records the implemented development baseline. It does not claim WCAG conformance or production readiness.
 
-Implemented on the Phase 0 identity branch as an initial public-release baseline. This document does not claim full WCAG conformance.
+## Field-definition controls
 
-## Definition limits
-
-- Maximum stored definition length: 50,000 characters.
-- Maximum parsed fields: 50.
-- Maximum field-name length: 64 characters.
-- Maximum label length: 160 characters.
-- Maximum help-text length: 300 characters.
-- Maximum options per field: 100.
-- Maximum option length: 200 characters.
-- Duplicate and reserved field names are rejected by the parser.
+- Form definitions are limited to 50 fields and 50,000 characters.
+- Supported field types are explicitly allowlisted.
+- Field names are sanitized, length-limited, unique, and checked against reserved request keys.
+- Labels, help text, option counts, and option lengths are limited.
 - Select, radio, and scale fields require configured options.
+- Duplicate options are removed.
 
-## Submission validation
+## Server-side submission validation
 
-- Required fields are enforced on the server.
-- Arrays and objects are rejected for scalar fields.
-- Email values must pass WordPress email validation.
-- Number values must be numeric.
-- Telephone values accept Unicode digits and common telephone punctuation.
-- Select, radio, and scale values must exactly match configured options.
-- Checkbox values are normalized to `1` or an empty string.
-- Text values are limited to 500 characters.
-- Textarea values are limited to 5,000 characters.
-- Excess request keys are rejected.
-- Nonce, honeypot, published-form status, and submission-time checks are enforced before storage.
-- Redirect targets are validated before use.
+- Validation runs after the form, post status, nonce, honeypot, and submission-time checks.
+- Scalar fields reject arrays and objects.
+- Email, number, telephone, textarea, select, radio, scale, checkbox, and text values use type-specific validation.
+- Select, radio, and scale values must exactly match a configured option.
+- Required fields are checked on the server even when browser validation is bypassed.
+- Unexpected request keys produce a form-level error.
+- Value lengths are enforced independently of HTML attributes.
+- Invalid values are never stored as permanent submissions.
 
-## Accessibility baseline
+## Error-state behavior
 
-- Text, email, telephone, number, textarea, and select controls have unique IDs and explicit labels.
-- Radio and scale controls use `fieldset` and `legend`.
-- Help text is connected using `aria-describedby`.
-- Required state is communicated in text and through native required attributes.
-- Success messages use `role="status"`.
-- Error messages use `role="alert"`.
-- Notices can receive programmatic focus.
-- Keyboard focus indicators are visible.
-- Layout remains responsive in LTR and RTL directions.
+- Known values are sanitized and preserved after validation errors.
+- Preserved values are stored locally in a five-minute WordPress transient.
+- URLs contain only a random opaque token, status, and form ID; submitted values are not placed in URLs.
+- Temporary state is scoped to the submitted form and consumed on first successful read.
+- Error-state responses disable page caching where supported.
+- Status parameters are removed from the visible URL after rendering when JavaScript is available.
+- Multiple forms on one page receive independent success and error states.
 
-## Still required before a stable release
+## Accessible markup baseline
 
-- Preserve valid field values after a failed submission.
-- Return field-specific error messages instead of only a general error.
-- Move focus to the error summary after redirect.
-- Test with keyboard-only navigation and screen readers.
-- Test high zoom, forced colors, reduced motion, and browser autofill.
-- Run WordPress Coding Standards and Plugin Check.
-- Add automated tests for parser and validator edge cases.
-- Verify localized number behavior and international telephone examples.
+- Text controls use explicit `label` and `for` relationships.
+- Every control receives a unique ID.
+- Radio and scale groups use `fieldset` and `legend`.
+- Help text and field errors are connected with `aria-describedby`.
+- Invalid controls use `aria-invalid="true"`.
+- Required state is expressed in visible text and with native required attributes.
+- Error summaries link to the related controls.
+- Success uses `role="status"`; errors use `role="alert"`.
+- The first invalid control receives focus after the redirected page renders.
+- Invalid radio and scale fieldsets become programmatically focusable.
+- Focus styling works in LTR and RTL layouts.
 
-## Manual test cases
+## Verification performed
 
-1. Submit every supported field type with valid values.
-2. Omit each required field one at a time.
-3. Submit an invalid email address.
-4. Submit a nonnumeric value to a number field.
-5. Submit an option that is not configured in a select or radio field.
-6. Submit an array for a scalar field.
-7. Submit more request keys than expected.
-8. Submit before the minimum completion time.
-9. Submit after the timestamp expires.
-10. Fill the honeypot field.
-11. Repeat tests in English LTR and Persian RTL layouts.
-12. Navigate and submit using only the keyboard.
+- PHP syntax checks passed for the plugin bootstrap and new validation, state, and frontend classes.
+- JavaScript syntax validation passed for the frontend error-state script.
+- A local validator smoke test confirmed that a valid submission passes while invalid email and forged option values return field-specific errors.
+- Manual QA scenarios are defined in `docs/ERROR-STATE-QA.md`.
+
+## Remaining release blockers
+
+- Automated unit and integration tests in a real WordPress test environment.
+- WordPress Coding Standards and Plugin Check.
+- Browser and assistive-technology testing.
+- Personal-data exporter and eraser integration.
+- Final retention and uninstall settings.
+- Flood-control hardening beyond the minimum completion-time check.
+- Clean release packaging and reproducible builds.
