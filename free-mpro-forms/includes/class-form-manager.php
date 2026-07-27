@@ -126,7 +126,7 @@ final class Form_Manager {
 		}
 
 		$fields = isset( $_POST['fmpf_fields'] )
-			? Field_Validator::sanitize_definition( wp_unslash( $_POST['fmpf_fields'] ) )
+			? Field_Validator::sanitize_definition( sanitize_textarea_field( wp_unslash( $_POST['fmpf_fields'] ) ) )
 			: '';
 		$type   = isset( $_POST['fmpf_submission_type'] )
 			? sanitize_key( wp_unslash( $_POST['fmpf_submission_type'] ) )
