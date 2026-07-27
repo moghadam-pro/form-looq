@@ -28,8 +28,24 @@ jobs:
       - name: Install coding standards
         run: composer install --no-interaction --no-progress --prefer-dist
 
-      - name: Run PHPCS
-        run: composer lint:php
+      - name: Generate PHPCS report
+        shell: bash
+        run: |
+          set +e
+          vendor/bin/phpcs --standard=phpcs.xml.dist --report=json > phpcs-report.json
+          echo "$?" > phpcs-exit-code
+          set -e
+
+      - name: Upload PHPCS report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phpcs-report
+          path: phpcs-report.json
+          if-no-files-found: error
+
+      - name: Enforce WordPress Coding Standards
+        run: test "$(cat phpcs-exit-code)" -eq 0
 
   plugin-check:
     name: WordPress Plugin Check
