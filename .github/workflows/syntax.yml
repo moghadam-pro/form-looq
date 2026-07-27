@@ -1,4 +1,4 @@
-name: Syntax Checks
+name: Syntax and Validator Checks
 
 on:
   push:
@@ -37,7 +37,10 @@ jobs:
           set -euo pipefail
           while IFS= read -r -d '' file; do
             php -l "$file"
-          done < <(find free-mpro-forms -type f -name '*.php' -print0)
+          done < <(find free-mpro-forms tests -type f -name '*.php' -print0)
+
+      - name: Run validator tests
+        run: php tests/validator-test.php
 
   javascript-syntax:
     name: JavaScript syntax
