@@ -20,12 +20,13 @@
 		}
 
 		var url = new URL(window.location.href);
-		if (!url.searchParams.has('fmpf_status') && !url.searchParams.has('fmpf_state')) {
+		if (!url.searchParams.has('fmpf_status') && !url.searchParams.has('fmpf_state') && !url.searchParams.has('fmpf_form')) {
 			return;
 		}
 
 		url.searchParams.delete('fmpf_status');
 		url.searchParams.delete('fmpf_state');
+		url.searchParams.delete('fmpf_form');
 		window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
 	}
 
