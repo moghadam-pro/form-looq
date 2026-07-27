@@ -2,7 +2,7 @@
 
 > An open-source, privacy-first WordPress form plugin with responsive layouts and first-class RTL/LTR support.
 
-**Project status:** Pre-release / Phase 0 audit
+**Project status:** Pre-release / Phase 0–1 development
 
 Free MPRO Forms is being built for people who need practical WordPress forms without a license key, external account, or mandatory cloud service. The first public release will focus on a small, dependable core: form creation, local submission storage, responsive rendering, multilingual content, and clear extension points.
 
@@ -40,7 +40,7 @@ The prototype is **not yet the public Free MPRO Forms package**. It must first b
 - First-class LTR and RTL layouts using CSS logical properties.
 - English interface and Persian translation foundation.
 - Local submission storage with privacy documentation.
-- Submission retention, export, and deletion foundations.
+- Submission retention, export, erasure, and deletion foundations.
 - Verified GitHub Release packages.
 - WordPress.org submission readiness and release workflow.
 - Public documentation, changelog, security policy, and release checksums.
@@ -88,19 +88,19 @@ See [WordPress.org publishing](docs/WORDPRESS-ORG.md) for prerequisites, review 
 
 ## Privacy
 
-The current prototype stores submissions in the local WordPress database and does not require an external account. The public release will document what is collected, where it is stored, who can access it, export/erasure behavior, retention, uninstall behavior, and all optional external integrations.
+The current development version keeps submissions inside the site’s WordPress database and does not require an external account. It includes temporary error-state controls, WordPress personal-data export and erasure integration, configurable retention, explicit uninstall behavior, and suggested privacy-policy content.
 
 No telemetry, tracking, remote assets, or external submission processing will be introduced silently.
 
-## Security
+## Security and quality
 
 Please do not report vulnerabilities in public issues. Follow [SECURITY.md](SECURITY.md) for responsible disclosure.
 
-The public release process will include syntax checks, WordPress Coding Standards, Plugin Check, security review, accessibility review, and clean-install testing.
+GitHub Actions currently checks every plugin PHP file on PHP 8.1, 8.2, and 8.3 and validates the JavaScript syntax. WordPress Coding Standards, Plugin Check, automated WordPress tests, accessibility testing, and clean-install testing remain release gates.
 
 ## Requirements
 
-The audited prototype currently declares:
+The development package currently declares:
 
 - WordPress 6.5 or newer.
 - PHP 8.1 or newer.
@@ -111,6 +111,11 @@ The final compatibility range will be confirmed before the first stable release.
 
 - [Roadmap](docs/ROADMAP.md)
 - [WordPress.org publishing](docs/WORDPRESS-ORG.md)
+- [Migration strategy](docs/MIGRATION-STRATEGY.md)
+- [Validation and accessibility](docs/VALIDATION-AND-ACCESSIBILITY.md)
+- [Error-state QA](docs/ERROR-STATE-QA.md)
+- [Data lifecycle](docs/DATA-LIFECYCLE.md)
+- [Privacy and retention QA](docs/PRIVACY-QA.md)
 - [Contributing](CONTRIBUTING.md)
 - [Changelog](CHANGELOG.md)
 
