@@ -10,12 +10,10 @@ The project is independent and is not affiliated with Gravity Forms, Rocketgeniu
 
 ## Why this project exists
 
-Many WordPress sites need a reliable contact, application, survey, or intake form without introducing another subscription or sending submission data to a third-party platform. Free MPRO Forms follows four principles:
-
 - **Free by default** — no paid license is required for the core plugin.
 - **Local by default** — submissions remain inside the site’s WordPress database unless the site owner explicitly adds an integration.
 - **Bilingual by design** — LTR and RTL layouts are treated as core product requirements.
-- **Open by process** — roadmap, decisions, release notes, testing status, and AI-assisted work logs are documented publicly.
+- **Open product development** — roadmap, release notes, testing status, security guidance, and verified technical documentation are public.
 
 ## Current audited prototype
 
@@ -35,8 +33,6 @@ The prototype is **not yet the public Free MPRO Forms package**. It must first b
 
 ## Planned Phase 1 — Free Core
 
-Phase 1 is the first stable public foundation:
-
 - Final `free-mpro-forms` package, namespace, prefixes, and text domain.
 - Dependable form and submission management.
 - Strict server-side validation for every supported field type.
@@ -45,12 +41,11 @@ Phase 1 is the first stable public foundation:
 - English interface and Persian translation foundation.
 - Local submission storage with privacy documentation.
 - Submission retention, export, and deletion foundations.
-- Manual installation and updates through verified GitHub Releases.
+- Verified GitHub Release packages.
+- WordPress.org submission readiness and release workflow.
 - Public documentation, changelog, security policy, and release checksums.
 
 ## Planned Phase 2 — Visual Builder & Workflows
-
-Phase 2 expands the core without changing the free-first direction:
 
 - Visual field builder with drag, reorder, and live preview.
 - Multi-step forms.
@@ -63,38 +58,37 @@ Phase 2 expands the core without changing the free-first direction:
 
 The roadmap is directional. Features are only considered released after they are implemented, tested, and documented.
 
+## Product websites and demos
+
+| Language | Landing page | Demo |
+|---|---|---|
+| English | https://moghadam.pro/free-mpro-forms | https://moghadam.pro/free-mpro-forms/demo |
+| Persian | https://sayid.ir/free-mpro-forms | https://sayid.ir/free-mpro-forms/demo |
+
+The English and Persian websites are maintained separately and link to each other.
+
 ## Installation
 
-There is no stable public package yet.
+There is no stable public package yet. When the first verified release is available:
 
-When the first verified release is available:
+1. Download the verified plugin ZIP from GitHub Releases or install it from WordPress.org when the directory listing becomes available.
+2. Verify the published SHA-256 checksum for GitHub packages.
+3. Upload and activate **Free MPRO Forms**.
+4. Create a form, publish it, and embed its shortcode on a page.
 
-1. Download the release ZIP attached to the GitHub Release.
-2. Verify its published SHA-256 checksum.
-3. In WordPress Admin, open **Plugins → Add New → Upload Plugin**.
-4. Upload the ZIP and activate **Free MPRO Forms**.
-5. Create a form, publish it, and embed its shortcode on a page.
+Do not use GitHub’s automatically generated source archive as the installable plugin unless the release notes explicitly say it is supported.
 
-Do not use GitHub’s automatically generated “Source code” archive as the installable plugin unless the release notes explicitly say it is supported. The verified plugin ZIP will contain the correct root folder and only runtime files.
+## Distribution model
 
-## Update model
+GitHub remains the source of truth for development, code review, issues, and tagged source releases.
 
-GitHub Releases will be the source of truth for versions, release notes, downloadable ZIP files, and checksums.
+The WordPress.org Plugin Directory is planned as an additional official distribution channel. If accepted, WordPress.org SVN will be used only for approved release packages, plugin assets, and stable tags. Development will not move to SVN.
 
-The first stable release will support **manual updates from GitHub**. WordPress does not automatically update a third-party plugin from a GitHub repository without a custom updater. A secure in-dashboard updater may be evaluated in a later version. The plugin header will use an `Update URI` to prevent an unrelated WordPress.org plugin with a similar slug from overwriting the installation.
-
-A future WordPress.org directory release remains possible. If adopted, GitHub will remain the development repository and WordPress.org SVN will be treated only as a release repository.
+See [WordPress.org publishing](docs/WORDPRESS-ORG.md) for prerequisites, review rules, costs, and the planned release flow.
 
 ## Privacy
 
-The current prototype stores submissions in the local WordPress database and does not require an external account. The public release will document:
-
-- What data is collected.
-- Where submissions are stored.
-- Who can access them.
-- How data can be exported or erased.
-- What happens during deactivation and uninstall.
-- Whether any optional integration sends data to another service.
+The current prototype stores submissions in the local WordPress database and does not require an external account. The public release will document what is collected, where it is stored, who can access it, export/erasure behavior, retention, uninstall behavior, and all optional external integrations.
 
 No telemetry, tracking, remote assets, or external submission processing will be introduced silently.
 
@@ -102,7 +96,7 @@ No telemetry, tracking, remote assets, or external submission processing will be
 
 Please do not report vulnerabilities in public issues. Follow [SECURITY.md](SECURITY.md) for responsible disclosure.
 
-The public release process will include syntax checks, WordPress Coding Standards, Plugin Check, security review, accessibility review, and installation tests before a stable tag is published.
+The public release process will include syntax checks, WordPress Coding Standards, Plugin Check, security review, accessibility review, and clean-install testing.
 
 ## Requirements
 
@@ -111,22 +105,14 @@ The audited prototype currently declares:
 - WordPress 6.5 or newer.
 - PHP 8.1 or newer.
 
-The final compatibility range will be confirmed by automated and manual tests before the first stable release.
+The final compatibility range will be confirmed before the first stable release.
 
 ## Documentation
 
 - [Roadmap](docs/ROADMAP.md)
-- [Release process](docs/RELEASE-PROCESS.md)
-- [Landing page brief](docs/LANDING-PAGE.md)
-- [Initial prototype audit](docs/AUDIT-2026-07-27.md)
-- [Development log](docs/DEVELOPMENT-LOG.md)
-- [AI-assisted development policy](docs/AI-ASSISTED-DEVELOPMENT.md)
+- [WordPress.org publishing](docs/WORDPRESS-ORG.md)
 - [Contributing](CONTRIBUTING.md)
 - [Changelog](CHANGELOG.md)
-
-## Contributing
-
-The repository will accept focused bug reports, documentation improvements, translations, accessibility feedback, and reviewed pull requests. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a contribution.
 
 ## License
 
