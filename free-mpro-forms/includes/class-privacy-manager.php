@@ -5,13 +5,13 @@ namespace FreeMPROForms;
 defined( 'ABSPATH' ) || exit;
 
 final class Privacy_Manager {
-	private const EXPORTER_ID   = 'free-mpro-forms-submissions';
-	private const PER_PAGE      = 50;
-	private const META_FIELDS   = '_fmpf_fields';
-	private const META_FORM_ID  = '_fmpf_form_id';
-	private const META_DATA     = '_fmpf_data';
-	private const META_TYPE     = '_fmpf_type';
-	private const META_STATUS   = '_fmpf_status';
+	private const EXPORTER_ID  = 'free-mpro-forms-submissions';
+	private const PER_PAGE     = 50;
+	private const META_FIELDS  = '_fmpf_fields';
+	private const META_FORM_ID = '_fmpf_form_id';
+	private const META_DATA    = '_fmpf_data';
+	private const META_TYPE    = '_fmpf_type';
+	private const META_STATUS  = '_fmpf_status';
 
 	public static function init(): void {
 		add_filter( 'wp_privacy_personal_data_exporters', array( self::class, 'register_exporter' ) );
@@ -72,11 +72,11 @@ final class Privacy_Manager {
 	}
 
 	public static function erase_personal_data( string $email_address, int $page = 1 ): array {
-		$email_address = sanitize_email( $email_address );
-		$page          = max( 1, absint( $page ) );
-		$items_removed = false;
+		$email_address  = sanitize_email( $email_address );
+		$page           = max( 1, absint( $page ) );
+		$items_removed  = false;
 		$items_retained = false;
-		$messages      = array();
+		$messages       = array();
 
 		if ( ! $email_address || ! is_email( $email_address ) ) {
 			return array(
@@ -96,13 +96,16 @@ final class Privacy_Manager {
 				continue;
 			}
 
-			if ( wp_delete_post( $submission_id, true ) ) {
+			$updated_data   = update_post_meta( $submission_id, self::META_DATA, array() );
+			$updated_status = update_post_meta( $submission_id, self::META_STATUS, 'erased' );
+
+			if ( false !== $updated_data && false !== $updated_status ) {
 				$items_removed = true;
 			} else {
 				$items_retained = true;
 				$messages[]     = sprintf(
 					/* translators: %d: Submission ID. */
-					__( 'Submission %d could not be deleted.', 'free-mpro-forms' ),
+					__( 'Personal values in submission %d could not be erased.', 'free-mpro-forms' ),
 					$submission_id
 				);
 			}
