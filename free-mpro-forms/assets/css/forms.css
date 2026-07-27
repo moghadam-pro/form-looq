@@ -1,11 +1,12 @@
 .fmpf-form-wrap{--fmpf-primary:#2563eb;--fmpf-accent:#1d4ed8;--fmpf-text:#1f2937;--fmpf-muted:#6b7280;--fmpf-surface:#fff;--fmpf-border:#d1d5db;color:var(--fmpf-text);font-family:inherit}
 .fmpf-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
 .fmpf-field{display:grid;gap:8px;font-size:.9rem;font-weight:700}
-.fmpf-field--wide,.fmpf-section{grid-column:1/-1}
-.fmpf-label{display:block}
+.fmpf-field--wide,.fmpf-section,.fmpf-fieldset{grid-column:1/-1}
+.fmpf-fieldset{min-width:0;margin:0;padding:0;border:0}
+.fmpf-label{display:block;margin:0;padding:0}
 .fmpf-form input,.fmpf-form select,.fmpf-form textarea{box-sizing:border-box;width:100%;min-height:48px;padding:11px 13px;border:1px solid var(--fmpf-border);border-radius:8px;background:var(--fmpf-surface);color:var(--fmpf-text);font:inherit}
 .fmpf-form textarea{min-height:128px;resize:vertical}
-.fmpf-form input:focus,.fmpf-form select:focus,.fmpf-form textarea:focus{border-color:var(--fmpf-primary);outline:3px solid color-mix(in srgb,var(--fmpf-primary) 22%,transparent)}
+.fmpf-form input:focus,.fmpf-form select:focus,.fmpf-form textarea:focus,.fmpf-choice-group input:focus-visible,.fmpf-checkbox input:focus-visible{border-color:var(--fmpf-primary);outline:3px solid color-mix(in srgb,var(--fmpf-primary) 22%,transparent);outline-offset:2px}
 .fmpf-form button{grid-column:1/-1;justify-self:end;min-height:44px;padding:0 22px;border:0;border-radius:8px;background:var(--fmpf-primary);color:#fff;font:700 .95rem/1 inherit;cursor:pointer}
 .fmpf-form button:hover,.fmpf-form button:focus-visible{background:var(--fmpf-accent)}
 .fmpf-section{margin-top:18px;padding-top:24px;border-top:1px solid var(--fmpf-border)}
@@ -19,6 +20,7 @@
 .fmpf-scale label{justify-content:center}
 .fmpf-notice{margin:0 0 20px;padding:14px 16px;border-radius:8px;background:#dcfce7;color:#14532d}
 .fmpf-notice.is-error{background:#fee2e2;color:#7f1d1d}
+.fmpf-notice:focus{outline:3px solid currentColor;outline-offset:3px}
 .fmpf-honeypot{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
 [dir=rtl].fmpf-form-wrap{font-family:Vazir,Vazirmatn,Tahoma,Arial,sans-serif}
 [dir=rtl].fmpf-form-wrap .fmpf-form button{justify-self:start}
