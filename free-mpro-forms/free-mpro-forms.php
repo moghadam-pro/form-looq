@@ -24,12 +24,14 @@ require_once FREE_MPRO_FORMS_DIR . 'includes/class-form-manager.php';
 require_once FREE_MPRO_FORMS_DIR . 'includes/class-submission-manager.php';
 require_once FREE_MPRO_FORMS_DIR . 'includes/class-frontend-form.php';
 require_once FREE_MPRO_FORMS_DIR . 'includes/class-privacy-manager.php';
+require_once FREE_MPRO_FORMS_DIR . 'includes/class-privacy-policy.php';
 require_once FREE_MPRO_FORMS_DIR . 'includes/class-settings.php';
 
 \FreeMPROForms\Form_Manager::init();
 \FreeMPROForms\Submission_Manager::init();
 \FreeMPROForms\Frontend_Form::init();
 \FreeMPROForms\Privacy_Manager::init();
+\FreeMPROForms\Privacy_Policy::init();
 \FreeMPROForms\Settings::init();
 
 function free_mpro_forms_store_submission( string $type, string $title, array $data, int $form_id = 0 ): int {
