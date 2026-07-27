@@ -18,11 +18,15 @@ define( 'FREE_MPRO_FORMS_FILE', __FILE__ );
 define( 'FREE_MPRO_FORMS_DIR', plugin_dir_path( __FILE__ ) );
 
 require_once FREE_MPRO_FORMS_DIR . 'includes/class-field-validator.php';
+require_once FREE_MPRO_FORMS_DIR . 'includes/class-submission-validator.php';
+require_once FREE_MPRO_FORMS_DIR . 'includes/class-submission-state.php';
 require_once FREE_MPRO_FORMS_DIR . 'includes/class-form-manager.php';
 require_once FREE_MPRO_FORMS_DIR . 'includes/class-submission-manager.php';
+require_once FREE_MPRO_FORMS_DIR . 'includes/class-frontend-form.php';
 
 \FreeMPROForms\Form_Manager::init();
 \FreeMPROForms\Submission_Manager::init();
+\FreeMPROForms\Frontend_Form::init();
 
 function free_mpro_forms_store_submission( string $type, string $title, array $data, int $form_id = 0 ): int {
 	return \FreeMPROForms\Submission_Manager::store( $type, $title, $data, $form_id );
