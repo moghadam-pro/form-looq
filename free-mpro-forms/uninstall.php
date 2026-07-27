@@ -5,11 +5,11 @@
 
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
+wp_clear_scheduled_hook( 'fmpf_daily_retention_cleanup' );
+
 if ( ! get_option( 'fmpf_delete_data_on_uninstall', false ) ) {
 	return;
 }
-
-wp_clear_scheduled_hook( 'fmpf_daily_retention_cleanup' );
 
 foreach ( array( 'fmpf_submission', 'fmpf_form' ) as $post_type ) {
 	do {
@@ -28,9 +28,17 @@ foreach ( array( 'fmpf_submission', 'fmpf_form' ) as $post_type ) {
 			)
 		);
 
-		$ids = array_map( 'absint', $query->posts );
+		$ids                = array_map( 'absint', $query->posts );
+		$deleted_this_batch = 0;
+
 		foreach ( $ids as $post_id ) {
-			wp_delete_post( $post_id, true );
+			if ( wp_delete_post( $post_id, true ) ) {
+				++$deleted_this_batch;
+			}
+		}
+
+		if ( $ids && 0 === $deleted_this_batch ) {
+			break;
 		}
 	} while ( count( $ids ) === 100 );
 }
