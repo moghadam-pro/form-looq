@@ -17,6 +17,7 @@ define( 'FREE_MPRO_FORMS_VERSION', '0.1.0-dev' );
 define( 'FREE_MPRO_FORMS_FILE', __FILE__ );
 define( 'FREE_MPRO_FORMS_DIR', plugin_dir_path( __FILE__ ) );
 
+require_once FREE_MPRO_FORMS_DIR . 'includes/class-field-validator.php';
 require_once FREE_MPRO_FORMS_DIR . 'includes/class-form-manager.php';
 require_once FREE_MPRO_FORMS_DIR . 'includes/class-submission-manager.php';
 
