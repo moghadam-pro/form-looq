@@ -13,12 +13,17 @@ final class Settings {
 	private const SETTINGS_PAGE  = 'free-mpro-forms-settings';
 
 	public static function init(): void {
+		add_action( 'init', array( self::class, 'ensure_schedule' ), 20 );
 		add_action( 'admin_init', array( self::class, 'register' ) );
 		add_action( 'admin_menu', array( self::class, 'register_page' ), 30 );
 		add_action( self::CRON_HOOK, array( self::class, 'cleanup_expired_submissions' ) );
 	}
 
 	public static function activate(): void {
+		self::ensure_schedule();
+	}
+
+	public static function ensure_schedule(): void {
 		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
 			wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', self::CRON_HOOK );
 		}
@@ -131,6 +136,7 @@ final class Settings {
 	public static function render_uninstall_field(): void {
 		$value = (bool) get_option( self::OPTION_DELETE_ON_UNINSTALL, false );
 		?>
+		<input type="hidden" name="<?php echo esc_attr( self::OPTION_DELETE_ON_UNINSTALL ); ?>" value="0">
 		<label>
 			<input type="checkbox" name="<?php echo esc_attr( self::OPTION_DELETE_ON_UNINSTALL ); ?>" value="1"<?php checked( $value ); ?>>
 			<?php esc_html_e( 'Permanently delete all Free MPRO Forms forms, submissions, settings, and temporary state when the plugin is uninstalled.', 'free-mpro-forms' ); ?>
@@ -178,11 +184,18 @@ final class Settings {
 				)
 			);
 
-			$ids = array_map( 'absint', $query->posts );
+			$ids                = array_map( 'absint', $query->posts );
+			$deleted_this_batch = 0;
+
 			foreach ( $ids as $submission_id ) {
 				if ( wp_delete_post( $submission_id, true ) ) {
 					++$deleted;
+					++$deleted_this_batch;
 				}
+			}
+
+			if ( $ids && 0 === $deleted_this_batch ) {
+				break;
 			}
 		} while ( count( $ids ) === 100 );
 
