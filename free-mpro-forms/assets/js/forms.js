@@ -14,6 +14,17 @@
 		});
 	}
 
+	function scheduleFocusFirstError() {
+		if (typeof window.requestAnimationFrame !== 'function') {
+			window.setTimeout(focusFirstError, 0);
+			return;
+		}
+
+		window.requestAnimationFrame(function () {
+			window.requestAnimationFrame(focusFirstError);
+		});
+	}
+
 	function cleanStatusParameters() {
 		if (!window.history || !window.URL) {
 			return;
@@ -30,13 +41,16 @@
 		window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
 	}
 
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', function () {
-			focusFirstError();
-			cleanStatusParameters();
-		});
-	} else {
-		focusFirstError();
+	function initialize() {
+		scheduleFocusFirstError();
 		cleanStatusParameters();
 	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initialize);
+	} else {
+		initialize();
+	}
+
+	window.addEventListener('load', scheduleFocusFirstError, { once: true });
 }());
