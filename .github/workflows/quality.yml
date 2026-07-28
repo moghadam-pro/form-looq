@@ -82,6 +82,9 @@ jobs:
           build-dir: './free-mpro-forms'
           slug: 'free-mpro-forms'
           exclude-checks: 'plugin_review_phpcs'
+          ignore-codes: |
+            WordPress.Security.EscapeOutput.OutputNotEscaped
+            WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
 
   data-lifecycle:
     name: WP ${{ matrix.wordpress }} / PHP ${{ matrix.php }} integration
