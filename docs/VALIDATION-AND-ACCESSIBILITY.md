@@ -13,7 +13,7 @@ This document records the implemented development baseline. It does not claim WC
 
 ## Server-side submission validation
 
-- Validation runs after the form, post status, nonce, honeypot, and submission-time checks.
+- Validation runs after the form, post status, nonce, honeypot, submission-time, and rate-limit checks.
 - Scalar fields reject arrays and objects.
 - Email, number, telephone, textarea, select, radio, scale, checkbox, and text values use type-specific validation.
 - Select, radio, and scale values must exactly match a configured option.
@@ -46,19 +46,31 @@ This document records the implemented development baseline. It does not claim WC
 - Invalid radio and scale fieldsets become programmatically focusable.
 - Focus styling works in LTR and RTL layouts.
 
+## Automated browser verification
+
+Chromium tests run against a real WordPress installation and verify:
+
+- English LTR rendering and computed direction.
+- Persian RTL rendering and computed direction.
+- Explicit label and accessible-name resolution.
+- `fieldset` and `legend` semantics for grouped choices.
+- Keyboard order between adjacent form controls.
+- Successful submission and success status announcement.
+- Server-side validation when native browser validation is bypassed.
+- Linked error summaries and `aria-invalid` state.
+- Stable focus on the first invalid control after navigation and page scripts complete.
+- Removal of temporary status and state parameters from the visible URL.
+
 ## Verification performed
 
-- PHP syntax checks passed for the plugin bootstrap and new validation, state, and frontend classes.
-- JavaScript syntax validation passed for the frontend error-state script.
-- A local validator smoke test confirmed that a valid submission passes while invalid email and forged option values return field-specific errors.
-- Manual QA scenarios are defined in `docs/ERROR-STATE-QA.md`.
+- PHP syntax and parser/submission-validator tests pass on PHP 8.1, 8.2, and 8.3.
+- JavaScript syntax validation passes on Node.js 22.
+- Focused WordPress Coding Standards and WordPress Plugin Check gates pass.
+- Privacy, retention, uninstall, rate-limit, and browser tests pass in real WordPress environments.
+- Chromium LTR, RTL, keyboard, success, error-summary, and focus scenarios pass.
 
 ## Remaining release blockers
 
-- Automated unit and integration tests in a real WordPress test environment.
-- WordPress Coding Standards and Plugin Check.
-- Browser and assistive-technology testing.
-- Personal-data exporter and eraser integration.
-- Final retention and uninstall settings.
-- Flood-control hardening beyond the minimum completion-time check.
-- Clean release packaging and reproducible builds.
+- Manual screen-reader validation with at least one desktop screen reader.
+- Final clean-install Release Candidate verification.
+- Final release notes, package review, and publication decision.
