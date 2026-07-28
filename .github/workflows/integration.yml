@@ -1,0 +1,93 @@
+name: WordPress Integration Checks
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  data-lifecycle:
+    name: WP ${{ matrix.wordpress }} / PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - wordpress: '6.5'
+            php: '8.1'
+          - wordpress: 'latest'
+            php: '8.3'
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: wp-cli
+
+      - name: Install WordPress
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/fmpf-wordpress
+          wp core download --version="${{ matrix.wordpress }}" --path=/tmp/fmpf-wordpress --force
+          wp config create \
+            --path=/tmp/fmpf-wordpress \
+            --dbname=wordpress_test \
+            --dbuser=root \
+            --dbpass=root \
+            --dbhost=127.0.0.1:3306 \
+            --skip-check
+          wp core install \
+            --path=/tmp/fmpf-wordpress \
+            --url=http://free-mpro-forms.test \
+            --title="Free MPRO Forms Integration" \
+            --admin_user=admin \
+            --admin_password=integration-password \
+            --admin_email=admin@example.com \
+            --skip-email
+
+      - name: Install and activate plugin
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp -R "$GITHUB_WORKSPACE/free-mpro-forms" /tmp/fmpf-wordpress/wp-content/plugins/free-mpro-forms
+          wp plugin activate free-mpro-forms --path=/tmp/fmpf-wordpress
+
+      - name: Run privacy, retention, and uninstall checks
+        shell: bash
+        run: |
+          set +e
+          wp eval-file "$GITHUB_WORKSPACE/tests/integration/privacy-retention-uninstall.php" --path=/tmp/fmpf-wordpress 2>&1 | tee integration-output.txt
+          echo "${PIPESTATUS[0]}" > integration-exit-code
+          set -e
+
+      - name: Upload integration output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-wp-${{ matrix.wordpress }}-php-${{ matrix.php }}
+          path: integration-output.txt
+          if-no-files-found: error
+
+      - name: Enforce integration checks
+        run: test "$(cat integration-exit-code)" -eq 0
