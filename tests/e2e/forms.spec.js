@@ -25,7 +25,7 @@ test('English LTR form exposes labels, help, keyboard order, and success state',
   await emailInput.fill('sayid@example.com');
   await page.getByLabel('Topic (required)').selectOption('Project enquiry');
   await page.getByLabel('Message (required)').fill('Browser test submission.');
-  await page.getByLabel('Consent (required)').check();
+  await page.getByRole('checkbox', { name: 'Yes' }).check();
   await makeSubmissionOldEnough(page);
   await page.getByRole('button', { name: 'Send message' }).click();
 
