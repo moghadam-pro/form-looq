@@ -51,7 +51,7 @@ jobs:
           set -euo pipefail
           while IFS= read -r -d '' file; do
             node --check "$file"
-          done < <(find free-mpro-forms -type f -name '*.js' -print0)
+          done < <(find free-mpro-forms tests/e2e -type f -name '*.js' -print0)
 
   wordpress-standards:
     name: WordPress security standards
@@ -150,6 +150,90 @@ jobs:
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/privacy-retention-uninstall.php" --path=/tmp/fmpf-wordpress
       - name: Run rate-limit checks
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/rate-limit.php" --path=/tmp/fmpf-wordpress
+
+  browser-e2e:
+    name: Chromium LTR RTL and keyboard validation
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress_browser
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up PHP and WP-CLI
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: wp-cli
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install browser dependencies
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Install browser-test WordPress
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/fmpf-browser-wordpress
+          wp core download --version=latest --path=/tmp/fmpf-browser-wordpress --force
+          wp config create \
+            --path=/tmp/fmpf-browser-wordpress \
+            --dbname=wordpress_browser \
+            --dbuser=root \
+            --dbpass=root \
+            --dbhost=127.0.0.1:3306 \
+            --skip-check
+          wp core install \
+            --path=/tmp/fmpf-browser-wordpress \
+            --url=http://127.0.0.1:8080 \
+            --title="Free MPRO Forms Browser Tests" \
+            --admin_user=admin \
+            --admin_password=browser-password \
+            --admin_email=admin@example.com \
+            --skip-email
+          cp -R "$GITHUB_WORKSPACE/free-mpro-forms" /tmp/fmpf-browser-wordpress/wp-content/plugins/free-mpro-forms
+          wp plugin activate free-mpro-forms --path=/tmp/fmpf-browser-wordpress
+          wp eval-file "$GITHUB_WORKSPACE/tests/e2e/seed-wordpress.php" --path=/tmp/fmpf-browser-wordpress
+      - name: Start WordPress server
+        shell: bash
+        run: |
+          set -euo pipefail
+          nohup wp server --host=127.0.0.1 --port=8080 --path=/tmp/fmpf-browser-wordpress > /tmp/fmpf-wp-server.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8080/english-form/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/fmpf-wp-server.log
+          exit 1
+      - name: Run Chromium browser tests
+        run: npm run test:e2e
+      - name: Upload browser failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-failure-evidence
+          path: |
+            playwright-report
+            test-results
+            /tmp/fmpf-wp-server.log
+          if-no-files-found: ignore
 
   package-build:
     name: Build installable ZIP
