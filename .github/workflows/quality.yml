@@ -255,3 +255,85 @@ jobs:
           name: free-mpro-forms-package
           path: dist/free-mpro-forms.zip
           if-no-files-found: error
+
+  release-candidate:
+    name: Packaged clean-install release candidate
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress_rc
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up PHP and WP-CLI
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: wp-cli
+      - name: Build release candidate ZIP
+        run: bash scripts/build-plugin.sh
+      - name: Install clean WordPress
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/fmpf-rc-wordpress
+          wp core download --version=latest --path=/tmp/fmpf-rc-wordpress --force
+          wp config create \
+            --path=/tmp/fmpf-rc-wordpress \
+            --dbname=wordpress_rc \
+            --dbuser=root \
+            --dbpass=root \
+            --dbhost=127.0.0.1:3306 \
+            --skip-check
+          wp core install \
+            --path=/tmp/fmpf-rc-wordpress \
+            --url=http://free-mpro-forms-rc.test \
+            --title="Free MPRO Forms Release Candidate" \
+            --admin_user=admin \
+            --admin_password=rc-password \
+            --admin_email=admin@example.com \
+            --skip-email
+      - name: Install the packaged ZIP
+        run: wp plugin install "$GITHUB_WORKSPACE/dist/free-mpro-forms.zip" --activate --path=/tmp/fmpf-rc-wordpress
+      - name: Create and verify packaged data
+        shell: bash
+        run: |
+          set -euo pipefail
+          RESULT="$(wp eval-file "$GITHUB_WORKSPACE/tests/integration/release-candidate.php" --path=/tmp/fmpf-rc-wordpress)"
+          echo "$RESULT" | jq -e '.version == "0.1.0" and .form_id > 0 and .submission_id > 0' >/dev/null
+          echo "FMPF_RC_FORM_ID=$(echo "$RESULT" | jq -r '.form_id')" >> "$GITHUB_ENV"
+          echo "FMPF_RC_SUBMISSION_ID=$(echo "$RESULT" | jq -r '.submission_id')" >> "$GITHUB_ENV"
+      - name: Verify deactivate and reactivate cycle
+        shell: bash
+        run: |
+          set -euo pipefail
+          wp plugin deactivate free-mpro-forms --path=/tmp/fmpf-rc-wordpress
+          wp plugin activate free-mpro-forms --path=/tmp/fmpf-rc-wordpress
+          test "$(wp post get "$FMPF_RC_SUBMISSION_ID" --field=post_type --path=/tmp/fmpf-rc-wordpress)" = 'fmpf_submission'
+      - name: Verify default uninstall preserves data
+        shell: bash
+        run: |
+          set -euo pipefail
+          wp plugin deactivate free-mpro-forms --path=/tmp/fmpf-rc-wordpress
+          wp plugin uninstall free-mpro-forms --path=/tmp/fmpf-rc-wordpress
+          test "$(wp post get "$FMPF_RC_FORM_ID" --field=post_type --path=/tmp/fmpf-rc-wordpress)" = 'fmpf_form'
+          test "$(wp post get "$FMPF_RC_SUBMISSION_ID" --field=post_type --path=/tmp/fmpf-rc-wordpress)" = 'fmpf_submission'
+      - name: Reinstall the same ZIP and verify preserved data
+        shell: bash
+        run: |
+          set -euo pipefail
+          wp plugin install "$GITHUB_WORKSPACE/dist/free-mpro-forms.zip" --activate --path=/tmp/fmpf-rc-wordpress
+          test "$(wp plugin get free-mpro-forms --field=version --path=/tmp/fmpf-rc-wordpress)" = '0.1.0'
+          test "$(wp post get "$FMPF_RC_FORM_ID" --field=post_status --path=/tmp/fmpf-rc-wordpress)" = 'publish'
+          test "$(wp post meta get "$FMPF_RC_SUBMISSION_ID" _fmpf_status --path=/tmp/fmpf-rc-wordpress)" = 'new'
