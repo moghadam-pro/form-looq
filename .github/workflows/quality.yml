@@ -2,9 +2,7 @@ name: Controlled Release Gates
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - feature/phase-0-identity-foundation
+  pull_request:
     paths:
       - '.github/ci/run-quality'
 
@@ -22,13 +20,11 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           coverage: none
-
       - name: Lint PHP files
         shell: bash
         run: |
@@ -36,7 +32,6 @@ jobs:
           while IFS= read -r -d '' file; do
             php -l "$file"
           done < <(find free-mpro-forms tests -type f -name '*.php' -print0)
-
       - name: Run validator tests
         run: php tests/validator-test.php
 
@@ -46,12 +41,10 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-
       - name: Check JavaScript files
         shell: bash
         run: |
@@ -66,17 +59,14 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
           coverage: none
           tools: composer:v2
-
       - name: Install coding standards
         run: composer install --no-interaction --no-progress --prefer-dist
-
       - name: Run focused WPCS gate
         run: vendor/bin/phpcs --standard=phpcs.xml.dist
 
@@ -86,7 +76,6 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-
       - name: Run Plugin Check
         uses: wordpress/plugin-check-action@v1
         with:
@@ -105,7 +94,6 @@ jobs:
             php: '8.1'
           - wordpress: 'latest'
             php: '8.3'
-
     services:
       mysql:
         image: mysql:8.0
@@ -119,18 +107,15 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=10
-
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           coverage: none
           tools: wp-cli
-
       - name: Install WordPress
         shell: bash
         run: |
@@ -152,13 +137,11 @@ jobs:
             --admin_password=integration-password \
             --admin_email=admin@example.com \
             --skip-email
-
       - name: Install and activate plugin
         shell: bash
         run: |
           set -euo pipefail
           cp -R "$GITHUB_WORKSPACE/free-mpro-forms" /tmp/fmpf-wordpress/wp-content/plugins/free-mpro-forms
           wp plugin activate free-mpro-forms --path=/tmp/fmpf-wordpress
-
       - name: Run privacy, retention, and uninstall checks
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/privacy-retention-uninstall.php" --path=/tmp/fmpf-wordpress
