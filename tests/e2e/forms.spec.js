@@ -1,9 +1,27 @@
 const { test, expect } = require('@playwright/test');
+const AxeBuilder = require('@axe-core/playwright').default;
 
 async function makeSubmissionOldEnough(page) {
   await page.locator('input[name="fmpf_started_at"]').evaluate((input) => {
     input.value = String(Math.floor(Date.now() / 1000) - 5);
   });
+}
+
+async function expectNoSeriousAccessibilityViolations(page, includeSelector) {
+  const builder = new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+    .disableRules(['color-contrast']);
+
+  if (includeSelector) {
+    builder.include(includeSelector);
+  }
+
+  const results = await builder.analyze();
+  const blockingViolations = results.violations.filter((violation) =>
+    ['serious', 'critical'].includes(violation.impact)
+  );
+
+  expect(blockingViolations, JSON.stringify(blockingViolations, null, 2)).toEqual([]);
 }
 
 test('English LTR form exposes labels, help, keyboard order, and success state', async ({ page }) => {
@@ -16,6 +34,7 @@ test('English LTR form exposes labels, help, keyboard order, and success state',
   await expect(wrapper).toHaveAttribute('dir', 'ltr');
   await expect(nameInput).toBeVisible();
   await expect(page.getByText('Enter your first and last name.')).toBeVisible();
+  await expectNoSeriousAccessibilityViolations(page, '.fmpf-form-wrap');
 
   await nameInput.focus();
   await page.keyboard.press('Tab');
@@ -31,9 +50,10 @@ test('English LTR form exposes labels, help, keyboard order, and success state',
 
   await expect(page.getByRole('status')).toContainText('Thank you');
   await expect(page).not.toHaveURL(/fmpf_status=/);
+  await expectNoSeriousAccessibilityViolations(page, '.fmpf-form-wrap');
 });
 
-test('Server-side errors are summarized, linked, and focused', async ({ page }) => {
+test('Server-side errors are summarized, linked, focused, and exposed accessibly', async ({ page }) => {
   await page.goto('/english-form/');
 
   await page.locator('form.fmpf-form').evaluate((form) => {
@@ -51,6 +71,7 @@ test('Server-side errors are summarized, linked, and focused', async ({ page }) 
   await expect(nameInput).toHaveAttribute('aria-invalid', 'true');
   await expect(nameInput).toBeFocused();
   await expect(page).not.toHaveURL(/fmpf_state=/);
+  await expectNoSeriousAccessibilityViolations(page, '.fmpf-form-wrap');
 });
 
 test('Persian RTL form keeps logical direction and accessible group semantics', async ({ page }) => {
@@ -70,6 +91,7 @@ test('Persian RTL form keeps logical direction and accessible group semantics', 
 
   const computedDirection = await wrapper.evaluate((element) => getComputedStyle(element).direction);
   expect(computedDirection).toBe('rtl');
+  await expectNoSeriousAccessibilityViolations(page, '.fmpf-form-wrap');
 
   await nameInput.focus();
   await page.keyboard.press('Tab');
