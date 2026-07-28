@@ -20,9 +20,12 @@ The current development version includes:
 * Server-side validation and configured-option verification.
 * Field-specific error messages and value preservation after validation errors.
 * Local submission storage inside WordPress.
+* Privacy-conscious, form-scoped submission rate limiting.
 * WordPress personal-data export and erasure integration.
 * Configurable submission retention.
 * Explicit opt-in data deletion during uninstall.
+
+The rate limiter stores temporary hashed counters rather than raw IP addresses. Default limits can be adjusted or disabled through developer filters.
 
 This plugin is under active development and has not reached its first public stable release.
 
@@ -44,6 +47,10 @@ No. The current version stores submissions locally in the WordPress database.
 
 Yes. The frontend form layout supports both LTR and RTL directions.
 
+= Does it include submission flood protection? =
+
+Yes. Valid submission attempts are protected by short-term and hourly form-scoped limits. Visitor identifiers are hashed with the WordPress salt before temporary counters are stored.
+
 = Does uninstalling delete my forms and submissions? =
 
 Not by default. Data deletion during uninstall must be explicitly enabled in the plugin settings.
@@ -58,7 +65,7 @@ Screenshots will be added before the first public release.
 
 * Initial development foundation.
 * Added form fields and local submission storage.
-* Added validation, accessible error states, privacy tools, retention settings, and automated checks.
+* Added validation, accessible error states, privacy tools, retention settings, rate limiting, and automated checks.
 
 == Upgrade Notice ==
 
