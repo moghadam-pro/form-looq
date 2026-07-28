@@ -1,6 +1,8 @@
 <?php
 /**
  * Free MPRO Forms uninstall cleanup.
+ *
+ * @package FreeMPROForms
  */
 
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
@@ -30,6 +32,7 @@ foreach ( array( 'fmpf_submission', 'fmpf_form' ) as $fmpf_post_type ) {
 
 		$fmpf_ids                = array_map( 'absint', $fmpf_query->posts );
 		$fmpf_deleted_this_batch = 0;
+		$fmpf_batch_size         = count( $fmpf_ids );
 
 		foreach ( $fmpf_ids as $fmpf_post_id ) {
 			if ( wp_delete_post( $fmpf_post_id, true ) ) {
@@ -40,7 +43,7 @@ foreach ( array( 'fmpf_submission', 'fmpf_form' ) as $fmpf_post_type ) {
 		if ( $fmpf_ids && 0 === $fmpf_deleted_this_batch ) {
 			break;
 		}
-	} while ( count( $fmpf_ids ) === 100 );
+	} while ( 100 === $fmpf_batch_size );
 }
 
 delete_option( 'fmpf_retention_days' );
@@ -48,14 +51,24 @@ delete_option( 'fmpf_delete_data_on_uninstall' );
 
 global $wpdb;
 
-$fmpf_transient_pattern = $wpdb->esc_like( '_transient_fmpf_state_' ) . '%';
-$fmpf_timeout_pattern   = $wpdb->esc_like( '_transient_timeout_fmpf_state_' ) . '%';
+$fmpf_value_pattern   = $wpdb->esc_like( '_transient_fmpf_state_' ) . '%';
+$fmpf_timeout_pattern = $wpdb->esc_like( '_transient_timeout_fmpf_state_' ) . '%';
 
-// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Uninstall removes plugin-owned transient rows by prefix.
-$wpdb->query(
+// A wildcard lookup is required because transient tokens are intentionally opaque.
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+$fmpf_option_names = $wpdb->get_col(
 	$wpdb->prepare(
-		"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-		$fmpf_transient_pattern,
+		"SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+		$fmpf_value_pattern,
 		$fmpf_timeout_pattern
 	)
 );
+
+foreach ( $fmpf_option_names as $fmpf_option_name ) {
+	if ( str_starts_with( $fmpf_option_name, '_transient_timeout_' ) ) {
+		continue;
+	}
+
+	$fmpf_transient_name = substr( $fmpf_option_name, strlen( '_transient_' ) );
+	delete_transient( $fmpf_transient_name );
+}
