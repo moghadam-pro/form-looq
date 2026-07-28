@@ -148,3 +148,27 @@ jobs:
           wp plugin activate free-mpro-forms --path=/tmp/fmpf-wordpress
       - name: Run privacy, retention, and uninstall checks
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/privacy-retention-uninstall.php" --path=/tmp/fmpf-wordpress
+      - name: Run rate-limit checks
+        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/rate-limit.php" --path=/tmp/fmpf-wordpress
+
+  package-build:
+    name: Build installable ZIP
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Build plugin package
+        run: bash scripts/build-plugin.sh
+      - name: Verify archive root
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(unzip -Z1 dist/free-mpro-forms.zip | head -n 1)" = 'free-mpro-forms/'
+          unzip -Z1 dist/free-mpro-forms.zip | grep -q '^free-mpro-forms/free-mpro-forms.php$'
+          unzip -Z1 dist/free-mpro-forms.zip | grep -q '^free-mpro-forms/readme.txt$'
+      - name: Upload installable ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: free-mpro-forms-package
+          path: dist/free-mpro-forms.zip
+          if-no-files-found: error
