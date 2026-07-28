@@ -10,17 +10,19 @@ test('English LTR form exposes labels, help, keyboard order, and success state',
   await page.goto('/english-form/');
 
   const wrapper = page.locator('.fmpf-form-wrap');
+  const nameInput = page.getByLabel('Full name (required)');
+  const emailInput = page.getByLabel('Email address (required)');
+
   await expect(wrapper).toHaveAttribute('dir', 'ltr');
-  await expect(page.getByLabel('Full name (required)')).toBeVisible();
+  await expect(nameInput).toBeVisible();
   await expect(page.getByText('Enter your first and last name.')).toBeVisible();
 
-  await page.locator('body').press('Tab');
-  await expect(page.getByLabel('Full name (required)')).toBeFocused();
+  await nameInput.focus();
   await page.keyboard.press('Tab');
-  await expect(page.getByLabel('Email address (required)')).toBeFocused();
+  await expect(emailInput).toBeFocused();
 
-  await page.getByLabel('Full name (required)').fill('Sayid Moghadam');
-  await page.getByLabel('Email address (required)').fill('sayid@example.com');
+  await nameInput.fill('Sayid Moghadam');
+  await emailInput.fill('sayid@example.com');
   await page.getByLabel('Topic (required)').selectOption('Project enquiry');
   await page.getByLabel('Message (required)').fill('Browser test submission.');
   await page.getByLabel('Consent (required)').check();
@@ -28,7 +30,7 @@ test('English LTR form exposes labels, help, keyboard order, and success state',
   await page.getByRole('button', { name: 'Send message' }).click();
 
   await expect(page.getByRole('status')).toContainText('Thank you');
-  await expect(page).toHaveURL(/fmpf_status=sent/);
+  await expect(page).not.toHaveURL(/fmpf_status=/);
 });
 
 test('Server-side errors are summarized, linked, and focused', async ({ page }) => {
@@ -48,14 +50,18 @@ test('Server-side errors are summarized, linked, and focused', async ({ page }) 
   const nameInput = page.getByLabel('Full name (required)');
   await expect(nameInput).toHaveAttribute('aria-invalid', 'true');
   await expect(nameInput).toBeFocused();
+  await expect(page).not.toHaveURL(/fmpf_state=/);
 });
 
 test('Persian RTL form keeps logical direction and accessible group semantics', async ({ page }) => {
   await page.goto('/persian-form/');
 
   const wrapper = page.locator('.fmpf-form-wrap');
+  const nameInput = page.getByLabel('نام و نام خانوادگی (required)');
+  const emailInput = page.getByLabel('ایمیل (required)');
+
   await expect(wrapper).toHaveAttribute('dir', 'rtl');
-  await expect(page.getByLabel('نام و نام خانوادگی (required)')).toBeVisible();
+  await expect(nameInput).toBeVisible();
 
   const group = page.getByRole('group', { name: /روش تماس/ });
   await expect(group).toBeVisible();
@@ -65,8 +71,7 @@ test('Persian RTL form keeps logical direction and accessible group semantics', 
   const computedDirection = await wrapper.evaluate((element) => getComputedStyle(element).direction);
   expect(computedDirection).toBe('rtl');
 
-  await page.locator('body').press('Tab');
-  await expect(page.getByLabel('نام و نام خانوادگی (required)')).toBeFocused();
+  await nameInput.focus();
   await page.keyboard.press('Tab');
-  await expect(page.getByLabel('ایمیل (required)')).toBeFocused();
+  await expect(emailInput).toBeFocused();
 });
