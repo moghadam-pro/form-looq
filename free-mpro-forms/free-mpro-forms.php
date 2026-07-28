@@ -21,6 +21,7 @@ define( 'FREE_MPRO_FORMS_DIR', plugin_dir_path( __FILE__ ) );
 require_once FREE_MPRO_FORMS_DIR . 'includes/class-field-validator.php';
 require_once FREE_MPRO_FORMS_DIR . 'includes/class-submission-validator.php';
 require_once FREE_MPRO_FORMS_DIR . 'includes/class-submission-state.php';
+require_once FREE_MPRO_FORMS_DIR . 'includes/class-rate-limiter.php';
 require_once FREE_MPRO_FORMS_DIR . 'includes/class-form-manager.php';
 require_once FREE_MPRO_FORMS_DIR . 'includes/class-submission-manager.php';
 require_once FREE_MPRO_FORMS_DIR . 'includes/class-frontend-form.php';
@@ -30,6 +31,7 @@ require_once FREE_MPRO_FORMS_DIR . 'includes/class-settings.php';
 
 \FreeMPROForms\Form_Manager::init();
 \FreeMPROForms\Submission_Manager::init();
+\FreeMPROForms\Rate_Limiter::init();
 \FreeMPROForms\Frontend_Form::init();
 \FreeMPROForms\Privacy_Manager::init();
 \FreeMPROForms\Privacy_Policy::init();
