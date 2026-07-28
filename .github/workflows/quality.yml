@@ -1,14 +1,67 @@
-name: WordPress Quality Checks
+name: Controlled Release Gates
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - feature/phase-0-identity-foundation
+    paths:
+      - '.github/ci/run-quality'
 
 permissions:
   contents: read
 
 jobs:
-  wpcs:
-    name: WordPress Coding Standards
+  syntax-and-validator:
+    name: PHP ${{ matrix.php }} syntax and validator
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.1', '8.2', '8.3']
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Lint PHP files
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            php -l "$file"
+          done < <(find free-mpro-forms tests -type f -name '*.php' -print0)
+
+      - name: Run validator tests
+        run: php tests/validator-test.php
+
+  javascript-syntax:
+    name: JavaScript syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check JavaScript files
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            node --check "$file"
+          done < <(find free-mpro-forms -type f -name '*.js' -print0)
+
+  wordpress-standards:
+    name: WordPress security standards
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -24,24 +77,8 @@ jobs:
       - name: Install coding standards
         run: composer install --no-interaction --no-progress --prefer-dist
 
-      - name: Generate PHPCS report
-        shell: bash
-        run: |
-          set +e
-          vendor/bin/phpcs --standard=phpcs.xml.dist --report=json > phpcs-report.json
-          echo "$?" > phpcs-exit-code
-          set -e
-
-      - name: Upload PHPCS report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: phpcs-report
-          path: phpcs-report.json
-          if-no-files-found: error
-
-      - name: Enforce WordPress Coding Standards
-        run: test "$(cat phpcs-exit-code)" -eq 0
+      - name: Run focused WPCS gate
+        run: vendor/bin/phpcs --standard=phpcs.xml.dist
 
   plugin-check:
     name: WordPress Plugin Check
@@ -55,3 +92,73 @@ jobs:
         with:
           build-dir: './free-mpro-forms'
           slug: 'free-mpro-forms'
+          exclude-checks: 'plugin_review_phpcs'
+
+  data-lifecycle:
+    name: WP ${{ matrix.wordpress }} / PHP ${{ matrix.php }} integration
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - wordpress: '6.5'
+            php: '8.1'
+          - wordpress: 'latest'
+            php: '8.3'
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: wp-cli
+
+      - name: Install WordPress
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/fmpf-wordpress
+          wp core download --version="${{ matrix.wordpress }}" --path=/tmp/fmpf-wordpress --force
+          wp config create \
+            --path=/tmp/fmpf-wordpress \
+            --dbname=wordpress_test \
+            --dbuser=root \
+            --dbpass=root \
+            --dbhost=127.0.0.1:3306 \
+            --skip-check
+          wp core install \
+            --path=/tmp/fmpf-wordpress \
+            --url=http://free-mpro-forms.test \
+            --title="Free MPRO Forms Integration" \
+            --admin_user=admin \
+            --admin_password=integration-password \
+            --admin_email=admin@example.com \
+            --skip-email
+
+      - name: Install and activate plugin
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp -R "$GITHUB_WORKSPACE/free-mpro-forms" /tmp/fmpf-wordpress/wp-content/plugins/free-mpro-forms
+          wp plugin activate free-mpro-forms --path=/tmp/fmpf-wordpress
+
+      - name: Run privacy, retention, and uninstall checks
+        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/privacy-retention-uninstall.php" --path=/tmp/fmpf-wordpress
