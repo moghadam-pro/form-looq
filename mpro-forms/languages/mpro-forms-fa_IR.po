@@ -1258,3 +1258,5 @@ msgstr "فرم‌های وردپرس با اولویت حریم خصوصی: ذخ
 msgid "Sayid Moghadam"
 msgstr "سعید مقدم"
 
+msgid "Top forms by entries"
+msgstr "برترین فرم‌ها بر اساس ورودی"

@@ -8,6 +8,22 @@ All notable changes to this project are documented here. The format follows
 
 Nothing yet.
 
+## [0.3.2] — 2026-08-31
+
+### Fixed
+
+- **The dashboard widget rendered with no styling at all.** `Admin::enqueue()`
+  only loads the plugin stylesheet on the plugin's own admin screens, and the
+  widget lives on `index.php` (the WordPress Dashboard), which was never in
+  that list — so every list, table, and heading fell back to bare browser
+  defaults. `Dashboard_Widget` now enqueues the stylesheet itself, scoped to
+  `index.php`.
+- Redesigned the widget while fixing it: the four stats are now bordered cards
+  rather than a plain list, with the unread count picked out in the brand
+  color as the one number that calls for action; the recent-forms table has a
+  proper heading, tabular-number alignment, and a small inline bar next to
+  each conversion rate instead of a bare percentage.
+
 ## [0.3.1] — 2026-08-31
 
 ### Changed
@@ -171,7 +187,8 @@ Initial development foundation, never publicly released.
 - Opt-in data deletion during uninstall.
 - Shortcode embedding, responsive layouts, and automatic LTR/RTL direction.
 
-[Unreleased]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases/tag/v0.3.2
 [0.3.1]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases/tag/v0.3.1
 [0.3.0]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases/tag/v0.3.0
 [0.2.0]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases/tag/v0.2.0

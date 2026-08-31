@@ -4,7 +4,7 @@ Tags: forms, contact form, form builder, rtl, submissions
 Requires at least: 6.5
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 0.3.1
+Stable tag: 0.3.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -105,6 +105,10 @@ Not in this release. Export is complete; import is deliberately held back until 
 5. The system status report.
 
 == Changelog ==
+
+= 0.3.2 =
+
+* Fixed: the dashboard widget rendered with no styling because its stylesheet was never loaded on the WordPress Dashboard screen. Redesigned it at the same time: bordered stat cards, the unread count in the brand color, and an inline bar next to each conversion rate.
 
 = 0.3.1 =
 
