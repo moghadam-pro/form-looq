@@ -1,128 +1,258 @@
 # Free MPRO Forms
 
-> An open-source, privacy-first WordPress form plugin with responsive layouts and first-class RTL/LTR support.
+> A free, privacy-first WordPress form plugin with a drag-and-drop builder, local
+> entry storage, and first-class RTL/LTR support.
 
-**Project status:** Pre-release / Phase 0–1 development
+[![Version](https://img.shields.io/badge/version-0.2.0-2271b1)](https://github.com/moghadam-pro/free-forms-wp-plugin/releases)
+[![WordPress](https://img.shields.io/badge/wordpress-6.5%2B-21759b)](https://wordpress.org)
+[![PHP](https://img.shields.io/badge/php-8.1%2B-777bb4)](https://www.php.net)
+[![License](https://img.shields.io/badge/license-GPLv2%2B-green)](LICENSE)
 
-Free MPRO Forms is being built for people who need practical WordPress forms without a license key, external account, or mandatory cloud service. The first public release will focus on a small, dependable core: form creation, local submission storage, responsive rendering, multilingual content, and clear extension points.
+Free MPRO Forms is for people who need practical WordPress forms without a
+license key, an external account, or a mandatory cloud service. Every entry stays
+in your own database, the whole plugin ships without a build step, and nothing is
+gated behind a paywall.
 
-The project is independent and is not affiliated with Gravity Forms, Rocketgenius, or any other commercial form product. It does not currently claim feature parity with mature form builders.
+**Project status:** pre-release. 0.2.0 is feature-complete for its scope and
+under active testing ahead of the first public stable release.
 
-## Why this project exists
+The project is independent and is not affiliated with Gravity Forms,
+Rocketgenius, or any other commercial form product.
 
-- **Free by default** — no paid license is required for the core plugin.
-- **Local by default** — submissions remain inside the site’s WordPress database unless the site owner explicitly adds an integration.
-- **Bilingual by design** — LTR and RTL layouts are treated as core product requirements.
-- **Open product development** — roadmap, release notes, testing status, security guidance, and verified technical documentation are public.
+---
 
-## Current audited prototype
+## Why this exists
 
-The uploaded `Native Forms 1.0.0` prototype currently includes:
+- **Free by default** — no paid license for the core plugin, on any number of sites.
+- **Local by default** — entries live in your database and are never transmitted.
+- **Bilingual by design** — LTR and RTL are both first-class, not an afterthought.
+- **Light by design** — no framework, no bundler, and assets load only on pages
+  that actually render a form.
+- **Open** — roadmap, decisions, testing status, and security guidance are public.
 
-- Form and submission management screens in WordPress Admin.
-- Text, email, telephone, number, textarea, select, radio, scale, checkbox, and section fields.
-- Shortcode embedding for the block editor, Elementor, and other shortcode-compatible builders.
-- Local submission storage without mandatory external services.
-- Unicode content support for Persian, Arabic, and other languages.
-- Responsive two-column and single-column layouts.
-- Automatic LTR/RTL frontend direction.
-- Nonce checks, basic honeypot protection, sanitization, and escaped output.
-- A developer action fired after a submission is stored.
+---
 
-The prototype is **not yet the public Free MPRO Forms package**. It must first be renamed, hardened, tested, documented, and rebuilt under the final plugin slug.
+## Features
 
-## Planned Phase 1 — Free Core
+### Building forms
 
-- Final `free-mpro-forms` package, namespace, prefixes, and text domain.
-- Dependable form and submission management.
-- Strict server-side validation for every supported field type.
-- Responsive, accessible frontend markup.
-- First-class LTR and RTL layouts using CSS logical properties.
-- English interface and Persian translation foundation.
-- Local submission storage with privacy documentation.
-- Submission retention, export, erasure, and deletion foundations.
-- Verified GitHub Release packages.
-- WordPress.org submission readiness and release workflow.
-- Public documentation, changelog, security policy, and release checksums.
+- Drag-and-drop builder with ten field types: single-line text, paragraph text,
+  email, phone, number, dropdown, radio buttons, checkbox, rating scale, and
+  section breaks.
+- Four starter templates plus a blank form: simple contact, complete contact,
+  product order, and event registration.
+- Per field: label, machine name, placeholder, help text, required flag, and half
+  or full width.
+- Per form: status, layout, submit label, success message, redirect URL,
+  honeypot, and whether to store a hashed visitor IP.
+- Embed code always one click away as a shortcode, a block, or PHP.
 
-## Planned Phase 2 — Visual Builder & Workflows
+### Collecting entries
 
-- Visual field builder with drag, reorder, and live preview.
-- Multi-step forms.
-- Conditional field visibility.
-- Email notifications and confirmations.
-- Import/export tools and reusable templates.
-- Stronger anti-spam controls and optional integrations.
-- CSV export and improved submission workflows.
-- Developer API, filters, actions, and webhook foundations.
+- An inbox with a form selector, search, status filter, and the first three form
+  fields as columns.
+- Read/unread status, single and bulk selection, bulk delete and bulk status changes.
+- A single-entry view with every answer plus submission time, hashed IP, referer,
+  and user agent.
+- A private admin note on every entry.
 
-The roadmap is directional. Features are only considered released after they are implemented, tested, and documented.
+### Managing the plugin
 
-## Product websites and demos
+- A forms list showing status, ID, entry count, views, and conversion rate.
+- Complete CSV and XML export of any form's entries.
+- A system status report, with a plain-text version for support requests.
+- A dashboard widget with form and entry totals.
+- An Elementor widget with a form selector.
+- A bundled Persian (fa_IR) translation.
 
-| Language | Landing page | Demo |
-|---|---|---|
-| English | https://moghadam.pro/free-mpro-forms | https://moghadam.pro/free-mpro-forms/demo |
-| Persian | https://sayid.ir/free-mpro-forms | https://sayid.ir/free-mpro-forms/demo |
+### Privacy and safety
 
-The English and Persian websites are maintained separately and link to each other.
+- Strict server-side validation for every field type, including verification
+  against configured options.
+- Field-specific error messages, with values preserved after a validation error.
+- Form-scoped rate limiting using hashed counters, never raw IP addresses.
+- WordPress personal-data export and erasure integration.
+- Configurable entry retention with a daily cleanup job.
+
+---
 
 ## Installation
 
-There is no stable public package yet. When the first verified release is available:
+### From a release
 
-1. Download the verified plugin ZIP from GitHub Releases or install it from WordPress.org when the directory listing becomes available.
-2. Verify the published SHA-256 checksum for GitHub packages.
-3. Upload and activate **Free MPRO Forms**.
-4. Create a form, publish it, and embed its shortcode on a page.
+1. Download `free-mpro-forms.zip` from the
+   [releases page](https://github.com/moghadam-pro/free-forms-wp-plugin/releases).
+2. Upload it through **Plugins → Add New → Upload Plugin**.
+3. Activate it.
+4. Open **Forms** — it sits directly below Media in the admin menu.
 
-Do not use GitHub’s automatically generated source archive as the installable plugin unless the release notes explicitly say it is supported.
+### From source
 
-## Distribution model
+```bash
+git clone https://github.com/moghadam-pro/free-forms-wp-plugin.git
+cp -r free-forms-wp-plugin/free-mpro-forms /path/to/wp-content/plugins/
+```
 
-GitHub remains the source of truth for development, code review, issues, and tagged source releases.
+**Requirements:** WordPress 6.5+, PHP 8.1+.
 
-The WordPress.org Plugin Directory is planned as an additional official distribution channel. If accepted, WordPress.org SVN will be used only for approved release packages, plugin assets, and stable tags. Development will not move to SVN.
+---
 
-See [WordPress.org publishing](docs/WORDPRESS-ORG.md) for prerequisites, review rules, costs, and the planned release flow.
+## Usage
+
+Create a form, then copy its shortcode from the **Embed** tab:
+
+```
+[free_mpro_form id="12"]
+```
+
+In a theme template:
+
+```php
+<?php echo do_shortcode( '[free_mpro_form id="12"]' ); ?>
+```
+
+The shortcode accepts a few optional attributes:
+
+| Attribute | Default | Purpose |
+| --- | --- | --- |
+| `id` | — | Form ID. Required. |
+| `dir` | `auto` | `rtl`, `ltr`, or `auto` to follow the site. |
+| `button` | Form setting | Override the submit button label. |
+| `sent` | Form setting | Override the success message. |
+| `error` | Built-in | Override the validation summary heading. |
+
+---
+
+## Where your data lives
+
+Forms and entries are stored in two tables the plugin owns:
+
+| Table | Contents |
+| --- | --- |
+| `{prefix}fmpf_forms` | Form definitions, settings, view and entry counts |
+| `{prefix}fmpf_entries` | Submitted values, status, admin note, and metadata |
+
+Because the plugin owns these tables and never drops them on its own, **deleting
+and reinstalling the plugin — or replacing the folder during an update — leaves
+your forms and entries intact.** Data is removed only if you tick *Delete all
+forms, entries, and plugin tables* under **Settings → General** before removing
+the plugin.
+
+---
 
 ## Privacy
 
-The current development version keeps submissions inside the site’s WordPress database and does not require an external account. It includes temporary error-state controls, WordPress personal-data export and erasure integration, configurable retention, explicit uninstall behavior, and suggested privacy-policy content.
+- Entries never leave your site. There is no telemetry and no submission relay.
+- IP addresses are stored only as a salted HMAC-SHA256 digest, and only when the
+  form enables it. The digest is not reversible.
+- The rate limiter stores hashed counters in transients, never raw addresses.
+- WordPress export and erasure requests are both handled.
 
-No telemetry, tracking, remote assets, or external submission processing will be introduced silently.
+### External requests
 
-## Security and quality
+The **Add-ons** and **Help** screens can load their content from
+`https://sayid.ir/free-forms-plugin`. These requests send only standard HTTP
+headers plus a user agent identifying the plugin version and site URL — no form
+content, entry data, or personal data. Responses are cached, a bundled fallback
+is used when the site is unreachable, and the whole mechanism can be switched off
+under **Settings → Add-ons**, after which the plugin makes no external requests
+at all.
 
-Please do not report vulnerabilities in public issues. Follow [SECURITY.md](SECURITY.md) for responsible disclosure.
+---
 
-GitHub Actions currently checks every plugin PHP file on PHP 8.1, 8.2, and 8.3 and validates the JavaScript syntax. WordPress Coding Standards, Plugin Check, automated WordPress tests, accessibility testing, and clean-install testing remain release gates.
+## For developers
 
-## Requirements
+### Actions
 
-The development package currently declares:
+| Hook | Arguments |
+| --- | --- |
+| `free_mpro_forms_form_created` | `int $form_id` |
+| `free_mpro_forms_form_updated` | `int $form_id` |
+| `free_mpro_forms_form_deleted` | `int $form_id` |
+| `free_mpro_forms_entry_created` | `int $entry_id, int $form_id` |
+| `free_mpro_forms_entry_deleted` | `int $entry_id` |
 
-- WordPress 6.5 or newer.
-- PHP 8.1 or newer.
+```php
+add_action(
+	'free_mpro_forms_entry_created',
+	function ( $entry_id, $form_id ) {
+		$entry = \FreeMPROForms\Entry_Repository::get( $entry_id );
+		// your logic here
+	},
+	10,
+	2
+);
+```
 
-The final compatibility range will be confirmed before the first stable release.
+### Filters
 
-## Documentation
+| Hook | Filters |
+| --- | --- |
+| `free_mpro_forms_capability` | The capability gating every plugin screen |
+| `free_mpro_forms_templates` | Starter template definitions |
+| `free_mpro_forms_track_views` | Whether a form view is counted |
+| `free_mpro_forms_sms_providers` | Selectable SMS gateways |
+| `free_mpro_forms_rate_limit_enabled` | Whether rate limiting applies to a form |
+| `free_mpro_forms_rate_limit_windows` | Limit and window sizes |
+| `free_mpro_forms_rate_limit_identity` | The visitor identity used for limiting |
 
-- [Roadmap](docs/ROADMAP.md)
-- [WordPress.org publishing](docs/WORDPRESS-ORG.md)
-- [Migration strategy](docs/MIGRATION-STRATEGY.md)
-- [Validation and accessibility](docs/VALIDATION-AND-ACCESSIBILITY.md)
-- [Error-state QA](docs/ERROR-STATE-QA.md)
-- [Data lifecycle](docs/DATA-LIFECYCLE.md)
-- [Privacy and retention QA](docs/PRIVACY-QA.md)
-- [Contributing](CONTRIBUTING.md)
-- [Changelog](CHANGELOG.md)
+### Storing an entry programmatically
+
+```php
+free_mpro_forms_store_submission(
+	12,
+	array(
+		'full_name'     => 'Sayid',
+		'email_address' => 'sayid@example.com',
+		'message'       => 'Hello.',
+	)
+);
+```
+
+---
+
+## Roadmap
+
+Directional, not a commitment. A feature is released only once it is implemented,
+tested, and documented.
+
+**Next**
+
+- Entry import, once the export format has been validated against real sites.
+- Email notifications and confirmations.
+- Conditional field visibility and multi-step forms.
+- Working add-on activation.
+
+**Later**
+
+- File upload fields.
+- REST API routes on the reserved namespace.
+- SMS delivery and phone verification through the configured gateway.
+- Per-role capabilities.
+
+---
+
+## Contributing
+
+Issues and pull requests are welcome. Before opening a PR:
+
+```bash
+php tests/validator-test.php
+composer install && vendor/bin/phpcs
+```
+
+Development documentation, the architecture reference, and the decision log live
+on the [`docs` branch](https://github.com/moghadam-pro/free-forms-wp-plugin/tree/docs).
+
+---
+
+## Security
+
+Report vulnerabilities privately rather than in a public issue. See
+[SECURITY.md](SECURITY.md).
+
+---
 
 ## License
 
-Free MPRO Forms is licensed under the GNU General Public License v2.0 or later. See [LICENSE](LICENSE).
-
-## Author
-
-Created and maintained by [Sayid Moghadam](https://moghadam.pro/).
+GPLv2 or later. See [LICENSE](LICENSE).
