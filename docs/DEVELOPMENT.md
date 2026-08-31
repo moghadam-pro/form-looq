@@ -14,8 +14,8 @@ runs.
 ## Getting a working copy
 
 ```bash
-git clone https://github.com/moghadam-pro/free-forms-wp-plugin.git
-cd free-forms-wp-plugin
+git clone https://github.com/moghadam-pro/mpro-forms-wp-plugin.git
+cd mpro-forms-wp-plugin
 ```
 
 Symlink or copy `mpro-forms/` into a WordPress install:

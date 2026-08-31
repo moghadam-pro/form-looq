@@ -1,10 +1,10 @@
 # MPRO Forms — documentation
 
 Development documentation for
-[MPRO Forms](https://github.com/moghadam-pro/free-forms-wp-plugin), a free,
+[MPRO Forms](https://github.com/moghadam-pro/mpro-forms-wp-plugin), a free,
 privacy-first WordPress form plugin.
 
-**The plugin itself lives on [`main`](https://github.com/moghadam-pro/free-forms-wp-plugin/tree/main).**
+**The plugin itself lives on [`main`](https://github.com/moghadam-pro/mpro-forms-wp-plugin/tree/main).**
 This branch carries everything about *building* it.
 
 ## Contents
