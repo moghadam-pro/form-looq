@@ -7,12 +7,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 1 );
 }
 
-use FreeMPROForms\Form_Repository;
+use MPROForms\Form_Repository;
 
 /**
  * @param array<int, array<string, mixed>> $fields Field definitions.
  */
-function fmpf_e2e_create_form( string $title, array $fields ): int {
+function mpro_e2e_create_form( string $title, array $fields ): int {
 	$form_id = Form_Repository::create(
 		array(
 			'title'  => $title,
@@ -28,7 +28,7 @@ function fmpf_e2e_create_form( string $title, array $fields ): int {
 	return $form_id;
 }
 
-function fmpf_e2e_create_page( string $title, string $slug, string $content ): int {
+function mpro_e2e_create_page( string $title, string $slug, string $content ): int {
 	$page_id = wp_insert_post(
 		array(
 			'post_type'    => 'page',
@@ -51,7 +51,7 @@ function fmpf_e2e_create_page( string $title, string $slug, string $content ): i
  * @param array<int, string> $options Choice list.
  * @return array<string, mixed>
  */
-function fmpf_e2e_field( string $type, string $name, string $label, bool $required = false, array $options = array(), string $help = '' ): array {
+function mpro_e2e_field( string $type, string $name, string $label, bool $required = false, array $options = array(), string $help = '' ): array {
 	return array(
 		'type'        => $type,
 		'name'        => $name,
@@ -65,36 +65,36 @@ function fmpf_e2e_field( string $type, string $name, string $label, bool $requir
 }
 
 $english_fields = array(
-	fmpf_e2e_field( 'section', '', 'Contact details', false, array(), 'Complete the form below.' ),
-	fmpf_e2e_field( 'text', 'full_name', 'Full name', true, array(), 'Enter your first and last name.' ),
-	fmpf_e2e_field( 'email', 'email', 'Email address', true, array(), 'We will only use this to reply.' ),
-	fmpf_e2e_field( 'select', 'topic', 'Topic', true, array( 'Project enquiry', 'Support', 'Other' ), 'Choose one option.' ),
-	fmpf_e2e_field( 'textarea', 'message', 'Message', true, array(), 'Tell us how we can help.' ),
-	fmpf_e2e_field( 'checkbox', 'consent', 'Consent', true, array(), 'I agree to submit this information.' ),
+	mpro_e2e_field( 'section', '', 'Contact details', false, array(), 'Complete the form below.' ),
+	mpro_e2e_field( 'text', 'full_name', 'Full name', true, array(), 'Enter your first and last name.' ),
+	mpro_e2e_field( 'email', 'email', 'Email address', true, array(), 'We will only use this to reply.' ),
+	mpro_e2e_field( 'select', 'topic', 'Topic', true, array( 'Project enquiry', 'Support', 'Other' ), 'Choose one option.' ),
+	mpro_e2e_field( 'textarea', 'message', 'Message', true, array(), 'Tell us how we can help.' ),
+	mpro_e2e_field( 'checkbox', 'consent', 'Consent', true, array(), 'I agree to submit this information.' ),
 );
 
 $persian_fields = array(
-	fmpf_e2e_field( 'section', '', 'اطلاعات تماس', false, array(), 'فرم زیر را تکمیل کنید.' ),
-	fmpf_e2e_field( 'text', 'full_name', 'نام و نام خانوادگی', true, array(), 'نام کامل خود را وارد کنید.' ),
-	fmpf_e2e_field( 'email', 'email', 'ایمیل', true, array(), 'برای پاسخ‌گویی استفاده می‌شود.' ),
-	fmpf_e2e_field( 'radio', 'contact_method', 'روش تماس', true, array( 'ایمیل', 'تلفن' ), 'یک گزینه را انتخاب کنید.' ),
-	fmpf_e2e_field( 'textarea', 'message', 'پیام', true, array(), 'توضیحات خود را بنویسید.' ),
-	fmpf_e2e_field( 'checkbox', 'consent', 'تأیید', true, array(), 'با ارسال اطلاعات موافقم.' ),
+	mpro_e2e_field( 'section', '', 'اطلاعات تماس', false, array(), 'فرم زیر را تکمیل کنید.' ),
+	mpro_e2e_field( 'text', 'full_name', 'نام و نام خانوادگی', true, array(), 'نام کامل خود را وارد کنید.' ),
+	mpro_e2e_field( 'email', 'email', 'ایمیل', true, array(), 'برای پاسخ‌گویی استفاده می‌شود.' ),
+	mpro_e2e_field( 'radio', 'contact_method', 'روش تماس', true, array( 'ایمیل', 'تلفن' ), 'یک گزینه را انتخاب کنید.' ),
+	mpro_e2e_field( 'textarea', 'message', 'پیام', true, array(), 'توضیحات خود را بنویسید.' ),
+	mpro_e2e_field( 'checkbox', 'consent', 'تأیید', true, array(), 'با ارسال اطلاعات موافقم.' ),
 );
 
-$english_form = fmpf_e2e_create_form( 'English browser form', $english_fields );
-$persian_form = fmpf_e2e_create_form( 'Persian browser form', $persian_fields );
+$english_form = mpro_e2e_create_form( 'English browser form', $english_fields );
+$persian_form = mpro_e2e_create_form( 'Persian browser form', $persian_fields );
 
-fmpf_e2e_create_page(
+mpro_e2e_create_page(
 	'English Form',
 	'english-form',
-	sprintf( '[free_mpro_form id="%d" dir="ltr" button="Send message"]', $english_form )
+	sprintf( '[mpro_form id="%d" dir="ltr" button="Send message"]', $english_form )
 );
 
-fmpf_e2e_create_page(
+mpro_e2e_create_page(
 	'فرم فارسی',
 	'persian-form',
-	sprintf( '[free_mpro_form id="%d" dir="rtl" button="ارسال پیام" yes="موافقم"]', $persian_form )
+	sprintf( '[mpro_form id="%d" dir="rtl" button="ارسال پیام" yes="موافقم"]', $persian_form )
 );
 
 update_option( 'permalink_structure', '/%postname%/' );

@@ -8,7 +8,7 @@ module.exports = defineConfig({
   workers: 1,
   reporter: [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]],
   use: {
-    baseURL: process.env.FMPF_BASE_URL || 'http://127.0.0.1:8080',
+    baseURL: process.env.MPRO_BASE_URL || 'http://127.0.0.1:8080',
     browserName: 'chromium',
     headless: true,
     trace: 'retain-on-failure',

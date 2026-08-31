@@ -31,7 +31,7 @@ jobs:
           set -euo pipefail
           while IFS= read -r -d '' file; do
             php -l "$file"
-          done < <(find free-mpro-forms tests -type f -name '*.php' -print0)
+          done < <(find mpro-forms tests -type f -name '*.php' -print0)
       - name: Run validator tests
         run: php tests/validator-test.php
 
@@ -51,7 +51,7 @@ jobs:
           set -euo pipefail
           while IFS= read -r -d '' file; do
             node --check "$file"
-          done < <(find free-mpro-forms tests/e2e -type f -name '*.js' -print0)
+          done < <(find mpro-forms tests/e2e -type f -name '*.js' -print0)
 
   wordpress-standards:
     name: WordPress security standards
@@ -79,8 +79,8 @@ jobs:
       - name: Run Plugin Check
         uses: wordpress/plugin-check-action@v1
         with:
-          build-dir: './free-mpro-forms'
-          slug: 'free-mpro-forms'
+          build-dir: './mpro-forms'
+          slug: 'mpro-forms'
           exclude-checks: 'plugin_review_phpcs'
           ignore-codes: |
             WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -123,19 +123,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf /tmp/fmpf-wordpress
-          wp core download --version="${{ matrix.wordpress }}" --path=/tmp/fmpf-wordpress --force
+          rm -rf /tmp/mpro-wordpress
+          wp core download --version="${{ matrix.wordpress }}" --path=/tmp/mpro-wordpress --force
           wp config create \
-            --path=/tmp/fmpf-wordpress \
+            --path=/tmp/mpro-wordpress \
             --dbname=wordpress_test \
             --dbuser=root \
             --dbpass=root \
             --dbhost=127.0.0.1:3306 \
             --skip-check
           wp core install \
-            --path=/tmp/fmpf-wordpress \
-            --url=http://free-mpro-forms.test \
-            --title="Free MPRO Forms Integration" \
+            --path=/tmp/mpro-wordpress \
+            --url=http://mpro-forms.test \
+            --title="MPRO Forms Integration" \
             --admin_user=admin \
             --admin_password=integration-password \
             --admin_email=admin@example.com \
@@ -144,12 +144,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cp -R "$GITHUB_WORKSPACE/free-mpro-forms" /tmp/fmpf-wordpress/wp-content/plugins/free-mpro-forms
-          wp plugin activate free-mpro-forms --path=/tmp/fmpf-wordpress
+          cp -R "$GITHUB_WORKSPACE/mpro-forms" /tmp/mpro-wordpress/wp-content/plugins/mpro-forms
+          wp plugin activate mpro-forms --path=/tmp/mpro-wordpress
       - name: Run privacy, retention, and uninstall checks
-        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/privacy-retention-uninstall.php" --path=/tmp/fmpf-wordpress
+        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/privacy-retention-uninstall.php" --path=/tmp/mpro-wordpress
       - name: Run rate-limit checks
-        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/rate-limit.php" --path=/tmp/fmpf-wordpress
+        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/rate-limit.php" --path=/tmp/mpro-wordpress
 
   browser-e2e:
     name: Chromium LTR RTL and keyboard validation
@@ -188,38 +188,38 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf /tmp/fmpf-browser-wordpress
-          wp core download --version=latest --path=/tmp/fmpf-browser-wordpress --force
+          rm -rf /tmp/mpro-browser-wordpress
+          wp core download --version=latest --path=/tmp/mpro-browser-wordpress --force
           wp config create \
-            --path=/tmp/fmpf-browser-wordpress \
+            --path=/tmp/mpro-browser-wordpress \
             --dbname=wordpress_browser \
             --dbuser=root \
             --dbpass=root \
             --dbhost=127.0.0.1:3306 \
             --skip-check
           wp core install \
-            --path=/tmp/fmpf-browser-wordpress \
+            --path=/tmp/mpro-browser-wordpress \
             --url=http://127.0.0.1:8080 \
-            --title="Free MPRO Forms Browser Tests" \
+            --title="MPRO Forms Browser Tests" \
             --admin_user=admin \
             --admin_password=browser-password \
             --admin_email=admin@example.com \
             --skip-email
-          cp -R "$GITHUB_WORKSPACE/free-mpro-forms" /tmp/fmpf-browser-wordpress/wp-content/plugins/free-mpro-forms
-          wp plugin activate free-mpro-forms --path=/tmp/fmpf-browser-wordpress
-          wp eval-file "$GITHUB_WORKSPACE/tests/e2e/seed-wordpress.php" --path=/tmp/fmpf-browser-wordpress
+          cp -R "$GITHUB_WORKSPACE/mpro-forms" /tmp/mpro-browser-wordpress/wp-content/plugins/mpro-forms
+          wp plugin activate mpro-forms --path=/tmp/mpro-browser-wordpress
+          wp eval-file "$GITHUB_WORKSPACE/tests/e2e/seed-wordpress.php" --path=/tmp/mpro-browser-wordpress
       - name: Start WordPress server
         shell: bash
         run: |
           set -euo pipefail
-          nohup wp server --host=127.0.0.1 --port=8080 --path=/tmp/fmpf-browser-wordpress > /tmp/fmpf-wp-server.log 2>&1 &
+          nohup wp server --host=127.0.0.1 --port=8080 --path=/tmp/mpro-browser-wordpress > /tmp/mpro-wp-server.log 2>&1 &
           for attempt in {1..30}; do
             if curl --fail --silent http://127.0.0.1:8080/english-form/ > /dev/null; then
               exit 0
             fi
             sleep 1
           done
-          cat /tmp/fmpf-wp-server.log
+          cat /tmp/mpro-wp-server.log
           exit 1
       - name: Run Chromium browser tests
         run: npm run test:e2e
@@ -231,7 +231,7 @@ jobs:
           path: |
             playwright-report
             test-results
-            /tmp/fmpf-wp-server.log
+            /tmp/mpro-wp-server.log
           if-no-files-found: ignore
 
   package-build:
@@ -246,14 +246,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(unzip -Z1 dist/free-mpro-forms.zip | head -n 1)" = 'free-mpro-forms/'
-          unzip -Z1 dist/free-mpro-forms.zip | grep -q '^free-mpro-forms/free-mpro-forms.php$'
-          unzip -Z1 dist/free-mpro-forms.zip | grep -q '^free-mpro-forms/readme.txt$'
+          test "$(unzip -Z1 dist/mpro-forms.zip | head -n 1)" = 'mpro-forms/'
+          unzip -Z1 dist/mpro-forms.zip | grep -q '^mpro-forms/mpro-forms.php$'
+          unzip -Z1 dist/mpro-forms.zip | grep -q '^mpro-forms/readme.txt$'
       - name: Upload installable ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: free-mpro-forms-package
-          path: dist/free-mpro-forms.zip
+          name: mpro-forms-package
+          path: dist/mpro-forms.zip
           if-no-files-found: error
 
   release-candidate:
@@ -287,64 +287,64 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf /tmp/fmpf-rc-wordpress
-          wp core download --version=latest --path=/tmp/fmpf-rc-wordpress --force
+          rm -rf /tmp/mpro-rc-wordpress
+          wp core download --version=latest --path=/tmp/mpro-rc-wordpress --force
           wp config create \
-            --path=/tmp/fmpf-rc-wordpress \
+            --path=/tmp/mpro-rc-wordpress \
             --dbname=wordpress_rc \
             --dbuser=root \
             --dbpass=root \
             --dbhost=127.0.0.1:3306 \
             --skip-check
           wp core install \
-            --path=/tmp/fmpf-rc-wordpress \
-            --url=http://free-mpro-forms-rc.test \
-            --title="Free MPRO Forms Release Candidate" \
+            --path=/tmp/mpro-rc-wordpress \
+            --url=http://mpro-forms-rc.test \
+            --title="MPRO Forms Release Candidate" \
             --admin_user=admin \
             --admin_password=rc-password \
             --admin_email=admin@example.com \
             --skip-email
       - name: Install the packaged ZIP
-        run: wp plugin install "$GITHUB_WORKSPACE/dist/free-mpro-forms.zip" --activate --path=/tmp/fmpf-rc-wordpress
+        run: wp plugin install "$GITHUB_WORKSPACE/dist/mpro-forms.zip" --activate --path=/tmp/mpro-rc-wordpress
       - name: Create and verify packaged data
         shell: bash
         run: |
           set -euo pipefail
-          RESULT="$(wp eval-file "$GITHUB_WORKSPACE/tests/integration/release-candidate.php" --path=/tmp/fmpf-rc-wordpress)"
+          RESULT="$(wp eval-file "$GITHUB_WORKSPACE/tests/integration/release-candidate.php" --path=/tmp/mpro-rc-wordpress)"
           echo "$RESULT" | jq -e '.version == "0.2.0" and .form_id > 0 and .entry_id > 0' >/dev/null
-          echo "FMPF_RC_FORM_ID=$(echo "$RESULT" | jq -r '.form_id')" >> "$GITHUB_ENV"
-          echo "FMPF_RC_ENTRY_ID=$(echo "$RESULT" | jq -r '.entry_id')" >> "$GITHUB_ENV"
+          echo "MPRO_RC_FORM_ID=$(echo "$RESULT" | jq -r '.form_id')" >> "$GITHUB_ENV"
+          echo "MPRO_RC_ENTRY_ID=$(echo "$RESULT" | jq -r '.entry_id')" >> "$GITHUB_ENV"
       - name: Verify deactivate and reactivate cycle
         shell: bash
         run: |
           set -euo pipefail
-          wp plugin deactivate free-mpro-forms --path=/tmp/fmpf-rc-wordpress
-          wp plugin activate free-mpro-forms --path=/tmp/fmpf-rc-wordpress
-          test "$(wp db query "SELECT COUNT(*) FROM wp_fmpf_entries WHERE id = $FMPF_RC_ENTRY_ID" --skip-column-names --path=/tmp/fmpf-rc-wordpress)" = '1'
+          wp plugin deactivate mpro-forms --path=/tmp/mpro-rc-wordpress
+          wp plugin activate mpro-forms --path=/tmp/mpro-rc-wordpress
+          test "$(wp db query "SELECT COUNT(*) FROM wp_mpro_entries WHERE id = $MPRO_RC_ENTRY_ID" --skip-column-names --path=/tmp/mpro-rc-wordpress)" = '1'
       # The core promise of the 0.2.0 storage model: deleting the plugin and
       # reinstalling it must leave forms and entries untouched.
       - name: Verify default uninstall preserves data
         shell: bash
         run: |
           set -euo pipefail
-          wp plugin deactivate free-mpro-forms --path=/tmp/fmpf-rc-wordpress
-          wp plugin uninstall free-mpro-forms --path=/tmp/fmpf-rc-wordpress
-          test "$(wp db query "SELECT COUNT(*) FROM wp_fmpf_forms WHERE id = $FMPF_RC_FORM_ID" --skip-column-names --path=/tmp/fmpf-rc-wordpress)" = '1'
-          test "$(wp db query "SELECT COUNT(*) FROM wp_fmpf_entries WHERE id = $FMPF_RC_ENTRY_ID" --skip-column-names --path=/tmp/fmpf-rc-wordpress)" = '1'
+          wp plugin deactivate mpro-forms --path=/tmp/mpro-rc-wordpress
+          wp plugin uninstall mpro-forms --path=/tmp/mpro-rc-wordpress
+          test "$(wp db query "SELECT COUNT(*) FROM wp_mpro_forms WHERE id = $MPRO_RC_FORM_ID" --skip-column-names --path=/tmp/mpro-rc-wordpress)" = '1'
+          test "$(wp db query "SELECT COUNT(*) FROM wp_mpro_entries WHERE id = $MPRO_RC_ENTRY_ID" --skip-column-names --path=/tmp/mpro-rc-wordpress)" = '1'
       - name: Reinstall the same ZIP and verify preserved data
         shell: bash
         run: |
           set -euo pipefail
-          wp plugin install "$GITHUB_WORKSPACE/dist/free-mpro-forms.zip" --activate --path=/tmp/fmpf-rc-wordpress
-          test "$(wp plugin get free-mpro-forms --field=version --path=/tmp/fmpf-rc-wordpress)" = '0.2.0'
-          test "$(wp db query "SELECT status FROM wp_fmpf_forms WHERE id = $FMPF_RC_FORM_ID" --skip-column-names --path=/tmp/fmpf-rc-wordpress)" = 'active'
-          test "$(wp db query "SELECT status FROM wp_fmpf_entries WHERE id = $FMPF_RC_ENTRY_ID" --skip-column-names --path=/tmp/fmpf-rc-wordpress)" = 'unread'
+          wp plugin install "$GITHUB_WORKSPACE/dist/mpro-forms.zip" --activate --path=/tmp/mpro-rc-wordpress
+          test "$(wp plugin get mpro-forms --field=version --path=/tmp/mpro-rc-wordpress)" = '0.2.0'
+          test "$(wp db query "SELECT status FROM wp_mpro_forms WHERE id = $MPRO_RC_FORM_ID" --skip-column-names --path=/tmp/mpro-rc-wordpress)" = 'active'
+          test "$(wp db query "SELECT status FROM wp_mpro_entries WHERE id = $MPRO_RC_ENTRY_ID" --skip-column-names --path=/tmp/mpro-rc-wordpress)" = 'unread'
       - name: Verify opt-in uninstall removes the tables
         shell: bash
         run: |
           set -euo pipefail
-          wp option patch update fmpf_settings delete_data_on_uninstall 1 --path=/tmp/fmpf-rc-wordpress
-          wp plugin deactivate free-mpro-forms --path=/tmp/fmpf-rc-wordpress
-          wp plugin uninstall free-mpro-forms --path=/tmp/fmpf-rc-wordpress
-          test "$(wp db query "SHOW TABLES LIKE 'wp_fmpf_forms'" --skip-column-names --path=/tmp/fmpf-rc-wordpress)" = ''
-          test "$(wp db query "SHOW TABLES LIKE 'wp_fmpf_entries'" --skip-column-names --path=/tmp/fmpf-rc-wordpress)" = ''
+          wp option patch update mpro_forms_settings delete_data_on_uninstall 1 --path=/tmp/mpro-rc-wordpress
+          wp plugin deactivate mpro-forms --path=/tmp/mpro-rc-wordpress
+          wp plugin uninstall mpro-forms --path=/tmp/mpro-rc-wordpress
+          test "$(wp db query "SHOW TABLES LIKE 'wp_mpro_forms'" --skip-column-names --path=/tmp/mpro-rc-wordpress)" = ''
+          test "$(wp db query "SHOW TABLES LIKE 'wp_mpro_entries'" --skip-column-names --path=/tmp/mpro-rc-wordpress)" = ''

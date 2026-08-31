@@ -1,6 +1,6 @@
 {
-  "name": "moghadam-pro/free-mpro-forms",
-  "description": "Development tooling for the Free MPRO Forms WordPress plugin.",
+  "name": "moghadam-pro/mpro-forms",
+  "description": "Development tooling for the MPRO Forms WordPress plugin.",
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",
   "require-dev": {

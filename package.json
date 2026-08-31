@@ -1,5 +1,5 @@
 {
-  "name": "free-mpro-forms",
+  "name": "mpro-forms",
   "private": true,
   "scripts": {
     "test:e2e": "playwright test"

@@ -29,8 +29,8 @@ jobs:
           REQUESTED_VERSION: ${{ inputs.version }}
         run: |
           set -euo pipefail
-          HEADER_VERSION="$(sed -n 's/^[[:space:]]*\*[[:space:]]*Version:[[:space:]]*//p' free-mpro-forms/free-mpro-forms.php | head -n 1 | tr -d '\r')"
-          STABLE_TAG="$(sed -n 's/^Stable tag:[[:space:]]*//p' free-mpro-forms/readme.txt | head -n 1 | tr -d '\r')"
+          HEADER_VERSION="$(sed -n 's/^[[:space:]]*\*[[:space:]]*Version:[[:space:]]*//p' mpro-forms/mpro-forms.php | head -n 1 | tr -d '\r')"
+          STABLE_TAG="$(sed -n 's/^Stable tag:[[:space:]]*//p' mpro-forms/readme.txt | head -n 1 | tr -d '\r')"
           test "$REQUESTED_VERSION" = "$HEADER_VERSION"
           test "$REQUESTED_VERSION" = "$STABLE_TAG"
       - name: Build plugin ZIP
@@ -38,8 +38,8 @@ jobs:
       - name: Upload release artifact
         uses: actions/upload-artifact@v4
         with:
-          name: free-mpro-forms-${{ inputs.version }}
-          path: dist/free-mpro-forms.zip
+          name: mpro-forms-${{ inputs.version }}
+          path: dist/mpro-forms.zip
           if-no-files-found: error
       - name: Create draft GitHub release
         if: ${{ inputs.create_draft_release }}
@@ -54,8 +54,8 @@ jobs:
             echo "Release $TAG already exists." >&2
             exit 1
           fi
-          gh release create "$TAG" dist/free-mpro-forms.zip \
+          gh release create "$TAG" dist/mpro-forms.zip \
             --target "$GITHUB_SHA" \
             --draft \
-            --title "Free MPRO Forms ${TAG}" \
+            --title "MPRO Forms ${TAG}" \
             --generate-notes

@@ -8,6 +8,48 @@ All notable changes to this project are documented here. The format follows
 
 Nothing yet.
 
+## [0.3.0] — 2026-08-31
+
+Renamed the plugin from Free MPRO Forms to MPRO Forms and synchronised every
+identifier with the new name. "Free" was dropped deliberately: the WordPress.org
+slug is permanent once approved, and a paid Pro edition is planned, so shipping
+a free core called "Free" would leave the wrong name in the URL forever.
+
+### Changed
+
+- **Slug and text domain** are now `mpro-forms`. The plugin directory and main
+  file were renamed to match.
+- **Namespace** `FreeMPROForms` is now `MPROForms`; constants `FREE_MPRO_FORMS_*`
+  are now `MPRO_FORMS_*`.
+- **Shortcode** `[free_mpro_form]` is now `[mpro_form]`.
+- **Hooks** `free_mpro_forms_*` are now `mpro_forms_*`.
+- **Database tables** are `{prefix}mpro_forms` and `{prefix}mpro_entries`.
+- **Options, transients, cron hook, and capability** moved from the `fmpf_`
+  prefix to `mpro_forms_` (or `mpro_` for the capability and request keys).
+- **CSS classes and asset handles** moved from `fmpf-` to `mpro-`.
+- The plugin name and description on the Plugins screen are now translated, so a
+  Persian admin sees "فرم‌ساز ام‌پرو".
+- The admin header bar and dashboard widget show the full product name; the menu
+  entry stays "فرم‌ها".
+
+### Fixed
+
+- **The frontend form no longer forces its own typeface.** An RTL rule hardcoded
+  a Vazir/Tahoma stack, overriding the theme on every right-to-left site. The
+  form now inherits the surrounding font, and `--mpro-font` overrides it when a
+  site actually wants a different one.
+- Admin screens re-establish font inheritance on inputs, selects, textareas, and
+  buttons, which do not inherit it by default. A site-wide admin font plugin now
+  restyles the plugin's screens along with the rest of wp-admin.
+
+### Migration
+
+Installs that predate the rename are migrated automatically on the first request
+after updating: the `fmpf_` tables are renamed, options are copied to their new
+keys, the old cron event is cleared, and the old capability is removed. Nothing
+was ever publicly released under the old name, so this routine can be dropped
+once no install predates 0.3.0.
+
 ## [0.2.0] — 2026-08-31
 
 The plugin was rebuilt around dedicated database tables and gained its full admin
@@ -17,13 +59,13 @@ on the `docs` branch for the reasoning behind the larger changes.
 ### Changed
 
 - **Storage moved from custom post types to dedicated tables.** Forms and entries
-  now live in `{prefix}fmpf_forms` and `{prefix}fmpf_entries`. Because the plugin
+  now live in `{prefix}mpro_forms` and `{prefix}mpro_entries`. Because the plugin
   owns these tables and never drops them on its own, deleting and reinstalling
   the plugin — or replacing the folder during an update — no longer risks the
   data. This is a breaking change; see *Removed* below.
 - `uninstall.php` drops the plugin tables only when data deletion is explicitly
   enabled, and now also removes the plugin capability and cached remote content.
-- Settings consolidated into a single `fmpf_settings` option instead of scattered
+- Settings consolidated into a single `mpro_forms_settings` option instead of scattered
   keys.
 - The frontend stylesheet now keeps forms in a single column unless the form opts
   into the two-column layout, so a narrow theme is never given a cramped row.
@@ -70,22 +112,22 @@ on the `docs` branch for the reasoning behind the larger changes.
 - An Elementor widget with a form selector and a direction control, registered
   only when Elementor is active.
 - A bundled Persian (fa_IR) translation covering 262 strings.
-- A single `fmpf_manage_forms` capability, granted to administrators on
+- A single `mpro_manage_forms` capability, granted to administrators on
   activation and on schema upgrades.
 - `Field_Validator::sanitize_fields()` for structured field definitions, applying
   the same type allowlist and reserved and duplicate name rules as the existing
   line-based parser.
-- Actions `free_mpro_forms_form_created`, `free_mpro_forms_form_updated`,
-  `free_mpro_forms_form_deleted`, `free_mpro_forms_entry_created`, and
-  `free_mpro_forms_entry_deleted`.
-- Filters `free_mpro_forms_capability`, `free_mpro_forms_templates`, and
-  `free_mpro_forms_track_views`.
+- Actions `mpro_forms_form_created`, `mpro_forms_form_updated`,
+  `mpro_forms_form_deleted`, `mpro_forms_entry_created`, and
+  `mpro_forms_entry_deleted`.
+- Filters `mpro_forms_capability`, `mpro_forms_templates`, and
+  `mpro_forms_track_views`.
 - Test coverage for structured field sanitization and for validating a submission
   against builder-produced fields.
 
 ### Removed
 
-- The `fmpf_form` and `fmpf_submission` custom post types and their meta.
+- The `mpro_form` and `mpro_submission` custom post types and their meta.
 - Forms and entries created under 0.1.0 are **not** carried over. No migration is
   provided because 0.1.0 was never publicly released.
 
@@ -112,6 +154,7 @@ Initial development foundation, never publicly released.
 - Opt-in data deletion during uninstall.
 - Shortcode embedding, responsive layouts, and automatic LTR/RTL direction.
 
-[Unreleased]: https://github.com/moghadam-pro/free-forms-wp-plugin/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/moghadam-pro/free-forms-wp-plugin/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/moghadam-pro/free-forms-wp-plugin/releases/tag/v0.3.0
 [0.2.0]: https://github.com/moghadam-pro/free-forms-wp-plugin/releases/tag/v0.2.0
 [0.1.0]: https://github.com/moghadam-pro/free-forms-wp-plugin/releases/tag/v0.1.0

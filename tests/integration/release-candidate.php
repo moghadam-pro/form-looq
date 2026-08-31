@@ -10,11 +10,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 1 );
 }
 
-use FreeMPROForms\DB;
-use FreeMPROForms\Entry_Repository;
-use FreeMPROForms\Form_Repository;
+use MPROForms\DB;
+use MPROForms\Entry_Repository;
+use MPROForms\Form_Repository;
 
-$plugin_file = WP_PLUGIN_DIR . '/free-mpro-forms/free-mpro-forms.php';
+$plugin_file = WP_PLUGIN_DIR . '/mpro-forms/mpro-forms.php';
 if ( ! is_file( $plugin_file ) ) {
 	throw new RuntimeException( 'The packaged plugin main file is missing.' );
 }
@@ -23,7 +23,7 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 $plugin_data = get_plugin_data( $plugin_file, false, false );
 $version     = (string) ( $plugin_data['Version'] ?? '' );
 
-if ( FREE_MPRO_FORMS_VERSION !== $version ) {
+if ( MPRO_FORMS_VERSION !== $version ) {
 	throw new RuntimeException( 'The runtime version does not match the packaged plugin header.' );
 }
 
@@ -70,7 +70,7 @@ if ( ! is_array( $stored_form ) || 3 !== count( $stored_form['fields'] ) ) {
 	throw new RuntimeException( 'The packaged plugin did not persist the form field definitions.' );
 }
 
-$entry_id = free_mpro_forms_store_submission(
+$entry_id = mpro_forms_store_submission(
 	$form_id,
 	array(
 		'full_name' => 'Release Candidate Tester',
@@ -100,9 +100,9 @@ if ( 1 !== (int) $recounted['entries_count'] ) {
 	throw new RuntimeException( 'The packaged plugin did not keep the form entry count in step.' );
 }
 
-$rendered = do_shortcode( sprintf( '[free_mpro_form id="%d"]', $form_id ) );
+$rendered = do_shortcode( sprintf( '[mpro_form id="%d"]', $form_id ) );
 
-if ( false === strpos( $rendered, 'fmpf-form' ) ) {
+if ( false === strpos( $rendered, 'mpro-form' ) ) {
 	throw new RuntimeException( 'The packaged plugin did not render the form shortcode.' );
 }
 
