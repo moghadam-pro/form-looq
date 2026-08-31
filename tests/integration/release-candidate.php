@@ -1,8 +1,18 @@
 <?php
+/**
+ * Smoke test run against the packaged plugin ZIP.
+ *
+ * Confirms the packaged version matches the runtime, the schema is created, and
+ * a form and entry survive a round trip through the dedicated tables.
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 1 );
 }
+
+use FreeMPROForms\DB;
+use FreeMPROForms\Entry_Repository;
+use FreeMPROForms\Form_Repository;
 
 $plugin_file = WP_PLUGIN_DIR . '/free-mpro-forms/free-mpro-forms.php';
 if ( ! is_file( $plugin_file ) ) {
@@ -17,60 +27,89 @@ if ( FREE_MPRO_FORMS_VERSION !== $version ) {
 	throw new RuntimeException( 'The runtime version does not match the packaged plugin header.' );
 }
 
-$form_id = wp_insert_post(
-	array(
-		'post_type'   => 'fmpf_form',
-		'post_status' => 'publish',
-		'post_title'  => 'Release Candidate Form',
-	),
-	true
-);
-
-if ( is_wp_error( $form_id ) ) {
-	throw new RuntimeException( $form_id->get_error_message() );
+foreach ( DB::tables() as $table_key => $table_name ) {
+	if ( ! DB::table_exists( $table_name ) ) {
+		throw new RuntimeException( sprintf( 'The packaged plugin did not create the %s table.', $table_key ) );
+	}
 }
 
-update_post_meta(
-	$form_id,
-	'_fmpf_fields',
-	implode(
-		"\n",
-		array(
-			'text|full_name|Full name|required||',
-			'email|email|Email|required||',
-			'textarea|message|Message|required||',
-		)
+$form_id = Form_Repository::create(
+	array(
+		'title'  => 'Release Candidate Form',
+		'status' => Form_Repository::STATUS_ACTIVE,
+		'fields' => array(
+			array(
+				'type'     => 'text',
+				'name'     => 'full_name',
+				'label'    => 'Full name',
+				'required' => true,
+			),
+			array(
+				'type'     => 'email',
+				'name'     => 'email',
+				'label'    => 'Email',
+				'required' => true,
+			),
+			array(
+				'type'     => 'textarea',
+				'name'     => 'message',
+				'label'    => 'Message',
+				'required' => true,
+			),
+		),
 	)
 );
 
-$submission_id = free_mpro_forms_store_submission(
-	'release-candidate',
-	'Release Candidate Submission',
+if ( $form_id <= 0 ) {
+	throw new RuntimeException( 'The packaged plugin could not create a form.' );
+}
+
+$stored_form = Form_Repository::get( $form_id );
+
+if ( ! is_array( $stored_form ) || 3 !== count( $stored_form['fields'] ) ) {
+	throw new RuntimeException( 'The packaged plugin did not persist the form field definitions.' );
+}
+
+$entry_id = free_mpro_forms_store_submission(
+	$form_id,
 	array(
 		'full_name' => 'Release Candidate Tester',
 		'email'     => 'rc@example.com',
 		'message'   => 'Packaged plugin verification.',
-	),
-	(int) $form_id
+	)
 );
 
-if ( ! $submission_id ) {
-	throw new RuntimeException( 'The packaged plugin could not store a submission.' );
+if ( ! $entry_id ) {
+	throw new RuntimeException( 'The packaged plugin could not store an entry.' );
 }
 
-$stored_data = get_post_meta( $submission_id, '_fmpf_data', true );
+$stored_entry = Entry_Repository::get( $entry_id );
+
 if (
-	! is_array( $stored_data ) ||
-	'rc@example.com' !== ( $stored_data['email'] ?? '' ) ||
-	(int) $form_id !== (int) get_post_meta( $submission_id, '_fmpf_form_id', true )
+	! is_array( $stored_entry ) ||
+	'rc@example.com' !== ( $stored_entry['data']['email'] ?? '' ) ||
+	$form_id !== (int) $stored_entry['form_id'] ||
+	Entry_Repository::STATUS_UNREAD !== $stored_entry['status']
 ) {
-	throw new RuntimeException( 'The packaged plugin stored incomplete submission data.' );
+	throw new RuntimeException( 'The packaged plugin stored incomplete entry data.' );
+}
+
+$recounted = Form_Repository::get( $form_id );
+
+if ( 1 !== (int) $recounted['entries_count'] ) {
+	throw new RuntimeException( 'The packaged plugin did not keep the form entry count in step.' );
+}
+
+$rendered = do_shortcode( sprintf( '[free_mpro_form id="%d"]', $form_id ) );
+
+if ( false === strpos( $rendered, 'fmpf-form' ) ) {
+	throw new RuntimeException( 'The packaged plugin did not render the form shortcode.' );
 }
 
 $result = array(
-	'version'       => $version,
-	'form_id'       => (int) $form_id,
-	'submission_id' => (int) $submission_id,
+	'version'  => $version,
+	'form_id'  => $form_id,
+	'entry_id' => $entry_id,
 );
 
 echo wp_json_encode( $result, JSON_UNESCAPED_SLASHES ) . PHP_EOL;

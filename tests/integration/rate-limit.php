@@ -3,6 +3,7 @@
  * WordPress integration checks for submission rate limiting.
  */
 
+use FreeMPROForms\Form_Repository;
 use FreeMPROForms\Rate_Limiter;
 
 function fmpf_rate_test_assert( bool $condition, string $message ): void {
@@ -11,16 +12,22 @@ function fmpf_rate_test_assert( bool $condition, string $message ): void {
 	}
 }
 
-$form_id = wp_insert_post(
+$form_id = Form_Repository::create(
 	array(
-		'post_type'   => 'fmpf_form',
-		'post_status' => 'publish',
-		'post_title'  => 'Rate Limit Test Form',
-	),
-	true
+		'title'  => 'Rate Limit Test Form',
+		'status' => Form_Repository::STATUS_ACTIVE,
+		'fields' => array(
+			array(
+				'type'     => 'text',
+				'name'     => 'full_name',
+				'label'    => 'Full name',
+				'required' => true,
+			),
+		),
+	)
 );
 
-fmpf_rate_test_assert( ! is_wp_error( $form_id ), 'Could not create the rate-limit test form.' );
+fmpf_rate_test_assert( $form_id > 0, 'Could not create the rate-limit test form.' );
 
 add_filter(
 	'free_mpro_forms_rate_limit_windows',
@@ -35,9 +42,9 @@ add_filter(
 );
 
 $identity = 'integration-test-client';
-$first    = Rate_Limiter::check_and_record( (int) $form_id, $identity );
-$second   = Rate_Limiter::check_and_record( (int) $form_id, $identity );
-$third    = Rate_Limiter::check_and_record( (int) $form_id, $identity );
+$first    = Rate_Limiter::check_and_record( $form_id, $identity );
+$second   = Rate_Limiter::check_and_record( $form_id, $identity );
+$third    = Rate_Limiter::check_and_record( $form_id, $identity );
 
 fmpf_rate_test_assert( true === $first['allowed'], 'The first submission attempt was unexpectedly blocked.' );
 fmpf_rate_test_assert( true === $second['allowed'], 'The second submission attempt was unexpectedly blocked.' );

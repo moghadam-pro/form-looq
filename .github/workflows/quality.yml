@@ -311,29 +311,40 @@ jobs:
         run: |
           set -euo pipefail
           RESULT="$(wp eval-file "$GITHUB_WORKSPACE/tests/integration/release-candidate.php" --path=/tmp/fmpf-rc-wordpress)"
-          echo "$RESULT" | jq -e '.version == "0.1.0" and .form_id > 0 and .submission_id > 0' >/dev/null
+          echo "$RESULT" | jq -e '.version == "0.2.0" and .form_id > 0 and .entry_id > 0' >/dev/null
           echo "FMPF_RC_FORM_ID=$(echo "$RESULT" | jq -r '.form_id')" >> "$GITHUB_ENV"
-          echo "FMPF_RC_SUBMISSION_ID=$(echo "$RESULT" | jq -r '.submission_id')" >> "$GITHUB_ENV"
+          echo "FMPF_RC_ENTRY_ID=$(echo "$RESULT" | jq -r '.entry_id')" >> "$GITHUB_ENV"
       - name: Verify deactivate and reactivate cycle
         shell: bash
         run: |
           set -euo pipefail
           wp plugin deactivate free-mpro-forms --path=/tmp/fmpf-rc-wordpress
           wp plugin activate free-mpro-forms --path=/tmp/fmpf-rc-wordpress
-          test "$(wp post get "$FMPF_RC_SUBMISSION_ID" --field=post_type --path=/tmp/fmpf-rc-wordpress)" = 'fmpf_submission'
+          test "$(wp db query "SELECT COUNT(*) FROM wp_fmpf_entries WHERE id = $FMPF_RC_ENTRY_ID" --skip-column-names --path=/tmp/fmpf-rc-wordpress)" = '1'
+      # The core promise of the 0.2.0 storage model: deleting the plugin and
+      # reinstalling it must leave forms and entries untouched.
       - name: Verify default uninstall preserves data
         shell: bash
         run: |
           set -euo pipefail
           wp plugin deactivate free-mpro-forms --path=/tmp/fmpf-rc-wordpress
           wp plugin uninstall free-mpro-forms --path=/tmp/fmpf-rc-wordpress
-          test "$(wp post get "$FMPF_RC_FORM_ID" --field=post_type --path=/tmp/fmpf-rc-wordpress)" = 'fmpf_form'
-          test "$(wp post get "$FMPF_RC_SUBMISSION_ID" --field=post_type --path=/tmp/fmpf-rc-wordpress)" = 'fmpf_submission'
+          test "$(wp db query "SELECT COUNT(*) FROM wp_fmpf_forms WHERE id = $FMPF_RC_FORM_ID" --skip-column-names --path=/tmp/fmpf-rc-wordpress)" = '1'
+          test "$(wp db query "SELECT COUNT(*) FROM wp_fmpf_entries WHERE id = $FMPF_RC_ENTRY_ID" --skip-column-names --path=/tmp/fmpf-rc-wordpress)" = '1'
       - name: Reinstall the same ZIP and verify preserved data
         shell: bash
         run: |
           set -euo pipefail
           wp plugin install "$GITHUB_WORKSPACE/dist/free-mpro-forms.zip" --activate --path=/tmp/fmpf-rc-wordpress
-          test "$(wp plugin get free-mpro-forms --field=version --path=/tmp/fmpf-rc-wordpress)" = '0.1.0'
-          test "$(wp post get "$FMPF_RC_FORM_ID" --field=post_status --path=/tmp/fmpf-rc-wordpress)" = 'publish'
-          test "$(wp post meta get "$FMPF_RC_SUBMISSION_ID" _fmpf_status --path=/tmp/fmpf-rc-wordpress)" = 'new'
+          test "$(wp plugin get free-mpro-forms --field=version --path=/tmp/fmpf-rc-wordpress)" = '0.2.0'
+          test "$(wp db query "SELECT status FROM wp_fmpf_forms WHERE id = $FMPF_RC_FORM_ID" --skip-column-names --path=/tmp/fmpf-rc-wordpress)" = 'active'
+          test "$(wp db query "SELECT status FROM wp_fmpf_entries WHERE id = $FMPF_RC_ENTRY_ID" --skip-column-names --path=/tmp/fmpf-rc-wordpress)" = 'unread'
+      - name: Verify opt-in uninstall removes the tables
+        shell: bash
+        run: |
+          set -euo pipefail
+          wp option patch update fmpf_settings delete_data_on_uninstall 1 --path=/tmp/fmpf-rc-wordpress
+          wp plugin deactivate free-mpro-forms --path=/tmp/fmpf-rc-wordpress
+          wp plugin uninstall free-mpro-forms --path=/tmp/fmpf-rc-wordpress
+          test "$(wp db query "SHOW TABLES LIKE 'wp_fmpf_forms'" --skip-column-names --path=/tmp/fmpf-rc-wordpress)" = ''
+          test "$(wp db query "SHOW TABLES LIKE 'wp_fmpf_entries'" --skip-column-names --path=/tmp/fmpf-rc-wordpress)" = ''

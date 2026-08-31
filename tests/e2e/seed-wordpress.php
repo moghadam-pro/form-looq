@@ -1,27 +1,31 @@
 <?php
+/**
+ * Creates the browser-test fixtures: two forms and two pages that embed them.
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 1 );
 }
 
-function fmpf_e2e_create_form( string $title, string $definition ): int {
-	$form_id = wp_insert_post(
+use FreeMPROForms\Form_Repository;
+
+/**
+ * @param array<int, array<string, mixed>> $fields Field definitions.
+ */
+function fmpf_e2e_create_form( string $title, array $fields ): int {
+	$form_id = Form_Repository::create(
 		array(
-			'post_type'   => 'fmpf_form',
-			'post_status' => 'publish',
-			'post_title'  => $title,
-		),
-		true
+			'title'  => $title,
+			'status' => Form_Repository::STATUS_ACTIVE,
+			'fields' => $fields,
+		)
 	);
 
-	if ( is_wp_error( $form_id ) ) {
-		throw new RuntimeException( $form_id->get_error_message() );
+	if ( $form_id <= 0 ) {
+		throw new RuntimeException( 'Could not create the browser-test form: ' . $title );
 	}
 
-	update_post_meta( $form_id, '_fmpf_fields', $definition );
-	update_post_meta( $form_id, '_fmpf_submission_type', 'e2e' );
-
-	return (int) $form_id;
+	return $form_id;
 }
 
 function fmpf_e2e_create_page( string $title, string $slug, string $content ): int {
@@ -43,32 +47,43 @@ function fmpf_e2e_create_page( string $title, string $slug, string $content ): i
 	return (int) $page_id;
 }
 
-$english_definition = implode(
-	"\n",
-	array(
-		'section||Contact details|||Complete the form below.',
-		'text|full_name|Full name|required||Enter your first and last name.',
-		'email|email|Email address|required||We will only use this to reply.',
-		'select|topic|Topic|required|Project enquiry,Support,Other|Choose one option.',
-		'textarea|message|Message|required||Tell us how we can help.',
-		'checkbox|consent|Consent|required||I agree to submit this information.',
-	)
+/**
+ * @param array<int, string> $options Choice list.
+ * @return array<string, mixed>
+ */
+function fmpf_e2e_field( string $type, string $name, string $label, bool $required = false, array $options = array(), string $help = '' ): array {
+	return array(
+		'type'        => $type,
+		'name'        => $name,
+		'label'       => $label,
+		'required'    => $required,
+		'options'     => $options,
+		'help'        => $help,
+		'placeholder' => '',
+		'width'       => 'full',
+	);
+}
+
+$english_fields = array(
+	fmpf_e2e_field( 'section', '', 'Contact details', false, array(), 'Complete the form below.' ),
+	fmpf_e2e_field( 'text', 'full_name', 'Full name', true, array(), 'Enter your first and last name.' ),
+	fmpf_e2e_field( 'email', 'email', 'Email address', true, array(), 'We will only use this to reply.' ),
+	fmpf_e2e_field( 'select', 'topic', 'Topic', true, array( 'Project enquiry', 'Support', 'Other' ), 'Choose one option.' ),
+	fmpf_e2e_field( 'textarea', 'message', 'Message', true, array(), 'Tell us how we can help.' ),
+	fmpf_e2e_field( 'checkbox', 'consent', 'Consent', true, array(), 'I agree to submit this information.' ),
 );
 
-$persian_definition = implode(
-	"\n",
-	array(
-		'section||اطلاعات تماس|||فرم زیر را تکمیل کنید.',
-		'text|full_name|نام و نام خانوادگی|required||نام کامل خود را وارد کنید.',
-		'email|email|ایمیل|required||برای پاسخ‌گویی استفاده می‌شود.',
-		'radio|contact_method|روش تماس|required|ایمیل,تلفن|یک گزینه را انتخاب کنید.',
-		'textarea|message|پیام|required||توضیحات خود را بنویسید.',
-		'checkbox|consent|تأیید|required||با ارسال اطلاعات موافقم.',
-	)
+$persian_fields = array(
+	fmpf_e2e_field( 'section', '', 'اطلاعات تماس', false, array(), 'فرم زیر را تکمیل کنید.' ),
+	fmpf_e2e_field( 'text', 'full_name', 'نام و نام خانوادگی', true, array(), 'نام کامل خود را وارد کنید.' ),
+	fmpf_e2e_field( 'email', 'email', 'ایمیل', true, array(), 'برای پاسخ‌گویی استفاده می‌شود.' ),
+	fmpf_e2e_field( 'radio', 'contact_method', 'روش تماس', true, array( 'ایمیل', 'تلفن' ), 'یک گزینه را انتخاب کنید.' ),
+	fmpf_e2e_field( 'textarea', 'message', 'پیام', true, array(), 'توضیحات خود را بنویسید.' ),
+	fmpf_e2e_field( 'checkbox', 'consent', 'تأیید', true, array(), 'با ارسال اطلاعات موافقم.' ),
 );
 
-$english_form = fmpf_e2e_create_form( 'English browser form', $english_definition );
-$persian_form = fmpf_e2e_create_form( 'Persian browser form', $persian_definition );
+$english_form = fmpf_e2e_create_form( 'English browser form', $english_fields );
+$persian_form = fmpf_e2e_create_form( 'Persian browser form', $persian_fields );
 
 fmpf_e2e_create_page(
 	'English Form',

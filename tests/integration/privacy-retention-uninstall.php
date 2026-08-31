@@ -1,11 +1,15 @@
 <?php
 /**
  * WordPress integration checks for privacy, retention, and uninstall behavior.
+ *
+ * Runs against the dedicated plugin tables introduced in 0.2.0.
  */
 
+use FreeMPROForms\DB;
+use FreeMPROForms\Entry_Repository;
+use FreeMPROForms\Form_Repository;
 use FreeMPROForms\Privacy_Manager;
 use FreeMPROForms\Settings;
-use FreeMPROForms\Submission_Manager;
 
 function fmpf_test_assert( bool $condition, string $message ): void {
 	if ( ! $condition ) {
@@ -14,77 +18,128 @@ function fmpf_test_assert( bool $condition, string $message ): void {
 }
 
 function fmpf_test_create_form(): int {
-	$form_id = wp_insert_post(
+	$form_id = Form_Repository::create(
 		array(
-		'post_type'   => 'fmpf_form',
-		'post_status' => 'publish',
-		'post_title'  => 'Integration Test Form',
-		'post_content' => '',
-		'post_excerpt' => '',
-		'post_author' => 1,
-		'ping_status' => 'closed',
-		'comment_status' => 'closed',
-		'meta_input'  => array(
-			'_fmpf_fields' => "email|email|Email|required||\ntext|name|Name|required||",
-			'_fmpf_submission_type' => 'integration-test',
-		),
-	),
-	true
+			'title'  => 'Integration Test Form',
+			'status' => Form_Repository::STATUS_ACTIVE,
+			'fields' => array(
+				array(
+					'type'     => 'email',
+					'name'     => 'email',
+					'label'    => 'Email',
+					'required' => true,
+				),
+				array(
+					'type'     => 'text',
+					'name'     => 'name',
+					'label'    => 'Name',
+					'required' => true,
+				),
+			),
+		)
 	);
 
-	fmpf_test_assert( ! is_wp_error( $form_id ), 'Could not create the integration-test form.' );
-	return (int) $form_id;
+	fmpf_test_assert( $form_id > 0, 'Could not create the integration-test form.' );
+
+	return $form_id;
 }
 
-function fmpf_test_create_submission( int $form_id, string $email, string $name ): int {
-	$submission_id = Submission_Manager::store(
-		'integration-test',
-		'Integration submission',
+function fmpf_test_create_entry( int $form_id, string $email, string $name ): int {
+	$entry_id = Entry_Repository::create(
+		$form_id,
 		array(
 			'email' => $email,
 			'name'  => $name,
 		),
-		$form_id
+		array( 'ip' => '203.0.113.10' )
 	);
 
-	fmpf_test_assert( $submission_id > 0, 'Could not create an integration-test submission.' );
-	return $submission_id;
+	fmpf_test_assert( $entry_id > 0, 'Could not create an integration-test entry.' );
+
+	return $entry_id;
 }
 
-$form_id       = fmpf_test_create_form();
-$submission_id = fmpf_test_create_submission( $form_id, 'privacy@example.com', 'Privacy Test' );
+/*
+ * Tables exist after activation.
+ */
+foreach ( DB::tables() as $fmpf_key => $fmpf_table ) {
+	fmpf_test_assert( DB::table_exists( $fmpf_table ), sprintf( 'The %s table was not created.', $fmpf_key ) );
+}
 
+$form_id  = fmpf_test_create_form();
+$entry_id = fmpf_test_create_entry( $form_id, 'privacy@example.com', 'Privacy Test' );
+
+/*
+ * The IP is stored as a salted hash, never in plain text.
+ */
+$stored_entry = Entry_Repository::get( $entry_id );
+fmpf_test_assert( is_array( $stored_entry ), 'The stored entry could not be read back.' );
+fmpf_test_assert( '' !== $stored_entry['ip_hash'], 'The entry did not record a hashed IP.' );
+fmpf_test_assert( false === strpos( $stored_entry['ip_hash'], '203.0.113' ), 'The entry stored a raw IP address.' );
+
+/*
+ * The form's entry count is kept in step with its entries.
+ */
+$counted_form = Form_Repository::get( $form_id );
+fmpf_test_assert( 1 === (int) $counted_form['entries_count'], 'The form entry count was not updated on insert.' );
+
+/*
+ * Privacy export and erasure.
+ */
 $export = Privacy_Manager::export_personal_data( 'privacy@example.com', 1 );
-fmpf_test_assert( ! empty( $export['data'] ), 'Privacy exporter did not return the matching submission.' );
+fmpf_test_assert( ! empty( $export['data'] ), 'Privacy exporter did not return the matching entry.' );
 fmpf_test_assert( true === $export['done'], 'Privacy exporter did not complete its single-page result.' );
 
 $erasure = Privacy_Manager::erase_personal_data( 'privacy@example.com', 1 );
 fmpf_test_assert( true === $erasure['items_removed'], 'Privacy eraser did not report removal.' );
-fmpf_test_assert( array() === get_post_meta( $submission_id, '_fmpf_data', true ), 'Privacy eraser did not clear submitted values.' );
-fmpf_test_assert( 'erased' === get_post_meta( $submission_id, '_fmpf_status', true ), 'Privacy eraser did not mark the retained shell as erased.' );
 
-$old_submission   = fmpf_test_create_submission( $form_id, 'old@example.com', 'Old Test' );
-$fresh_submission = fmpf_test_create_submission( $form_id, 'fresh@example.com', 'Fresh Test' );
-$old_date         = gmdate( 'Y-m-d H:i:s', time() - ( 40 * DAY_IN_SECONDS ) );
+$erased = Entry_Repository::get( $entry_id );
+fmpf_test_assert( array() === $erased['data'], 'Privacy eraser did not clear submitted values.' );
+fmpf_test_assert( '' === $erased['ip_hash'], 'Privacy eraser did not clear the hashed IP.' );
+fmpf_test_assert( '' === $erased['user_agent'], 'Privacy eraser did not clear the user agent.' );
 
-wp_update_post(
-	array(
-		'ID'            => $old_submission,
-		'post_date'     => get_date_from_gmt( $old_date ),
-		'post_date_gmt' => $old_date,
-	)
+/*
+ * Retention deletes entries past the window and leaves fresh ones alone.
+ */
+global $wpdb;
+
+$old_entry   = fmpf_test_create_entry( $form_id, 'old@example.com', 'Old Test' );
+$fresh_entry = fmpf_test_create_entry( $form_id, 'fresh@example.com', 'Fresh Test' );
+
+$wpdb->update(
+	DB::entries_table(),
+	array( 'created_at' => gmdate( 'Y-m-d H:i:s', time() - ( 40 * DAY_IN_SECONDS ) ) ),
+	array( 'id' => $old_entry ),
+	array( '%s' ),
+	array( '%d' )
 );
 
-update_option( Settings::OPTION_RETENTION_DAYS, 30 );
-$deleted = Settings::cleanup_expired_submissions();
+$deleted = Entry_Repository::purge_older_than( 30 );
 
-fmpf_test_assert( $deleted >= 1, 'Retention cleanup did not report deleting the expired submission.' );
-fmpf_test_assert( null === get_post( $old_submission ), 'Retention cleanup did not delete the expired submission.' );
-fmpf_test_assert( null !== get_post( $fresh_submission ), 'Retention cleanup deleted a fresh submission.' );
+fmpf_test_assert( $deleted >= 1, 'Retention cleanup did not report deleting the expired entry.' );
+fmpf_test_assert( null === Entry_Repository::get( $old_entry ), 'Retention cleanup did not delete the expired entry.' );
+fmpf_test_assert( null !== Entry_Repository::get( $fresh_entry ), 'Retention cleanup deleted a fresh entry.' );
 
-$preserved_form       = fmpf_test_create_form();
-$preserved_submission = fmpf_test_create_submission( $preserved_form, 'preserve@example.com', 'Preserve Test' );
-update_option( Settings::OPTION_DELETE_ON_UNINSTALL, 0 );
+/*
+ * Deleting a form removes its entries and nothing else.
+ */
+$other_form  = fmpf_test_create_form();
+$other_entry = fmpf_test_create_entry( $other_form, 'other@example.com', 'Other Test' );
+
+Form_Repository::delete( $other_form );
+
+fmpf_test_assert( null === Form_Repository::get( $other_form ), 'Deleting a form left the form row behind.' );
+fmpf_test_assert( null === Entry_Repository::get( $other_entry ), 'Deleting a form left its entries behind.' );
+fmpf_test_assert( null !== Entry_Repository::get( $fresh_entry ), 'Deleting a form removed another form\'s entries.' );
+
+/*
+ * The default uninstall keeps everything. This is the guarantee that lets a site
+ * owner delete and reinstall the plugin without losing data.
+ */
+$preserved_form  = fmpf_test_create_form();
+$preserved_entry = fmpf_test_create_entry( $preserved_form, 'preserve@example.com', 'Preserve Test' );
+
+Settings::save( array( 'delete_data_on_uninstall' => false ) );
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	define( 'WP_UNINSTALL_PLUGIN', 'free-mpro-forms/free-mpro-forms.php' );
@@ -92,34 +147,23 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 
 include WP_PLUGIN_DIR . '/free-mpro-forms/uninstall.php';
 
-fmpf_test_assert( null !== get_post( $preserved_form ), 'Default uninstall behavior deleted a form.' );
-fmpf_test_assert( null !== get_post( $preserved_submission ), 'Default uninstall behavior deleted a submission.' );
+fmpf_test_assert( DB::table_exists( DB::forms_table() ), 'Default uninstall dropped the forms table.' );
+fmpf_test_assert( null !== Form_Repository::get( $preserved_form ), 'Default uninstall deleted a form.' );
+fmpf_test_assert( null !== Entry_Repository::get( $preserved_entry ), 'Default uninstall deleted an entry.' );
 
+/*
+ * The opt-in uninstall removes the tables, the options, and the transients.
+ */
 set_transient( 'fmpf_state_integration_test', array( 'temporary' => true ), HOUR_IN_SECONDS );
-update_option( Settings::OPTION_DELETE_ON_UNINSTALL, 1 );
+
+Settings::save( array( 'delete_data_on_uninstall' => true ) );
+
 include WP_PLUGIN_DIR . '/free-mpro-forms/uninstall.php';
 
-$remaining_forms = get_posts(
-	array(
-		'post_type'   => 'fmpf_form',
-		'post_status' => 'any',
-		'numberposts' => 1,
-		'fields'      => 'ids',
-	)
-);
-$remaining_submissions = get_posts(
-	array(
-		'post_type'   => 'fmpf_submission',
-		'post_status' => 'any',
-		'numberposts' => 1,
-		'fields'      => 'ids',
-	)
-);
-
-fmpf_test_assert( array() === $remaining_forms, 'Opt-in uninstall cleanup left form records behind.' );
-fmpf_test_assert( array() === $remaining_submissions, 'Opt-in uninstall cleanup left submission records behind.' );
-fmpf_test_assert( false === get_option( Settings::OPTION_RETENTION_DAYS, false ), 'Opt-in uninstall cleanup left the retention option behind.' );
-fmpf_test_assert( false === get_option( Settings::OPTION_DELETE_ON_UNINSTALL, false ), 'Opt-in uninstall cleanup left its delete-data option behind.' );
-fmpf_test_assert( false === get_transient( 'fmpf_state_integration_test' ), 'Opt-in uninstall cleanup left temporary form state behind.' );
+fmpf_test_assert( ! DB::table_exists( DB::forms_table() ), 'Opt-in uninstall left the forms table behind.' );
+fmpf_test_assert( ! DB::table_exists( DB::entries_table() ), 'Opt-in uninstall left the entries table behind.' );
+fmpf_test_assert( false === get_option( Settings::OPTION, false ), 'Opt-in uninstall left the settings option behind.' );
+fmpf_test_assert( false === get_option( 'fmpf_schema_version', false ), 'Opt-in uninstall left the schema version behind.' );
+fmpf_test_assert( false === get_transient( 'fmpf_state_integration_test' ), 'Opt-in uninstall left temporary form state behind.' );
 
 WP_CLI::success( 'Privacy, retention, and uninstall integration checks passed.' );
