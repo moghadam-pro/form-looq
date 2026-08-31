@@ -121,7 +121,6 @@ final class Page_Builder {
 			)
 		);
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$tab = isset( $_POST['tab'] ) ? sanitize_key( wp_unslash( $_POST['tab'] ) ) : 'fields';
 
 		wp_safe_redirect(

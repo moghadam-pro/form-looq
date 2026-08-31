@@ -64,8 +64,6 @@ final class Page_Status {
 	 * @return array<string, array<string, string>>
 	 */
 	public static function report(): array {
-		global $wpdb;
-
 		$uploads = wp_get_upload_dir();
 
 		return array(

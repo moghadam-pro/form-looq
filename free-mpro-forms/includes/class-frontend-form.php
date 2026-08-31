@@ -59,9 +59,10 @@ final class Frontend_Form {
 	public static function shortcode( array $atts ): string {
 		$atts = shortcode_atts(
 			array(
+				// Empty defaults let the form's own settings supply the wording.
 				'id'     => 0,
-				'button' => __( 'Submit', 'free-mpro-forms' ),
-				'sent'   => __( 'Thank you. Your submission has been recorded.', 'free-mpro-forms' ),
+				'button' => '',
+				'sent'   => '',
 				'error'  => __( 'Please review the highlighted fields and try again.', 'free-mpro-forms' ),
 				'dir'    => 'auto',
 				'select' => '',
@@ -81,11 +82,11 @@ final class Frontend_Form {
 		$fields   = $form['fields'];
 		$settings = $form['settings'];
 
-		if ( '' === (string) $atts['button'] || __( 'Submit', 'free-mpro-forms' ) === $atts['button'] ) {
+		if ( '' === (string) $atts['button'] ) {
 			$atts['button'] = $settings['submit_label'];
 		}
 
-		if ( __( 'Thank you. Your submission has been recorded.', 'free-mpro-forms' ) === $atts['sent'] ) {
+		if ( '' === (string) $atts['sent'] ) {
 			$atts['sent'] = $settings['success_message'];
 		}
 

@@ -161,8 +161,8 @@ final class Admin {
 			'fmpf-admin',
 			'fmpfAdmin',
 			array(
-				'copied'      => __( 'Copied to clipboard.', 'free-mpro-forms' ),
-				'copyFailed'  => __( 'Copy failed. Select the text and copy it manually.', 'free-mpro-forms' ),
+				'copied'       => __( 'Copied to clipboard.', 'free-mpro-forms' ),
+				'copyFailed'   => __( 'Copy failed. Select the text and copy it manually.', 'free-mpro-forms' ),
 				'confirmLeave' => (bool) Settings::get( 'confirm_before_leaving', true ),
 				'leaveWarning' => __( 'You have unsaved changes.', 'free-mpro-forms' ),
 			)
