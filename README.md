@@ -3,7 +3,7 @@
 > A free, privacy-first WordPress form plugin with a drag-and-drop builder, local
 > entry storage, and first-class RTL/LTR support.
 
-[![Version](https://img.shields.io/badge/version-0.3.0-2271b1)](https://github.com/moghadam-pro/free-forms-wp-plugin/releases)
+[![Version](https://img.shields.io/badge/version-0.3.0-2271b1)](https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases)
 [![WordPress](https://img.shields.io/badge/wordpress-6.5%2B-21759b)](https://wordpress.org)
 [![PHP](https://img.shields.io/badge/php-8.1%2B-777bb4)](https://www.php.net)
 [![License](https://img.shields.io/badge/license-GPLv2%2B-green)](LICENSE)
@@ -81,7 +81,7 @@ Rocketgenius, or any other commercial form product.
 ### From a release
 
 1. Download `mpro-forms.zip` from the
-   [releases page](https://github.com/moghadam-pro/free-forms-wp-plugin/releases).
+   [releases page](https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases).
 2. Upload it through **Plugins → Add New → Upload Plugin**.
 3. Activate it.
 4. Open **Forms** — it sits directly below Media in the admin menu.
@@ -89,8 +89,8 @@ Rocketgenius, or any other commercial form product.
 ### From source
 
 ```bash
-git clone https://github.com/moghadam-pro/free-forms-wp-plugin.git
-cp -r free-forms-wp-plugin/mpro-forms /path/to/wp-content/plugins/
+git clone https://github.com/moghadam-pro/mpro-forms-wp-plugin.git
+cp -r mpro-forms-wp-plugin/mpro-forms /path/to/wp-content/plugins/
 ```
 
 **Requirements:** WordPress 6.5+, PHP 8.1+.
@@ -242,7 +242,7 @@ composer install && vendor/bin/phpcs
 ```
 
 Development documentation, the architecture reference, and the decision log live
-on the [`docs` branch](https://github.com/moghadam-pro/free-forms-wp-plugin/tree/docs).
+on the [`docs` branch](https://github.com/moghadam-pro/mpro-forms-wp-plugin/tree/docs).
 
 ---
 

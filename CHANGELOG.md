@@ -53,7 +53,7 @@ once no install predates 0.3.0.
 ## [0.2.0] — 2026-08-31
 
 The plugin was rebuilt around dedicated database tables and gained its full admin
-experience. See [DECISIONS.md](https://github.com/moghadam-pro/free-forms-wp-plugin/blob/docs/docs/DECISIONS.md)
+experience. See [DECISIONS.md](https://github.com/moghadam-pro/mpro-forms-wp-plugin/blob/docs/docs/DECISIONS.md)
 on the `docs` branch for the reasoning behind the larger changes.
 
 ### Changed
@@ -154,7 +154,7 @@ Initial development foundation, never publicly released.
 - Opt-in data deletion during uninstall.
 - Shortcode embedding, responsive layouts, and automatic LTR/RTL direction.
 
-[Unreleased]: https://github.com/moghadam-pro/free-forms-wp-plugin/compare/v0.3.0...HEAD
-[0.3.0]: https://github.com/moghadam-pro/free-forms-wp-plugin/releases/tag/v0.3.0
-[0.2.0]: https://github.com/moghadam-pro/free-forms-wp-plugin/releases/tag/v0.2.0
-[0.1.0]: https://github.com/moghadam-pro/free-forms-wp-plugin/releases/tag/v0.1.0
+[Unreleased]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases/tag/v0.3.0
+[0.2.0]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases/tag/v0.2.0
+[0.1.0]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases/tag/v0.1.0
