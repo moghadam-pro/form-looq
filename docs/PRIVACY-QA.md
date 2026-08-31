@@ -80,7 +80,7 @@ These checks must pass in a real WordPress test installation before the privacy 
 ## Suggested privacy policy content
 
 19. Open the WordPress privacy-policy guide.
-    - A Free MPRO Forms section appears.
+    - A MPRO Forms section appears.
     - It describes local storage, temporary error state, no core telemetry, retention, privacy tools, and uninstall behavior.
 
 20. Review all text in English and Persian WordPress installations.

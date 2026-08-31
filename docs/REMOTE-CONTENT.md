@@ -9,8 +9,8 @@ screen falls back to a catalogue bundled in the plugin.
 
 | Screen | Human page | JSON endpoint |
 | --- | --- | --- |
-| Add-ons | `https://sayid.ir/free-forms-plugin/addons` | `https://sayid.ir/free-forms-plugin/addons.json` |
-| Help | `https://sayid.ir/free-forms-plugin/docs` | `https://sayid.ir/free-forms-plugin/docs.json` |
+| Add-ons | `https://sayid.ir/mpro-forms/addons` | `https://sayid.ir/mpro-forms/addons.json` |
+| Help | `https://sayid.ir/mpro-forms/docs` | `https://sayid.ir/mpro-forms/docs.json` |
 
 Both must be served over HTTPS with `Content-Type: application/json; charset=utf-8`
 and HTTP 200. Any other status is treated as unavailable.
@@ -18,7 +18,7 @@ and HTTP 200. Any other status is treated as unavailable.
 ## Request behaviour
 
 - Method `GET`, `Accept: application/json`, 8-second timeout.
-- User agent: `FreeMPROForms/<version>; <site home URL>`. This is the only
+- User agent: `MPROForms/<version>; <site home URL>`. This is the only
   site-identifying data sent, and it exists so the project can tell which
   releases are in use. No form content, entry data, or personal data is
   transmitted.
@@ -41,7 +41,7 @@ and HTTP 200. Any other status is treated as unavailable.
       "description": "نظرسنجی تک‌سؤالی با نمایش زندهٔ نتایج.",
       "icon": "chart-bar",
       "status": "planned",
-      "url": "https://sayid.ir/free-forms-plugin/addons/polls",
+      "url": "https://sayid.ir/mpro-forms/addons/polls",
       "badge": "به‌زودی"
     }
   ]
@@ -70,11 +70,11 @@ reaches the page, so a compromised endpoint cannot inject markup.
     {
       "title": "شروع کار",
       "description": "اولین فرم را بسازید و روی یک برگه بگذارید.",
-      "url": "https://sayid.ir/free-forms-plugin/docs/getting-started",
+      "url": "https://sayid.ir/mpro-forms/docs/getting-started",
       "articles": [
         {
           "title": "ساخت یک فرم",
-          "url": "https://sayid.ir/free-forms-plugin/docs/creating-a-form",
+          "url": "https://sayid.ir/mpro-forms/docs/creating-a-form",
           "excerpt": "یک تمپلیت انتخاب کنید، نام فرم را بگذارید و فیلدها را بچینید."
         }
       ]
@@ -112,13 +112,13 @@ will keep requesting it indefinitely.
 ## Testing an endpoint
 
 ```bash
-curl -sS -H 'Accept: application/json' https://sayid.ir/free-forms-plugin/addons.json | head -40
+curl -sS -H 'Accept: application/json' https://sayid.ir/mpro-forms/addons.json | head -40
 ```
 
 Inside WordPress, flush the cache to force a refetch:
 
 ```php
-\FreeMPROForms\Remote_Content::flush();
+\MPROForms\Remote_Content::flush();
 ```
 
 When the plugin is showing bundled content, the Add-ons screen says so

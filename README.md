@@ -1,7 +1,7 @@
-# Free MPRO Forms — documentation
+# MPRO Forms — documentation
 
 Development documentation for
-[Free MPRO Forms](https://github.com/moghadam-pro/free-forms-wp-plugin), a free,
+[MPRO Forms](https://github.com/moghadam-pro/free-forms-wp-plugin), a free,
 privacy-first WordPress form plugin.
 
 **The plugin itself lives on [`main`](https://github.com/moghadam-pro/free-forms-wp-plugin/tree/main).**
@@ -22,16 +22,16 @@ This branch carries everything about *building* it.
 | [ERROR-STATE-QA.md](docs/ERROR-STATE-QA.md) | Error-state test matrix |
 | [MIGRATION-STRATEGY.md](docs/MIGRATION-STRATEGY.md) | Migration approach and constraints |
 | [WORDPRESS-ORG.md](docs/WORDPRESS-ORG.md) | WordPress.org submission checklist |
-| [landing/index.html](docs/landing/index.html) | Persian landing page for sayid.ir/free-forms-plugin |
+| [landing/index.html](docs/landing/index.html) | Persian landing page for sayid.ir/mpro-forms |
 
 ## The landing page
 
 `docs/landing/index.html` is a single self-contained file — no external CSS,
 fonts, scripts, or images. Upload it as-is to
-`https://sayid.ir/free-forms-plugin`.
+`https://sayid.ir/mpro-forms`.
 
 It is also the source for the plugin's first-run welcome screen. When loaded with
-`?fmpf_context=1` or inside a frame, its download buttons rewrite themselves to
+`?mpro_context=1` or inside a frame, its download buttons rewrite themselves to
 point at the documentation, since a visitor reading it inside wp-admin has the
 plugin installed already.
 

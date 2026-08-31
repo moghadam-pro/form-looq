@@ -1,10 +1,10 @@
-# Native Forms to Free MPRO Forms Migration Strategy
+# Native Forms to MPRO Forms Migration Strategy
 
 ## Decision
 
-The first public release will use the final `free-mpro-forms` identity and will not silently reuse the prototype identifiers.
+The first public release will use the final `mpro-forms` identity and will not silently reuse the prototype identifiers.
 
-Because the prototype has not been publicly distributed as Free MPRO Forms, automatic migration is not required for the initial public release. A guarded one-time migration path may be added for the maintainer's existing test installation before the first release candidate.
+Because the prototype has not been publicly distributed as MPRO Forms, automatic migration is not required for the initial public release. A guarded one-time migration path may be added for the maintainer's existing test installation before the first release candidate.
 
 ## Legacy identifiers under review
 
@@ -35,6 +35,6 @@ No legacy migration code will ship merely for convenience. It will be included o
 
 ## Current outcome
 
-- New public installations use only the `fmpf_` identifiers.
+- New public installations use only the `mpro_` identifiers.
 - The maintainer's original prototype data will be tested separately.
 - The migration decision remains a release-candidate gate, not a blocker for validation and accessibility development.

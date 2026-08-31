@@ -2,7 +2,7 @@
 
 ## Product promise
 
-Free MPRO Forms should make common WordPress form workflows dependable, multilingual, and free without pretending to replace every mature commercial form platform on day one.
+MPRO Forms should make common WordPress form workflows dependable, multilingual, and free without pretending to replace every mature commercial form platform on day one.
 
 ## Phase 0 — Public-release foundation
 
@@ -72,7 +72,7 @@ Free MPRO Forms should make common WordPress form workflows dependable, multilin
 - Privacy policy integration and data lifecycle decisions.
 - Capability and submission-status review.
 - Automated syntax, coding-standard, and Plugin Check results.
-- Clean build with the correct `free-mpro-forms` root directory.
+- Clean build with the correct `mpro-forms` root directory.
 - English and Persian smoke tests on desktop and mobile.
 
 ## Phase 2 — Visual Builder & Workflows

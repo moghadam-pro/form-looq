@@ -11,12 +11,12 @@ alternatives considered, and what would cause it to be revisited.
 
 ### Context
 
-0.1.0 stored forms as `fmpf_form` posts and submissions as `fmpf_submission`
+0.1.0 stored forms as `mpro_form` posts and submissions as `mpro_submission`
 posts, with field definitions and answers in post meta.
 
 ### Decision
 
-Two plugin-owned tables, `{prefix}fmpf_forms` and `{prefix}fmpf_entries`.
+Two plugin-owned tables, `{prefix}mpro_forms` and `{prefix}mpro_entries`.
 
 ### Why
 
@@ -172,7 +172,7 @@ or reversed with a rainbow table over the IPv4 space.
 
 ### Decision
 
-A single `fmpf_manage_forms` capability, granted to `administrator`, gating every
+A single `mpro_manage_forms` capability, granted to `administrator`, gating every
 plugin screen. `Plugin::current_user_can()` also accepts `manage_options`.
 
 ### Why
@@ -222,7 +222,7 @@ nudging one entry. The plugin does not attempt to defend the slot.
 ### Decision
 
 `Form_Repository::record_view()` runs one `UPDATE ... SET views = views + 1` each
-time a form renders, filterable through `free_mpro_forms_track_views`.
+time a form renders, filterable through `mpro_forms_track_views`.
 
 ### Why
 

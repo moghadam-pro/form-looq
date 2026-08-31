@@ -18,10 +18,10 @@ git clone https://github.com/moghadam-pro/free-forms-wp-plugin.git
 cd free-forms-wp-plugin
 ```
 
-Symlink or copy `free-mpro-forms/` into a WordPress install:
+Symlink or copy `mpro-forms/` into a WordPress install:
 
 ```bash
-ln -s "$PWD/free-mpro-forms" /path/to/wordpress/wp-content/plugins/free-mpro-forms
+ln -s "$PWD/mpro-forms" /path/to/wordpress/wp-content/plugins/mpro-forms
 ```
 
 Activate it from the Plugins screen. Activation creates the two tables, grants
@@ -54,7 +54,7 @@ npm run test:e2e
 Syntax-check everything before committing:
 
 ```bash
-find free-mpro-forms -name '*.php' -exec php -l {} \;
+find mpro-forms -name '*.php' -exec php -l {} \;
 ```
 
 ## Building a release package
@@ -65,16 +65,16 @@ scripts/build-plugin.sh
 
 This copies the plugin directory to `dist/`, refuses to continue if the version
 in the plugin header does not match `Stable tag` in `readme.txt`, checks that no
-development-only paths leaked in, and produces `dist/free-mpro-forms.zip`.
+development-only paths leaked in, and produces `dist/mpro-forms.zip`.
 
 ## Translations
 
-The Persian translation lives in `free-mpro-forms/languages/`. After editing the
+The Persian translation lives in `mpro-forms/languages/`. After editing the
 `.po` file, recompile the `.mo`:
 
 ```bash
-cd free-mpro-forms/languages
-msgfmt --check-format -o free-mpro-forms-fa_IR.mo free-mpro-forms-fa_IR.po
+cd mpro-forms/languages
+msgfmt --check-format -o mpro-forms-fa_IR.mo mpro-forms-fa_IR.po
 ```
 
 Both files are committed. `msgfmt --statistics` reports how many strings are
@@ -99,13 +99,13 @@ through `Page_Builder::type_config()`.
 
 ## Adding an admin screen
 
-1. Create `includes/admin/class-page-<name>.php` in the `FreeMPROForms\Admin`
+1. Create `includes/admin/class-page-<name>.php` in the `MPROForms\Admin`
    namespace with a static `render()`.
 2. Register it in `Admin::pages()`. Add `'hidden' => true` to keep it routable
    but out of the sidebar.
-3. Add the file to the admin include list in `free-mpro-forms.php`.
+3. Add the file to the admin include list in `mpro-forms.php`.
 4. If it handles form submissions, give it a static `init()` that registers an
-   `admin_post_*` action, and call that from `free_mpro_forms_bootstrap()`.
+   `admin_post_*` action, and call that from `mpro_forms_bootstrap()`.
 
 Start every `render()` with `Admin::guard()` and `Admin::header()`.
 
@@ -126,7 +126,7 @@ never persist.
 - Yoda conditions, tabs for indentation, `array()` over `[]`.
 - Every direct database call carries a `phpcs:ignore` comment naming the sniff.
 - Escape at output, sanitize at input. No exceptions.
-- Prefix everything with `fmpf_` / `FMPF_` / `FreeMPROForms\`.
+- Prefix everything with `mpro_` / `FMPF_` / `MPROForms\`.
 - Comments explain why, not what.
 
 ## Versioning and releases
@@ -134,7 +134,7 @@ never persist.
 Semantic versioning. A release touches four places, all of which must agree:
 
 1. `Version:` in the plugin header
-2. `FREE_MPRO_FORMS_VERSION`
+2. `MPRO_FORMS_VERSION`
 3. `Stable tag:` in `readme.txt`
 4. The `== Changelog ==` section in `readme.txt`
 

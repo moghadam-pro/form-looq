@@ -1,6 +1,6 @@
 # Architecture
 
-This document describes how Free MPRO Forms 0.2.0 is put together and why. It is
+This document describes how MPRO Forms 0.2.0 is put together and why. It is
 the reference for anyone extending the plugin or reviewing a change.
 
 ## Guiding constraints
@@ -20,8 +20,8 @@ Four constraints shaped almost every decision below.
 ## Directory layout
 
 ```
-free-mpro-forms/
-├── free-mpro-forms.php          Bootstrap: constants, includes, hook wiring
+mpro-forms/
+├── mpro-forms.php          Bootstrap: constants, includes, hook wiring
 ├── uninstall.php                Opt-in data removal
 ├── readme.txt                   WordPress.org readme
 ├── assets/
@@ -56,21 +56,21 @@ free-mpro-forms/
 
 ## Loading strategy
 
-`free-mpro-forms.php` requires the core class files eagerly and the `admin/`
+`mpro-forms.php` requires the core class files eagerly and the `admin/`
 classes only when `is_admin()`. The whole core set is small, and any request that
 renders a form needs most of it, so lazy autoloading would add indirection for no
 measurable gain.
 
 Every subsystem is wired on `plugins_loaded` through
-`free_mpro_forms_bootstrap()`. Nothing runs at file-include time except constant
+`mpro_forms_bootstrap()`. Nothing runs at file-include time except constant
 definitions, which keeps the plugin safe to include from tests and WP-CLI.
 
 ## Data model
 
 Two tables, both prefixed with the site's own `$wpdb->prefix` followed by
-`fmpf_`.
+`mpro_`.
 
-### `{prefix}fmpf_forms`
+### `{prefix}mpro_forms`
 
 | Column | Type | Notes |
 | --- | --- | --- |
@@ -87,7 +87,7 @@ Two tables, both prefixed with the site's own `$wpdb->prefix` followed by
 
 Indexes: `status`, `author_id`.
 
-### `{prefix}fmpf_entries`
+### `{prefix}mpro_entries`
 
 | Column | Type | Notes |
 | --- | --- | --- |
@@ -124,7 +124,7 @@ after a retention purge.
 
 ### Schema versioning
 
-`Install::SCHEMA_VERSION` is compared against the `fmpf_schema_version` option on
+`Install::SCHEMA_VERSION` is compared against the `mpro_forms_schema_version` option on
 every `plugins_loaded`. A mismatch re-runs `dbDelta`, which is additive and safe
 to call repeatedly. This means a site that updates by replacing the plugin folder
 — never firing the activation hook — still gets its schema brought current.
@@ -143,7 +143,7 @@ to call repeatedly. This means a site that updates by replacing the plugin folde
 
 ### Submitting a form
 
-1. `Rate_Limiter::guard_submission()` runs first on `admin_post_fmpf_submit` at
+1. `Rate_Limiter::guard_submission()` runs first on `admin_post_mpro_submit` at
    priority 5. It repeats the nonce, honeypot, and timing checks so that a
    request rejected by the limiter never reaches the handler.
 2. `Frontend_Form::handle_submission()` re-resolves the form, verifies the nonce,
@@ -178,17 +178,17 @@ trusted; it is only a convenient editor.
 
 Both produce the same shape, so `Submission_Validator` has one code path.
 
-Reserved names (`action`, `form_id`, `fmpf_nonce`, `fmpf_started_at`, `website`,
+Reserved names (`action`, `form_id`, `mpro_nonce`, `mpro_started_at`, `website`,
 `submit`) are rejected because they collide with the request keys the submission
 handler relies on.
 
 ## Capability model
 
-One capability, `fmpf_manage_forms`, gates every screen. It is granted to
+One capability, `mpro_manage_forms`, gates every screen. It is granted to
 `administrator` on activation and on every schema upgrade. `Plugin::current_user_can()`
 also accepts `manage_options`, so a site that manages capabilities externally
 does not lock its own administrators out. The capability name is filterable
-through `free_mpro_forms_capability`.
+through `mpro_forms_capability`.
 
 ## Privacy posture
 
@@ -229,18 +229,18 @@ only way to arrange a form.
 
 | Hook | Type | Fires / filters |
 | --- | --- | --- |
-| `free_mpro_forms_form_created` | action | After a form row is inserted |
-| `free_mpro_forms_form_updated` | action | After a form row is updated |
-| `free_mpro_forms_form_deleted` | action | After a form and its entries are removed |
-| `free_mpro_forms_entry_created` | action | After an entry is stored |
-| `free_mpro_forms_entry_deleted` | action | After an entry is removed |
-| `free_mpro_forms_capability` | filter | Capability gating every screen |
-| `free_mpro_forms_templates` | filter | Starter template definitions |
-| `free_mpro_forms_track_views` | filter | Whether to count a form view |
-| `free_mpro_forms_sms_providers` | filter | Selectable SMS gateways |
-| `free_mpro_forms_rate_limit_enabled` | filter | Disable limiting per form |
-| `free_mpro_forms_rate_limit_windows` | filter | Limit and window sizes |
-| `free_mpro_forms_rate_limit_identity` | filter | Visitor identity source |
+| `mpro_forms_form_created` | action | After a form row is inserted |
+| `mpro_forms_form_updated` | action | After a form row is updated |
+| `mpro_forms_form_deleted` | action | After a form and its entries are removed |
+| `mpro_forms_entry_created` | action | After an entry is stored |
+| `mpro_forms_entry_deleted` | action | After an entry is removed |
+| `mpro_forms_capability` | filter | Capability gating every screen |
+| `mpro_forms_templates` | filter | Starter template definitions |
+| `mpro_forms_track_views` | filter | Whether to count a form view |
+| `mpro_forms_sms_providers` | filter | Selectable SMS gateways |
+| `mpro_forms_rate_limit_enabled` | filter | Disable limiting per form |
+| `mpro_forms_rate_limit_windows` | filter | Limit and window sizes |
+| `mpro_forms_rate_limit_identity` | filter | Visitor identity source |
 
 ## Known limits in 0.2.0
 

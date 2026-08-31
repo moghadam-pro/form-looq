@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>فرم‌ساز رایگان وردپرس | Free MPRO Forms</title>
+<title>فرم‌ساز ام‌پرو | فرم‌ساز رایگان وردپرس</title>
 <meta name="description" content="پلاگین رایگان فرم‌ساز وردپرس با فرم‌ساز درگ‌اند‌دراپ، ذخیرهٔ داده روی سایت خودتان، پشتیبانی کامل راست‌به‌چپ و بهینه برای سئو.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Free MPRO Forms — فرم‌ساز رایگان وردپرس">
+<meta property="og:title" content="فرم‌ساز ام‌پرو — فرم‌ساز رایگان وردپرس">
 <meta property="og:description" content="فرم بسازید، ورودی‌ها را جمع کنید و همهٔ داده‌ها را روی سایت خودتان نگه دارید. رایگان و بدون کلید لایسنس.">
-<meta property="og:url" content="https://sayid.ir/free-forms-plugin">
-<link rel="canonical" href="https://sayid.ir/free-forms-plugin">
+<meta property="og:url" content="https://sayid.ir/mpro-forms">
+<link rel="canonical" href="https://sayid.ir/mpro-forms">
 <style>
 	:root {
 		--ink: #14181f;
@@ -406,14 +406,14 @@
 					<rect x="3" y="50.84" width="17.88" height="7.16" rx="1.43"/>
 				</g>
 			</svg>
-			<span>Free MPRO Forms</span>
+			<span>فرم‌ساز ام‌پرو</span>
 		</a>
 		<nav class="site-nav">
 			<a href="#sms">پیامک و اعتبارسنجی</a>
 			<a href="#builder">فرم‌ساز</a>
 			<a href="#performance">سبک و سئو</a>
 			<a href="#developers">توسعه</a>
-			<a class="btn btn-primary" href="#download" data-fmpf-cta>دانلود رایگان</a>
+			<a class="btn btn-primary" href="#download" data-mpro-cta>دانلود رایگان</a>
 		</nav>
 	</div>
 </header>
@@ -430,7 +430,7 @@
 				بدون حساب کاربری بیرونی، بدون سرویس ابری اجباری و بدون هیچ امکان قفل‌شده.
 			</p>
 			<div class="cover-actions">
-				<a class="btn btn-primary" href="#download" data-fmpf-cta>دانلود رایگان پلاگین</a>
+				<a class="btn btn-primary" href="#download" data-mpro-cta>دانلود رایگان پلاگین</a>
 				<a class="btn btn-ghost" href="#builder">امکانات را ببینید</a>
 			</div>
 			<p class="cover-note">سازگار با وردپرس ۶.۵ به بالا · PHP نسخهٔ ۸.۱ به بالا · راست‌به‌چپ و چپ‌به‌راست</p>
@@ -592,7 +592,7 @@
 						می‌توانید بلافاصله پس از ثبت هر ورودی، منطق خودتان را اجرا کنید.
 					</p>
 <pre>add_action(
-  'free_mpro_forms_entry_created',
+  'mpro_forms_entry_created',
   function ( $entry_id, $form_id ) {
     // your logic here
   },
@@ -607,11 +607,11 @@
 						شورت‌کد در نوشته، برگه، ابزارک و صفحه‌سازها کار می‌کند، و در قالب پوسته هم
 						مستقیم قابل فراخوانی است. ویجت المنتور هم از همین مسیر رندر می‌شود.
 					</p>
-<pre>[free_mpro_form id="12"]
+<pre>[mpro_form id="12"]
 
 &lt;?php
 echo do_shortcode(
-  '[free_mpro_form id="12"]'
+  '[mpro_form id="12"]'
 );</pre>
 				</div>
 			</div>
@@ -627,8 +627,8 @@ echo do_shortcode(
 				بدون ثبت‌نام، بدون کلید لایسنس و بدون محدودیت تعداد سایت.
 			</p>
 			<div class="cover-actions">
-				<a class="btn btn-primary" href="#download" data-fmpf-cta>دانلود رایگان پلاگین</a>
-				<a class="btn btn-ghost" href="https://sayid.ir/free-forms-plugin/docs">مطالعهٔ مستندات</a>
+				<a class="btn btn-primary" href="#download" data-mpro-cta>دانلود رایگان پلاگین</a>
+				<a class="btn btn-ghost" href="https://sayid.ir/mpro-forms/docs">مطالعهٔ مستندات</a>
 			</div>
 			<p class="cover-note">منتشرشده تحت مجوز GPLv2 یا بالاتر</p>
 		</div>
@@ -638,9 +638,9 @@ echo do_shortcode(
 <footer class="site-footer">
 	<div class="wrap">
 		<p>
-			Free MPRO Forms — ساختهٔ <a href="https://sayid.ir">سعید مقدم</a> ·
+			فرم‌ساز ام‌پرو — ساختهٔ <a href="https://sayid.ir">سعید مقدم</a> ·
 			<a href="https://github.com/moghadam-pro/free-forms-wp-plugin">مخزن گیت‌هاب</a> ·
-			<a href="https://sayid.ir/free-forms-plugin/docs">مستندات</a>
+			<a href="https://sayid.ir/mpro-forms/docs">مستندات</a>
 		</p>
 	</div>
 </footer>
@@ -656,14 +656,14 @@ echo do_shortcode(
 	'use strict';
 
 	var params = new URLSearchParams( window.location.search );
-	var inAdmin = '1' === params.get( 'fmpf_context' ) || window.self !== window.top;
+	var inAdmin = '1' === params.get( 'mpro_context' ) || window.self !== window.top;
 
 	if ( ! inAdmin ) {
 		return;
 	}
 
-	var docsUrl = 'https://sayid.ir/free-forms-plugin/docs';
-	var links = document.querySelectorAll( '[data-fmpf-cta]' );
+	var docsUrl = 'https://sayid.ir/mpro-forms/docs';
+	var links = document.querySelectorAll( '[data-mpro-cta]' );
 
 	Array.prototype.forEach.call( links, function ( link ) {
 		link.setAttribute( 'href', docsUrl );

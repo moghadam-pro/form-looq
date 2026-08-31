@@ -1,10 +1,10 @@
 # Data Lifecycle
 
-This document describes the current data behavior of the development version of Free MPRO Forms. It is not a substitute for a site owner's privacy policy.
+This document describes the current data behavior of the development version of MPRO Forms. It is not a substitute for a site owner's privacy policy.
 
 ## Permanent submissions
 
-After a valid form submission, the plugin stores a private `fmpf_submission` post inside the same WordPress installation.
+After a valid form submission, the plugin stores a private `mpro_submission` post inside the same WordPress installation.
 
 The stored record contains:
 
@@ -49,7 +49,7 @@ Temporary invalid-submission state remains independent of permanent retention an
 
 ## WordPress personal-data export
 
-Free MPRO Forms registers an exporter with WordPress **Tools → Export Personal Data**.
+MPRO Forms registers an exporter with WordPress **Tools → Export Personal Data**.
 
 For each submission, the exporter:
 
@@ -63,7 +63,7 @@ A form submission is not assumed to belong to a registered WordPress account; ma
 
 ## WordPress personal-data erasure
 
-Free MPRO Forms registers an eraser with WordPress **Tools → Erase Personal Data**.
+MPRO Forms registers an eraser with WordPress **Tools → Erase Personal Data**.
 
 For a matching submission, the eraser:
 
@@ -85,8 +85,8 @@ The default uninstall behavior preserves forms, submissions, and settings. The s
 
 A dedicated setting allows an administrator to opt in to permanent uninstall cleanup. When enabled, uninstall deletes:
 
-- All Free MPRO Forms submissions.
-- All Free MPRO Forms form definitions.
+- All MPRO Forms submissions.
+- All MPRO Forms form definitions.
 - Retention and uninstall settings.
 - Temporary validation transients stored in the WordPress options table.
 

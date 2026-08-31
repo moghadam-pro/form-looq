@@ -1,6 +1,6 @@
 # WordPress.org Publishing Plan
 
-Free MPRO Forms is planned for publication in the official WordPress.org Plugin Directory in addition to GitHub Releases.
+MPRO Forms is planned for publication in the official WordPress.org Plugin Directory in addition to GitHub Releases.
 
 ## Cost
 
@@ -19,7 +19,7 @@ Possible indirect costs are outside WordPress.org itself, such as development ti
 
 The submission package must be a complete, installable ZIP that is ready for review. Placeholder projects, incomplete shells, and proposals should not be submitted.
 
-Before submission, Free MPRO Forms must have:
+Before submission, MPRO Forms must have:
 
 - A unique and policy-compliant plugin name and slug.
 - GPL-compatible code, libraries, fonts, icons, images, and other bundled assets.
@@ -51,7 +51,7 @@ The plugin will not be submitted until all Phase 1 release blockers are resolved
 
 ## Submission and approval flow
 
-1. Build a clean release ZIP with the root directory `free-mpro-forms`.
+1. Build a clean release ZIP with the root directory `mpro-forms`.
 2. Validate the plugin header and `readme.txt`.
 3. Run automated and manual release checks.
 4. Submit the ZIP through the WordPress.org developer submission form.
