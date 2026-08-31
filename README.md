@@ -3,7 +3,7 @@
 > A free, privacy-first WordPress form plugin with a drag-and-drop builder, local
 > entry storage, and first-class RTL/LTR support.
 
-[![Version](https://img.shields.io/badge/version-0.3.0-2271b1)](https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases)
+[![Version](https://img.shields.io/badge/version-0.3.0-C61531)](https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases)
 [![WordPress](https://img.shields.io/badge/wordpress-6.5%2B-21759b)](https://wordpress.org)
 [![PHP](https://img.shields.io/badge/php-8.1%2B-777bb4)](https://www.php.net)
 [![License](https://img.shields.io/badge/license-GPLv2%2B-green)](LICENSE)

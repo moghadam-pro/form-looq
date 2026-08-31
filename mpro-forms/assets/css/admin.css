@@ -29,7 +29,7 @@
 	--mpro-border: #dcdcde;
 	--mpro-surface: #fff;
 	--mpro-muted: #646970;
-	--mpro-accent: #2271b1;
+	--mpro-accent: #C61531;
 }
 
 /* Header bar --------------------------------------------------------------- */
@@ -646,6 +646,10 @@ tr.mpro-entry-unread th {
 	border-block-end: 1px solid #dcdcde;
 }
 
+.mpro-welcome__logo {
+	border-radius: 12px;
+}
+
 .mpro-welcome__hero h1 {
 	margin: 12px 0 8px;
 	font-size: 24px;
@@ -672,7 +676,7 @@ tr.mpro-entry-unread th {
 	font-size: 28px;
 	width: 28px;
 	height: 28px;
-	color: #2271b1;
+	color: #C61531;
 }
 
 .mpro-welcome__feature h2 {

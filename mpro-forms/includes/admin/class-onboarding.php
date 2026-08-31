@@ -53,7 +53,7 @@ final class Onboarding {
 				<a class="mpro-welcome__close" href="<?php echo esc_url( $dismiss_url ); ?>" aria-label="<?php esc_attr_e( 'Close', 'mpro-forms' ); ?>">&times;</a>
 
 				<div class="mpro-welcome__hero">
-					<img src="<?php echo esc_url( Plugin::logo_url() ); ?>" alt="" width="56" height="56">
+					<img class="mpro-welcome__logo" src="<?php echo esc_url( Plugin::logo_url() ); ?>" alt="" width="56" height="56">
 					<h1 id="mpro-welcome-title"><?php esc_html_e( 'Welcome to MPRO Forms', 'mpro-forms' ); ?></h1>
 					<p><?php esc_html_e( 'Build forms, collect entries, and keep every submission on your own site. Free, with no license key and no external account.', 'mpro-forms' ); ?></p>
 					<p class="mpro-welcome__cta">

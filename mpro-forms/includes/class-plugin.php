@@ -77,26 +77,22 @@ final class Plugin {
 	 * Absolute URL of the plugin logo used in the admin header bar.
 	 */
 	public static function logo_url(): string {
-		return plugins_url( 'assets/images/logo.svg', MPRO_FORMS_FILE );
+		return plugins_url( 'assets/images/logo.jpg', MPRO_FORMS_FILE );
 	}
 
 	/**
-	 * Data URI of the monochrome menu icon so WordPress can recolor it.
+	 * Data URI of the menu icon shown in the WordPress admin sidebar.
+	 *
+	 * WordPress renders a custom menu icon at reduced opacity and brings it to
+	 * full opacity on hover or when the menu is current - it does not force a
+	 * silhouette the way dashicons are recolored, so the brand-colored icon
+	 * shows through as-is instead of a monochrome placeholder.
 	 */
 	public static function menu_icon(): string {
-		$svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><g fill="black">'
-			. '<rect x="3" y="5" width="57.2" height="7.16" rx="1.43"/>'
-			. '<rect x="3" y="16.46" width="45.77" height="7.16" rx="1.43"/>'
-			. '<rect x="53.06" y="16.46" width="7.15" height="7.16" rx="1.43"/>'
-			. '<rect x="3" y="27.92" width="45.77" height="7.16" rx="1.43"/>'
-			. '<rect x="53.06" y="27.92" width="7.15" height="7.16" rx="1.43"/>'
-			. '<rect x="3" y="39.38" width="45.77" height="7.16" rx="1.43"/>'
-			. '<rect x="53.06" y="39.38" width="7.15" height="7.16" rx="1.43"/>'
-			. '<rect x="3" y="50.84" width="17.88" height="7.16" rx="1.43"/>'
-			. '</g></svg>';
+		$svg = file_get_contents( MPRO_FORMS_DIR . 'assets/images/menu-icon.svg' );
 
 		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Data URI, the documented way to supply a menu icon.
-		return 'data:image/svg+xml;base64,' . base64_encode( $svg );
+		return 'data:image/svg+xml;base64,' . base64_encode( (string) $svg );
 	}
 
 	/**
