@@ -510,7 +510,7 @@ msgid "Elementor widget"
 msgstr "ویجت المنتور"
 
 msgid "Register the MPRO Forms widget in the Elementor editor"
-msgstr "ثبت ویجت MPRO Forms در ویرایشگر المنتور"
+msgstr "ثبت ویجت فرم‌ساز ام‌پرو در ویرایشگر المنتور"
 
 msgid "Elementor is active on this site."
 msgstr "المنتور روی این سایت فعال است."
@@ -519,7 +519,7 @@ msgid "Elementor is not active, so the widget is not registered."
 msgstr "المنتور فعال نیست، بنابراین ویجت ثبت نمی‌شود."
 
 msgid "Enable the MPRO Forms REST namespace"
-msgstr "فعال‌سازی فضای‌نام REST مربوط به MPRO Forms"
+msgstr "فعال‌سازی فضای‌نام REST مربوط به فرم‌ساز ام‌پرو"
 
 msgid "Namespace"
 msgstr "فضای‌نام"
@@ -733,7 +733,7 @@ msgid "System status report"
 msgstr "گزارش وضعیت سیستم"
 
 msgid "Welcome to MPRO Forms"
-msgstr "به MPRO Forms خوش آمدید"
+msgstr "به فرم‌ساز ام‌پرو خوش آمدید"
 
 msgid "Build forms, collect entries, and keep every submission on your own site. Free, with no license key and no external account."
 msgstr "فرم بسازید، ورودی‌ها را جمع کنید و همهٔ داده‌ها را روی سایت خودتان نگه دارید. رایگان، بدون کلید لایسنس و بدون حساب کاربری بیرونی."
@@ -1120,7 +1120,7 @@ msgid "MPRO Forms"
 msgstr "فرم‌ساز ام‌پرو"
 
 msgid "MPRO Forms submissions"
-msgstr "ورودی‌های MPRO Forms"
+msgstr "ورودی‌های فرم‌ساز ام‌پرو"
 
 msgid "Personal values in submission %d could not be erased."
 msgstr "مقادیر شخصی در ورودی %d پاک نشد."
@@ -1246,7 +1246,7 @@ msgid "The core plugin does not send submissions to the plugin author, does not 
 msgstr "هستهٔ پلاگین ورودی‌ها را برای سازندهٔ پلاگین ارسال نمی‌کند، به حساب ابری نیاز ندارد، و هیچ تحلیل یا تله‌متری فعال نمی‌کند. یکپارچگی‌های اختیاری که در نسخه‌های آینده اضافه شوند ممکن است داده را از سرویس دیگری عبور دهند و هنگام فعال‌سازی باید جداگانه اعلام شوند."
 
 msgid "When visitors submit a form created with MPRO Forms, the submitted values are stored in this website’s WordPress database. The specific personal data collected depends on the fields configured by the website administrator."
-msgstr "وقتی بازدیدکنندگان فرمی ساخته‌شده با MPRO Forms را ارسال می‌کنند، مقادیر ارسالی در دیتابیس وردپرس همین سایت ذخیره می‌شود. داده‌های شخصی دقیقی که جمع‌آوری می‌شود به فیلدهایی بستگی دارد که مدیر سایت تنظیم کرده است."
+msgstr "وقتی بازدیدکنندگان فرمی ساخته‌شده با فرم‌ساز ام‌پرو را ارسال می‌کنند، مقادیر ارسالی در دیتابیس وردپرس همین سایت ذخیره می‌شود. داده‌های شخصی دقیقی که جمع‌آوری می‌شود به فیلدهایی بستگی دارد که مدیر سایت تنظیم کرده است."
 
 msgid "Website administrators can choose a submission-retention period, use WordPress personal-data export and erasure tools for matching email addresses, delete submissions manually, and choose whether plugin data should be permanently removed during uninstall."
 msgstr "مدیران سایت می‌توانند بازهٔ نگه‌داری ورودی‌ها را تعیین کنند، از ابزارهای برون‌بری و پاک‌سازی داده‌های شخصی وردپرس برای نشانی‌های ایمیل منطبق استفاده کنند، ورودی‌ها را دستی حذف کنند، و انتخاب کنند که آیا داده‌های پلاگین هنگام حذف برای همیشه پاک شود یا نه."
