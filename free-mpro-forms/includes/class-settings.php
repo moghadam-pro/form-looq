@@ -1,204 +1,242 @@
 <?php
+/**
+ * Plugin settings storage and sanitization.
+ *
+ * Everything lives in one option so that a single autoloaded row covers the
+ * whole plugin instead of a dozen scattered keys.
+ *
+ * @package FreeMPROForms
+ */
 
 namespace FreeMPROForms;
 
 defined( 'ABSPATH' ) || exit;
 
 final class Settings {
-	public const OPTION_RETENTION_DAYS      = 'fmpf_retention_days';
-	public const OPTION_DELETE_ON_UNINSTALL = 'fmpf_delete_data_on_uninstall';
-	public const CRON_HOOK                  = 'fmpf_daily_retention_cleanup';
+	public const OPTION = 'fmpf_settings';
 
-	private const SETTINGS_GROUP = 'fmpf_settings';
-	private const SETTINGS_PAGE  = 'free-mpro-forms-settings';
+	private const CRON_HOOK = 'fmpf_daily_retention_cleanup';
+
+	/**
+	 * @var array<string, mixed>|null
+	 */
+	private static ?array $cache = null;
 
 	public static function init(): void {
-		add_action( 'init', array( self::class, 'ensure_schedule' ), 20 );
-		add_action( 'admin_init', array( self::class, 'register' ) );
-		add_action( 'admin_menu', array( self::class, 'register_page' ), 30 );
-		add_action( self::CRON_HOOK, array( self::class, 'cleanup_expired_submissions' ) );
+		add_action( self::CRON_HOOK, array( self::class, 'run_retention_cleanup' ) );
 	}
 
-	public static function activate(): void {
-		self::ensure_schedule();
+	/**
+	 * Setting tabs in display order.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function tabs(): array {
+		return array(
+			'editor'   => __( 'Editor', 'free-mpro-forms' ),
+			'addons'   => __( 'Add-ons', 'free-mpro-forms' ),
+			'license'  => __( 'License', 'free-mpro-forms' ),
+			'general'  => __( 'General', 'free-mpro-forms' ),
+			'widgets'  => __( 'Widgets', 'free-mpro-forms' ),
+			'rest'     => __( 'REST API', 'free-mpro-forms' ),
+			'sms'      => __( 'SMS', 'free-mpro-forms' ),
+		);
 	}
 
-	public static function ensure_schedule(): void {
-		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
-			wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', self::CRON_HOOK );
+	/**
+	 * @return array<string, mixed>
+	 */
+	public static function defaults(): array {
+		return array(
+			// Editor.
+			'default_layout'            => 'one-column',
+			'default_submit_label'      => __( 'Submit', 'free-mpro-forms' ),
+			'confirm_before_leaving'    => true,
+
+			// Add-ons.
+			'addons_remote_enabled'     => true,
+			'addons_cache_hours'        => 12,
+
+			// General.
+			'output_css'                => true,
+			'no_conflict_mode'          => false,
+			'currency'                  => 'IRR',
+			'retention_days'            => 0,
+			'delete_data_on_uninstall'  => false,
+			'auto_update'               => false,
+
+			// Widgets.
+			'dashboard_widget'          => true,
+			'elementor_widget'          => true,
+
+			// REST API.
+			'rest_enabled'              => false,
+
+			// SMS.
+			'sms_enabled'               => false,
+			'sms_provider'              => '',
+			'sms_api_key'               => '',
+			'sms_sender'                => '',
+			'sms_verify_numbers'        => false,
+		);
+	}
+
+	/**
+	 * @return array<string, string>
+	 */
+	public static function sms_providers(): array {
+		$providers = array(
+			''             => __( 'Not selected', 'free-mpro-forms' ),
+			'kavenegar'    => 'Kavenegar',
+			'smsir'        => 'SMS.ir',
+			'melipayamak'  => 'MeliPayamak',
+			'ghasedak'     => 'Ghasedak',
+			'custom'       => __( 'Custom endpoint', 'free-mpro-forms' ),
+		);
+
+		/**
+		 * Filter the selectable SMS gateways.
+		 *
+		 * @param array<string, string> $providers Provider slug to label map.
+		 */
+		return apply_filters( 'free_mpro_forms_sms_providers', $providers );
+	}
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	public static function all(): array {
+		if ( null === self::$cache ) {
+			$stored      = get_option( self::OPTION, array() );
+			self::$cache = wp_parse_args( is_array( $stored ) ? $stored : array(), self::defaults() );
 		}
+
+		return self::$cache;
 	}
 
-	public static function deactivate(): void {
-		wp_clear_scheduled_hook( self::CRON_HOOK );
+	/**
+	 * @param mixed $fallback Value returned when the key is unknown.
+	 * @return mixed
+	 */
+	public static function get( string $key, $fallback = null ) {
+		$settings = self::all();
+
+		return array_key_exists( $key, $settings ) ? $settings[ $key ] : $fallback;
 	}
 
-	public static function register(): void {
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::OPTION_RETENTION_DAYS,
-			array(
-				'type'              => 'integer',
-				'default'           => 0,
-				'sanitize_callback' => array( self::class, 'sanitize_retention_days' ),
-			)
-		);
+	/**
+	 * Persist a sanitized settings array and reconcile the retention cron.
+	 *
+	 * @param array<string, mixed> $input Raw submitted values.
+	 */
+	public static function save( array $input ): void {
+		$clean = self::sanitize( $input );
 
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::OPTION_DELETE_ON_UNINSTALL,
-			array(
-				'type'              => 'boolean',
-				'default'           => false,
-				'sanitize_callback' => static fn( mixed $value ): int => empty( $value ) ? 0 : 1,
-			)
-		);
+		update_option( self::OPTION, $clean, true );
+		self::$cache = $clean;
 
-		add_settings_section(
-			'fmpf_data_section',
-			__( 'Submission data', 'free-mpro-forms' ),
-			array( self::class, 'render_section_intro' ),
-			self::SETTINGS_PAGE
-		);
-
-		add_settings_field(
-			self::OPTION_RETENTION_DAYS,
-			__( 'Automatic retention', 'free-mpro-forms' ),
-			array( self::class, 'render_retention_field' ),
-			self::SETTINGS_PAGE,
-			'fmpf_data_section'
-		);
-
-		add_settings_field(
-			self::OPTION_DELETE_ON_UNINSTALL,
-			__( 'Plugin uninstall', 'free-mpro-forms' ),
-			array( self::class, 'render_uninstall_field' ),
-			self::SETTINGS_PAGE,
-			'fmpf_data_section'
-		);
+		self::sync_cron();
 	}
 
-	public static function register_page(): void {
-		add_submenu_page(
-			'free-mpro-forms',
-			__( 'Forms Settings', 'free-mpro-forms' ),
-			__( 'Settings', 'free-mpro-forms' ),
-			'manage_options',
-			self::SETTINGS_PAGE,
-			array( self::class, 'render_page' )
+	/**
+	 * @param array<string, mixed> $input Raw submitted values.
+	 * @return array<string, mixed>
+	 */
+	public static function sanitize( array $input ): array {
+		$current = self::all();
+		$clean   = $current;
+
+		$booleans = array(
+			'confirm_before_leaving',
+			'addons_remote_enabled',
+			'output_css',
+			'no_conflict_mode',
+			'delete_data_on_uninstall',
+			'auto_update',
+			'dashboard_widget',
+			'elementor_widget',
+			'rest_enabled',
+			'sms_enabled',
+			'sms_verify_numbers',
 		);
+
+		foreach ( $booleans as $key ) {
+			if ( array_key_exists( $key, $input ) ) {
+				$clean[ $key ] = ! empty( $input[ $key ] );
+			}
+		}
+
+		if ( array_key_exists( 'default_layout', $input ) ) {
+			$clean['default_layout'] = in_array( $input['default_layout'], array( 'one-column', 'two-column' ), true )
+				? (string) $input['default_layout']
+				: 'one-column';
+		}
+
+		if ( array_key_exists( 'default_submit_label', $input ) ) {
+			$label                         = sanitize_text_field( (string) $input['default_submit_label'] );
+			$clean['default_submit_label'] = '' !== $label ? $label : __( 'Submit', 'free-mpro-forms' );
+		}
+
+		if ( array_key_exists( 'addons_cache_hours', $input ) ) {
+			$clean['addons_cache_hours'] = max( 1, min( 168, absint( $input['addons_cache_hours'] ) ) );
+		}
+
+		if ( array_key_exists( 'currency', $input ) ) {
+			$currency          = strtoupper( sanitize_text_field( (string) $input['currency'] ) );
+			$clean['currency'] = preg_match( '/^[A-Z]{3}$/', $currency ) ? $currency : 'IRR';
+		}
+
+		if ( array_key_exists( 'retention_days', $input ) ) {
+			$clean['retention_days'] = max( 0, min( 3650, absint( $input['retention_days'] ) ) );
+		}
+
+		if ( array_key_exists( 'sms_provider', $input ) ) {
+			$provider              = sanitize_key( (string) $input['sms_provider'] );
+			$clean['sms_provider'] = array_key_exists( $provider, self::sms_providers() ) ? $provider : '';
+		}
+
+		if ( array_key_exists( 'sms_api_key', $input ) ) {
+			$clean['sms_api_key'] = sanitize_text_field( (string) $input['sms_api_key'] );
+		}
+
+		if ( array_key_exists( 'sms_sender', $input ) ) {
+			$clean['sms_sender'] = sanitize_text_field( (string) $input['sms_sender'] );
+		}
+
+		return $clean;
 	}
 
-	public static function render_page(): void {
-		if ( ! current_user_can( 'manage_options' ) ) {
+	/**
+	 * Schedule or clear the retention job to match the saved window.
+	 */
+	public static function sync_cron(): void {
+		$scheduled = wp_next_scheduled( self::CRON_HOOK );
+
+		if ( (int) self::get( 'retention_days', 0 ) > 0 ) {
+			if ( ! $scheduled ) {
+				wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', self::CRON_HOOK );
+			}
+
 			return;
 		}
-		?>
-		<div class="wrap">
-			<h1><?php esc_html_e( 'Free MPRO Forms Settings', 'free-mpro-forms' ); ?></h1>
-			<form action="options.php" method="post">
-				<?php
-				settings_fields( self::SETTINGS_GROUP );
-				do_settings_sections( self::SETTINGS_PAGE );
-				submit_button();
-				?>
-			</form>
-		</div>
-		<?php
-	}
 
-	public static function render_section_intro(): void {
-		echo '<p>' . esc_html__( 'Choose how long permanent submissions remain on this WordPress installation. Temporary validation state expires separately after five minutes.', 'free-mpro-forms' ) . '</p>';
-	}
-
-	public static function render_retention_field(): void {
-		$value   = absint( get_option( self::OPTION_RETENTION_DAYS, 0 ) );
-		$options = array(
-			0    => __( 'Keep submissions until manually deleted', 'free-mpro-forms' ),
-			30   => __( 'Delete after 30 days', 'free-mpro-forms' ),
-			60   => __( 'Delete after 60 days', 'free-mpro-forms' ),
-			90   => __( 'Delete after 90 days', 'free-mpro-forms' ),
-			180  => __( 'Delete after 180 days', 'free-mpro-forms' ),
-			365  => __( 'Delete after one year', 'free-mpro-forms' ),
-			730  => __( 'Delete after two years', 'free-mpro-forms' ),
-			1825 => __( 'Delete after five years', 'free-mpro-forms' ),
-		);
-		?>
-		<select name="<?php echo esc_attr( self::OPTION_RETENTION_DAYS ); ?>">
-			<?php foreach ( $options as $days => $label ) : ?>
-				<option value="<?php echo esc_attr( (string) $days ); ?>"<?php selected( $value, $days ); ?>><?php echo esc_html( $label ); ?></option>
-			<?php endforeach; ?>
-		</select>
-		<p class="description"><?php esc_html_e( 'Cleanup runs daily. The default is to keep submissions until an administrator deletes them.', 'free-mpro-forms' ); ?></p>
-		<?php
-	}
-
-	public static function render_uninstall_field(): void {
-		$value = (bool) get_option( self::OPTION_DELETE_ON_UNINSTALL, false );
-		?>
-		<input type="hidden" name="<?php echo esc_attr( self::OPTION_DELETE_ON_UNINSTALL ); ?>" value="0">
-		<label>
-			<input type="checkbox" name="<?php echo esc_attr( self::OPTION_DELETE_ON_UNINSTALL ); ?>" value="1"<?php checked( $value ); ?>>
-			<?php esc_html_e( 'Permanently delete all Free MPRO Forms forms, submissions, settings, and temporary state when the plugin is uninstalled.', 'free-mpro-forms' ); ?>
-		</label>
-		<p class="description"><strong><?php esc_html_e( 'Warning:', 'free-mpro-forms' ); ?></strong> <?php esc_html_e( 'This cannot be undone. Deactivation never deletes form or submission data.', 'free-mpro-forms' ); ?></p>
-		<?php
-	}
-
-	public static function sanitize_retention_days( mixed $value ): int {
-		$value   = absint( $value );
-		$allowed = array( 0, 30, 60, 90, 180, 365, 730, 1825 );
-
-		return in_array( $value, $allowed, true ) ? $value : 0;
-	}
-
-	public static function cleanup_expired_submissions(): int {
-		$days = absint( get_option( self::OPTION_RETENTION_DAYS, 0 ) );
-		if ( 0 === $days ) {
-			return 0;
+		if ( $scheduled ) {
+			wp_clear_scheduled_hook( self::CRON_HOOK );
 		}
+	}
 
-		$deleted = 0;
-		$before  = gmdate( 'Y-m-d H:i:s', time() - ( $days * DAY_IN_SECONDS ) );
+	public static function run_retention_cleanup(): void {
+		$days = (int) self::get( 'retention_days', 0 );
 
-		do {
-			$query = new \WP_Query(
-				array(
-					'post_type'              => 'fmpf_submission',
-					'post_status'            => 'any',
-					'fields'                 => 'ids',
-					'posts_per_page'         => 100,
-					'orderby'                => 'ID',
-					'order'                  => 'ASC',
-					'no_found_rows'          => true,
-					'cache_results'          => false,
-					'update_post_meta_cache' => false,
-					'update_post_term_cache' => false,
-					'date_query'             => array(
-						array(
-							'column'    => 'post_date_gmt',
-							'before'    => $before,
-							'inclusive' => true,
-						),
-					),
-				)
-			);
+		if ( $days > 0 ) {
+			Entry_Repository::purge_older_than( $days );
+		}
+	}
 
-			$ids                = array_map( 'absint', $query->posts );
-			$deleted_this_batch = 0;
-
-			foreach ( $ids as $submission_id ) {
-				if ( wp_delete_post( $submission_id, true ) ) {
-					++$deleted;
-					++$deleted_this_batch;
-				}
-			}
-
-			if ( $ids && 0 === $deleted_this_batch ) {
-				break;
-			}
-		} while ( count( $ids ) === 100 );
-
-		return $deleted;
+	/**
+	 * Reset the in-request cache. Used by tests and after direct option writes.
+	 */
+	public static function flush(): void {
+		self::$cache = null;
 	}
 }

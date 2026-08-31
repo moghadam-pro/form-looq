@@ -1,0 +1,284 @@
+<?php
+/**
+ * Admin menu registration, shared chrome, and asset loading.
+ *
+ * @package FreeMPROForms
+ */
+
+namespace FreeMPROForms\Admin;
+
+use FreeMPROForms\Plugin;
+use FreeMPROForms\Settings;
+
+defined( 'ABSPATH' ) || exit;
+
+final class Admin {
+	/**
+	 * Menu position 11 places the plugin immediately below Media (10).
+	 */
+	private const MENU_POSITION = 11;
+
+	/**
+	 * @var array<int, string>
+	 */
+	private static array $hooks = array();
+
+	public static function init(): void {
+		add_action( 'admin_menu', array( self::class, 'register_menu' ), 9 );
+		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue' ) );
+		add_action( 'admin_print_scripts', array( self::class, 'no_conflict' ), 100 );
+		add_action( 'admin_print_styles', array( self::class, 'no_conflict' ), 100 );
+		add_filter( 'plugin_action_links_' . plugin_basename( FREE_MPRO_FORMS_FILE ), array( self::class, 'action_links' ) );
+		add_filter( 'admin_body_class', array( self::class, 'body_class' ) );
+	}
+
+	/**
+	 * Pages in submenu order.
+	 *
+	 * @return array<string, array{title: string, callback: callable, hidden?: bool}>
+	 */
+	public static function pages(): array {
+		return array(
+			Plugin::MENU_SLUG              => array(
+				'title'    => __( 'Forms list', 'free-mpro-forms' ),
+				'callback' => array( Page_Forms::class, 'render' ),
+			),
+			Plugin::MENU_SLUG . '-new'     => array(
+				'title'    => __( 'New form', 'free-mpro-forms' ),
+				'callback' => array( Page_New_Form::class, 'render' ),
+			),
+			Plugin::MENU_SLUG . '-inbox'   => array(
+				'title'    => __( 'Inbox', 'free-mpro-forms' ),
+				'callback' => array( Page_Inbox::class, 'render' ),
+			),
+			Plugin::MENU_SLUG . '-settings' => array(
+				'title'    => __( 'Settings', 'free-mpro-forms' ),
+				'callback' => array( Page_Settings::class, 'render' ),
+			),
+			Plugin::MENU_SLUG . '-tools'   => array(
+				'title'    => __( 'Import / Export', 'free-mpro-forms' ),
+				'callback' => array( Page_Tools::class, 'render' ),
+			),
+			Plugin::MENU_SLUG . '-addons'  => array(
+				'title'    => __( 'Add-ons', 'free-mpro-forms' ),
+				'callback' => array( Page_Addons::class, 'render' ),
+			),
+			Plugin::MENU_SLUG . '-status'  => array(
+				'title'    => __( 'System status', 'free-mpro-forms' ),
+				'callback' => array( Page_Status::class, 'render' ),
+			),
+			Plugin::MENU_SLUG . '-help'    => array(
+				'title'    => __( 'Help', 'free-mpro-forms' ),
+				'callback' => array( Page_Help::class, 'render' ),
+			),
+			Plugin::MENU_SLUG . '-builder' => array(
+				'title'    => __( 'Form builder', 'free-mpro-forms' ),
+				'callback' => array( Page_Builder::class, 'render' ),
+				'hidden'   => true,
+			),
+			Plugin::MENU_SLUG . '-entry'   => array(
+				'title'    => __( 'Entry', 'free-mpro-forms' ),
+				'callback' => array( Page_Entry::class, 'render' ),
+				'hidden'   => true,
+			),
+		);
+	}
+
+	public static function register_menu(): void {
+		$capability = Plugin::capability();
+
+		add_menu_page(
+			Plugin::menu_label(),
+			Plugin::menu_label(),
+			$capability,
+			Plugin::MENU_SLUG,
+			array( Page_Forms::class, 'render' ),
+			Plugin::menu_icon(),
+			self::MENU_POSITION
+		);
+
+		$hidden = array();
+
+		foreach ( self::pages() as $slug => $page ) {
+			$hook = add_submenu_page(
+				Plugin::MENU_SLUG,
+				$page['title'],
+				$page['title'],
+				$capability,
+				$slug,
+				$page['callback']
+			);
+
+			if ( $hook ) {
+				self::$hooks[] = $hook;
+			}
+
+			if ( ! empty( $page['hidden'] ) ) {
+				$hidden[] = $slug;
+			}
+		}
+
+		// Hidden pages stay routable but never appear in the sidebar.
+		foreach ( $hidden as $slug ) {
+			remove_submenu_page( Plugin::MENU_SLUG, $slug );
+		}
+	}
+
+	public static function is_plugin_screen(): bool {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+
+		return $screen instanceof \WP_Screen && in_array( $screen->id, self::$hooks, true );
+	}
+
+	/**
+	 * @param string $classes Space separated body classes.
+	 */
+	public static function body_class( string $classes ): string {
+		return self::is_plugin_screen() ? $classes . ' fmpf-admin ' : $classes;
+	}
+
+	public static function enqueue( string $hook ): void {
+		if ( ! in_array( $hook, self::$hooks, true ) ) {
+			return;
+		}
+
+		wp_enqueue_style(
+			'fmpf-admin',
+			plugins_url( 'assets/css/admin.css', FREE_MPRO_FORMS_FILE ),
+			array(),
+			FREE_MPRO_FORMS_VERSION
+		);
+
+		wp_enqueue_script(
+			'fmpf-admin',
+			plugins_url( 'assets/js/admin.js', FREE_MPRO_FORMS_FILE ),
+			array(),
+			FREE_MPRO_FORMS_VERSION,
+			true
+		);
+
+		wp_localize_script(
+			'fmpf-admin',
+			'fmpfAdmin',
+			array(
+				'copied'      => __( 'Copied to clipboard.', 'free-mpro-forms' ),
+				'copyFailed'  => __( 'Copy failed. Select the text and copy it manually.', 'free-mpro-forms' ),
+				'confirmLeave' => (bool) Settings::get( 'confirm_before_leaving', true ),
+				'leaveWarning' => __( 'You have unsaved changes.', 'free-mpro-forms' ),
+			)
+		);
+	}
+
+	/**
+	 * Strip third-party assets from plugin screens when no-conflict mode is on.
+	 *
+	 * Only handles registered outside WordPress core and this plugin are removed,
+	 * which is what makes another plugin's script stop breaking the builder.
+	 */
+	public static function no_conflict(): void {
+		if ( ! self::is_plugin_screen() || ! Settings::get( 'no_conflict_mode', false ) ) {
+			return;
+		}
+
+		$core_url   = includes_url();
+		$admin_url  = admin_url();
+		$plugin_url = plugins_url( '', FREE_MPRO_FORMS_FILE );
+
+		foreach ( array( wp_scripts(), wp_styles() ) as $registry ) {
+			foreach ( (array) $registry->queue as $handle ) {
+				$src = (string) ( $registry->registered[ $handle ]->src ?? '' );
+
+				if ( '' === $src || ! str_starts_with( $src, 'http' ) ) {
+					continue;
+				}
+
+				if (
+					str_starts_with( $src, $core_url )
+					|| str_starts_with( $src, $admin_url )
+					|| str_starts_with( $src, $plugin_url )
+				) {
+					continue;
+				}
+
+				$registry->dequeue( $handle );
+			}
+		}
+	}
+
+	/**
+	 * Render the header bar shown at the top of every plugin screen.
+	 */
+	public static function header( string $title, string $subtitle = '' ): void {
+		?>
+		<div class="fmpf-header">
+			<img class="fmpf-header__logo" src="<?php echo esc_url( Plugin::logo_url() ); ?>" alt="" width="32" height="32">
+			<div class="fmpf-header__identity">
+				<span class="fmpf-header__name"><?php echo esc_html( Plugin::menu_label() ); ?></span>
+				<span class="fmpf-header__version">v<?php echo esc_html( Plugin::version() ); ?></span>
+			</div>
+			<div class="fmpf-header__page">
+				<h1 class="fmpf-header__title"><?php echo esc_html( $title ); ?></h1>
+				<?php if ( '' !== $subtitle ) : ?>
+					<p class="fmpf-header__subtitle"><?php echo esc_html( $subtitle ); ?></p>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * @param array<int, string> $links Existing plugin row links.
+	 * @return array<int, string>
+	 */
+	public static function action_links( array $links ): array {
+		array_unshift(
+			$links,
+			'<a href="' . esc_url( Plugin::admin_url() ) . '">' . esc_html__( 'Forms', 'free-mpro-forms' ) . '</a>',
+			'<a href="' . esc_url( Plugin::admin_url( Plugin::MENU_SLUG . '-settings' ) ) . '">' . esc_html__( 'Settings', 'free-mpro-forms' ) . '</a>'
+		);
+
+		return $links;
+	}
+
+	/**
+	 * Guard used at the top of every page callback.
+	 */
+	public static function guard(): void {
+		if ( ! Plugin::current_user_can() ) {
+			wp_die( esc_html__( 'You do not have permission to manage forms.', 'free-mpro-forms' ), 403 );
+		}
+	}
+
+	/**
+	 * Print a dismissible notice from a query argument.
+	 */
+	public static function render_notice(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$message = isset( $_GET['fmpf_notice'] ) ? sanitize_key( wp_unslash( $_GET['fmpf_notice'] ) ) : '';
+
+		if ( '' === $message ) {
+			return;
+		}
+
+		$notices = array(
+			'created'     => array( 'success', __( 'Form created.', 'free-mpro-forms' ) ),
+			'updated'     => array( 'success', __( 'Form saved.', 'free-mpro-forms' ) ),
+			'duplicated'  => array( 'success', __( 'Form duplicated.', 'free-mpro-forms' ) ),
+			'deleted'     => array( 'success', __( 'Form deleted.', 'free-mpro-forms' ) ),
+			'settings'    => array( 'success', __( 'Settings saved.', 'free-mpro-forms' ) ),
+			'entry-note'  => array( 'success', __( 'Note saved.', 'free-mpro-forms' ) ),
+			'entries'     => array( 'success', __( 'Entries updated.', 'free-mpro-forms' ) ),
+			'error'       => array( 'error', __( 'The request could not be completed.', 'free-mpro-forms' ) ),
+		);
+
+		if ( ! isset( $notices[ $message ] ) ) {
+			return;
+		}
+
+		printf(
+			'<div class="notice notice-%1$s is-dismissible"><p>%2$s</p></div>',
+			esc_attr( $notices[ $message ][0] ),
+			esc_html( $notices[ $message ][1] )
+		);
+	}
+}

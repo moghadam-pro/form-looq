@@ -25,10 +25,11 @@ final class Rate_Limiter {
 		$started = isset( $_POST['fmpf_started_at'] ) ? absint( $_POST['fmpf_started_at'] ) : 0;
 		$elapsed = $started > 0 ? time() - $started : 0;
 
+		$form = Form_Repository::get( $form_id );
+
 		if (
-			! $form_id ||
-			'fmpf_form' !== get_post_type( $form_id ) ||
-			'publish' !== get_post_status( $form_id ) ||
+			! $form ||
+			Form_Repository::STATUS_ACTIVE !== $form['status'] ||
 			! isset( $_POST['fmpf_nonce'] ) ||
 			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['fmpf_nonce'] ) ), 'fmpf_submit_' . $form_id ) ||
 			! empty( $_POST['website'] ) ||

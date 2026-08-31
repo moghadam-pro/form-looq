@@ -1,6 +1,11 @@
 <?php
 /**
- * Free MPRO Forms uninstall cleanup.
+ * Free MPRO Forms uninstall routine.
+ *
+ * Forms and entries live in dedicated tables and are deliberately kept when the
+ * plugin is deleted, so uninstalling and reinstalling — or updating by replacing
+ * the folder — never loses a site's data. Everything is removed only when the
+ * site owner explicitly opts in under Settings → General.
  *
  * @package FreeMPROForms
  */
@@ -9,47 +14,44 @@ defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
 wp_clear_scheduled_hook( 'fmpf_daily_retention_cleanup' );
 
-if ( ! get_option( 'fmpf_delete_data_on_uninstall', false ) ) {
+delete_transient( 'fmpf_remote_addons' );
+delete_transient( 'fmpf_remote_docs' );
+
+$fmpf_settings = get_option( 'fmpf_settings', array() );
+$fmpf_settings = is_array( $fmpf_settings ) ? $fmpf_settings : array();
+
+if ( empty( $fmpf_settings['delete_data_on_uninstall'] ) ) {
 	return;
 }
 
-foreach ( array( 'fmpf_submission', 'fmpf_form' ) as $fmpf_post_type ) {
-	do {
-		$fmpf_query = new WP_Query(
-			array(
-				'post_type'              => $fmpf_post_type,
-				'post_status'            => 'any',
-				'fields'                 => 'ids',
-				'posts_per_page'         => 100,
-				'orderby'                => 'ID',
-				'order'                  => 'ASC',
-				'no_found_rows'          => true,
-				'cache_results'          => false,
-				'update_post_meta_cache' => false,
-				'update_post_term_cache' => false,
-			)
-		);
+global $wpdb;
 
-		$fmpf_ids                = array_map( 'absint', $fmpf_query->posts );
-		$fmpf_deleted_this_batch = 0;
-		$fmpf_batch_size         = count( $fmpf_ids );
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
+foreach ( array( 'entries', 'forms' ) as $fmpf_table ) {
+	$fmpf_table_name = $wpdb->prefix . 'fmpf_' . $fmpf_table;
+	$wpdb->query( "DROP TABLE IF EXISTS `{$fmpf_table_name}`" );
+}
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
 
-		foreach ( $fmpf_ids as $fmpf_post_id ) {
-			if ( wp_delete_post( $fmpf_post_id, true ) ) {
-				++$fmpf_deleted_this_batch;
-			}
-		}
-
-		if ( $fmpf_ids && 0 === $fmpf_deleted_this_batch ) {
-			break;
-		}
-	} while ( 100 === $fmpf_batch_size );
+foreach (
+	array(
+		'fmpf_settings',
+		'fmpf_schema_version',
+		'fmpf_version',
+		'fmpf_installed_at',
+		'fmpf_show_welcome',
+		'fmpf_retention_days',
+		'fmpf_delete_data_on_uninstall',
+	) as $fmpf_option
+) {
+	delete_option( $fmpf_option );
 }
 
-delete_option( 'fmpf_retention_days' );
-delete_option( 'fmpf_delete_data_on_uninstall' );
+$fmpf_role = get_role( 'administrator' );
 
-global $wpdb;
+if ( $fmpf_role instanceof WP_Role ) {
+	$fmpf_role->remove_cap( 'fmpf_manage_forms' );
+}
 
 $fmpf_patterns = array(
 	$wpdb->esc_like( '_transient_fmpf_state_' ) . '%',
@@ -67,7 +69,6 @@ foreach ( $fmpf_patterns as $fmpf_pattern ) {
 	);
 
 	foreach ( $fmpf_option_names as $fmpf_option_name ) {
-		$fmpf_transient_name = substr( $fmpf_option_name, strlen( '_transient_' ) );
-		delete_transient( $fmpf_transient_name );
+		delete_transient( substr( $fmpf_option_name, strlen( '_transient_' ) ) );
 	}
 }

@@ -5,18 +5,43 @@ namespace FreeMPROForms;
 defined( 'ABSPATH' ) || exit;
 
 final class Frontend_Form {
-	private const META_FIELDS = '_fmpf_fields';
-	private const META_TYPE   = '_fmpf_submission_type';
-
 	public static function init(): void {
-		remove_shortcode( 'free_mpro_form' );
 		add_shortcode( 'free_mpro_form', array( self::class, 'shortcode' ) );
-
-		remove_action( 'admin_post_fmpf_submit', array( Form_Manager::class, 'handle_submission' ) );
-		remove_action( 'admin_post_nopriv_fmpf_submit', array( Form_Manager::class, 'handle_submission' ) );
+		add_action( 'wp_enqueue_scripts', array( self::class, 'register_assets' ) );
 		add_action( 'admin_post_fmpf_submit', array( self::class, 'handle_submission' ) );
 		add_action( 'admin_post_nopriv_fmpf_submit', array( self::class, 'handle_submission' ) );
 		add_action( 'template_redirect', array( self::class, 'protect_state_page' ), 0 );
+	}
+
+	/**
+	 * Register frontend assets so they are only enqueued when a form renders.
+	 */
+	public static function register_assets(): void {
+		if ( ! Settings::get( 'output_css', true ) ) {
+			return;
+		}
+
+		wp_register_style(
+			'free-mpro-forms',
+			plugins_url( 'assets/css/forms.css', FREE_MPRO_FORMS_FILE ),
+			array(),
+			FREE_MPRO_FORMS_VERSION
+		);
+	}
+
+	/**
+	 * Load a renderable form, or null when it is missing, inactive, or empty.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private static function renderable_form( int $form_id ): ?array {
+		$form = Form_Repository::get( $form_id );
+
+		if ( ! $form || Form_Repository::STATUS_ACTIVE !== $form['status'] || ! $form['fields'] ) {
+			return null;
+		}
+
+		return $form;
 	}
 
 	public static function protect_state_page(): void {
@@ -47,14 +72,24 @@ final class Frontend_Form {
 		);
 
 		$form_id = absint( $atts['id'] );
-		if ( ! $form_id || 'fmpf_form' !== get_post_type( $form_id ) || 'publish' !== get_post_status( $form_id ) ) {
-			return current_user_can( 'edit_posts' ) ? '<p>' . esc_html__( 'Select a published form.', 'free-mpro-forms' ) . '</p>' : '';
+		$form    = self::renderable_form( $form_id );
+
+		if ( ! $form ) {
+			return Plugin::current_user_can() ? '<p>' . esc_html__( 'Select an active form.', 'free-mpro-forms' ) . '</p>' : '';
 		}
 
-		$fields = Field_Validator::parse_definition( (string) get_post_meta( $form_id, self::META_FIELDS, true ) );
-		if ( ! $fields ) {
-			return '';
+		$fields   = $form['fields'];
+		$settings = $form['settings'];
+
+		if ( '' === (string) $atts['button'] || __( 'Submit', 'free-mpro-forms' ) === $atts['button'] ) {
+			$atts['button'] = $settings['submit_label'];
 		}
+
+		if ( __( 'Thank you. Your submission has been recorded.', 'free-mpro-forms' ) === $atts['sent'] ) {
+			$atts['sent'] = $settings['success_message'];
+		}
+
+		Form_Repository::record_view( $form_id );
 
 		wp_enqueue_style( 'free-mpro-forms' );
 		wp_enqueue_script(
@@ -79,9 +114,11 @@ final class Frontend_Form {
 		$notice_id   = 'fmpf-notice-' . $form_id;
 		$form_id_attr = 'fmpf-form-' . $form_id;
 
+		$layout = 'two-column' === ( $settings['layout'] ?? '' ) ? ' fmpf-layout-two-column' : '';
+
 		ob_start();
 		?>
-		<div id="<?php echo esc_attr( $form_id_attr ); ?>" class="fmpf-form-wrap" dir="<?php echo esc_attr( $direction ); ?>" data-fmpf-has-errors="<?php echo $has_error ? '1' : '0'; ?>">
+		<div id="<?php echo esc_attr( $form_id_attr ); ?>" class="fmpf-form-wrap<?php echo esc_attr( $layout ); ?>" dir="<?php echo esc_attr( $direction ); ?>" data-fmpf-has-errors="<?php echo $has_error ? '1' : '0'; ?>">
 			<?php if ( 'sent' === $status ) : ?>
 				<p id="<?php echo esc_attr( $notice_id ); ?>" class="fmpf-notice" role="status" tabindex="-1"><?php echo esc_html( (string) $atts['sent'] ); ?></p>
 			<?php elseif ( $has_error ) : ?>
@@ -98,10 +135,12 @@ final class Frontend_Form {
 					<?php self::render_field( $field, $select, $yes, $form_id, $index, $values, $errors ); ?>
 				<?php endforeach; ?>
 
-				<label class="fmpf-honeypot" aria-hidden="true" for="<?php echo esc_attr( 'fmpf-website-' . $form_id ); ?>">
-					<?php esc_html_e( 'Leave this field empty', 'free-mpro-forms' ); ?>
-					<input id="<?php echo esc_attr( 'fmpf-website-' . $form_id ); ?>" name="website" tabindex="-1" autocomplete="off">
-				</label>
+				<?php if ( ! empty( $settings['honeypot'] ) ) : ?>
+					<label class="fmpf-honeypot" aria-hidden="true" for="<?php echo esc_attr( 'fmpf-website-' . $form_id ); ?>">
+						<?php esc_html_e( 'Leave this field empty', 'free-mpro-forms' ); ?>
+						<input id="<?php echo esc_attr( 'fmpf-website-' . $form_id ); ?>" name="website" tabindex="-1" autocomplete="off">
+					</label>
+				<?php endif; ?>
 				<button type="submit"><?php echo esc_html( (string) $atts['button'] ); ?></button>
 			</form>
 		</div>
@@ -115,10 +154,10 @@ final class Frontend_Form {
 		$started = isset( $_POST['fmpf_started_at'] ) ? absint( $_POST['fmpf_started_at'] ) : 0;
 		$elapsed = $started > 0 ? time() - $started : 0;
 
+		$form = self::renderable_form( $form_id );
+
 		if (
-			! $form_id ||
-			'fmpf_form' !== get_post_type( $form_id ) ||
-			'publish' !== get_post_status( $form_id ) ||
+			! $form ||
 			! isset( $_POST['fmpf_nonce'] ) ||
 			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['fmpf_nonce'] ) ), 'fmpf_submit_' . $form_id ) ||
 			! empty( $_POST['website'] ) ||
@@ -128,10 +167,7 @@ final class Frontend_Form {
 			self::redirect( $referer, 'error', $form_id );
 		}
 
-		$fields = Field_Validator::parse_definition( (string) get_post_meta( $form_id, self::META_FIELDS, true ) );
-		if ( ! $fields ) {
-			self::redirect( $referer, 'error', $form_id );
-		}
+		$fields = $form['fields'];
 
 		$validation = Submission_Validator::validate( $fields, $_POST );
 		if ( ! $validation['valid'] ) {
@@ -139,13 +175,23 @@ final class Frontend_Form {
 			self::redirect( $referer, 'error', $form_id, $token );
 		}
 
-		$type  = (string) get_post_meta( $form_id, self::META_TYPE, true );
-		$title = get_the_title( $form_id ) . ' — ' . current_time( 'mysql' );
+		$context = array(
+			'ip'         => isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '',
+			'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
+			'referer'    => $referer,
+		);
 
-		if ( ! Submission_Manager::store( $type ?: 'general', $title, $validation['data'], $form_id ) ) {
+		if ( ! Entry_Repository::create( $form_id, $validation['data'], $context ) ) {
 			$errors = array( '_form' => __( 'We could not save your submission. Please try again.', 'free-mpro-forms' ) );
 			$token  = Submission_State::create( $form_id, $validation['values'], $errors );
 			self::redirect( $referer, 'error', $form_id, $token );
+		}
+
+		$redirect_url = (string) ( $form['settings']['redirect_url'] ?? '' );
+
+		if ( '' !== $redirect_url ) {
+			wp_safe_redirect( $redirect_url );
+			exit;
 		}
 
 		self::redirect( $referer, 'sent', $form_id );
@@ -193,8 +239,12 @@ final class Frontend_Form {
 		$described_by = trim( $help_id . ' ' . $error_id );
 		$value        = isset( $values[ $field['name'] ] ) ? (string) $values[ $field['name'] ] : '';
 		$required     = $field['required'];
-		$wide         = in_array( $field['type'], array( 'textarea', 'radio', 'scale', 'checkbox' ), true );
+		$wide         = 'half' !== ( $field['width'] ?? 'full' )
+			|| in_array( $field['type'], array( 'textarea', 'radio', 'scale', 'checkbox' ), true );
 		$class        = $wide ? 'fmpf-field fmpf-field--wide' : 'fmpf-field';
+		$placeholder  = '' !== (string) ( $field['placeholder'] ?? '' )
+			? ' placeholder="' . esc_attr( (string) $field['placeholder'] ) . '"'
+			: '';
 
 		if ( in_array( $field['type'], array( 'radio', 'scale' ), true ) ) {
 			echo '<fieldset id="' . esc_attr( $field_id ) . '" class="' . esc_attr( $class . ' fmpf-fieldset' . ( $error ? ' is-invalid' : '' ) ) . '"' . ( $described_by ? ' aria-describedby="' . esc_attr( $described_by ) . '"' : '' ) . ( $error ? ' aria-invalid="true" tabindex="-1"' : '' ) . '>';
@@ -228,7 +278,7 @@ final class Frontend_Form {
 		$common = ( $required ? ' required aria-required="true"' : '' ) . ( $described_by ? ' aria-describedby="' . esc_attr( $described_by ) . '"' : '' ) . ( $error ? ' aria-invalid="true"' : '' );
 
 		if ( 'textarea' === $field['type'] ) {
-			echo '<textarea id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field['name'] ) . '" rows="5" maxlength="5000"' . $common . '>' . esc_textarea( $value ) . '</textarea>';
+			echo '<textarea id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field['name'] ) . '" rows="5" maxlength="5000"' . $placeholder . $common . '>' . esc_textarea( $value ) . '</textarea>';
 		} elseif ( 'select' === $field['type'] ) {
 			echo '<select id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field['name'] ) . '"' . $common . '><option value="">' . esc_html( $select_label ) . '</option>';
 			foreach ( $field['options'] as $option ) {
@@ -240,7 +290,7 @@ final class Frontend_Form {
 		} else {
 			$maxlength    = 'tel' === $field['type'] ? 40 : 500;
 			$autocomplete = 'email' === $field['type'] ? 'email' : ( 'tel' === $field['type'] ? 'tel' : 'off' );
-			echo '<input id="' . esc_attr( $field_id ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $field['name'] ) . '" value="' . esc_attr( $value ) . '" maxlength="' . esc_attr( (string) $maxlength ) . '" autocomplete="' . esc_attr( $autocomplete ) . '"' . $common . '>';
+			echo '<input id="' . esc_attr( $field_id ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $field['name'] ) . '" value="' . esc_attr( $value ) . '" maxlength="' . esc_attr( (string) $maxlength ) . '" autocomplete="' . esc_attr( $autocomplete ) . '"' . $placeholder . $common . '>';
 		}
 
 		self::render_help( $field, $help_id );

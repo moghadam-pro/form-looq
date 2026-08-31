@@ -88,4 +88,95 @@ $textarea_result = Submission_Validator::validate( $textarea_fields, array( 'mes
 fmpf_assert_true( ! $textarea_result['valid'], 'Textarea values longer than 5,000 characters should fail.' );
 fmpf_assert_same( 5000, strlen( $textarea_result['values']['message'] ), 'Displayed textarea value should be safely truncated.' );
 
+/*
+ * Structured field sanitization - the path the visual builder posts through.
+ */
+$builder_fields = Field_Validator::sanitize_fields(
+	array(
+		array(
+			'type'  => 'section',
+			'label' => 'Contact details',
+			'name'  => 'ignored_on_sections',
+		),
+		array(
+			'type'     => 'email',
+			'name'     => 'email',
+			'label'    => 'Email address',
+			'required' => true,
+			'width'    => 'half',
+		),
+		array(
+			'type'  => 'text',
+			'label' => 'Full name',
+		),
+		array(
+			'type'  => 'text',
+			'name'  => 'action',
+			'label' => 'Reserved name',
+		),
+		array(
+			'type'  => 'text',
+			'name'  => 'email',
+			'label' => 'Duplicate name',
+		),
+		array(
+			'type'  => 'select',
+			'name'  => 'topic',
+			'label' => 'Topic',
+		),
+		array(
+			'type'    => 'scale',
+			'name'    => 'rating',
+			'label'   => 'Rating',
+			'options' => array(),
+		),
+		array(
+			'type'  => 'unknown',
+			'name'  => 'nope',
+			'label' => 'Unsupported type',
+		),
+	)
+);
+
+fmpf_assert_same( 4, count( $builder_fields ), 'Sanitizer should drop reserved, duplicate, optionless, and unknown fields.' );
+fmpf_assert_same( '', $builder_fields[0]['name'], 'Sections should never carry a field name.' );
+fmpf_assert_same( 'half', $builder_fields[1]['width'], 'A valid width should be preserved.' );
+fmpf_assert_same( 'full_name', $builder_fields[2]['name'], 'A missing name should be generated from the label.' );
+fmpf_assert_same( array( '1', '2', '3', '4', '5' ), $builder_fields[3]['options'], 'Scale should fall back to a default range.' );
+
+$width_fallback = Field_Validator::sanitize_fields(
+	array(
+		array(
+			'type'  => 'text',
+			'name'  => 'note',
+			'label' => 'Note',
+			'width' => 'third',
+		),
+	)
+);
+fmpf_assert_same( 'full', $width_fallback[0]['width'], 'An unsupported width should fall back to full.' );
+
+$too_many_structured = array();
+for ( $index = 1; $index <= 60; ++$index ) {
+	$too_many_structured[] = array(
+		'type'  => 'text',
+		'name'  => 'field_' . $index,
+		'label' => 'Field ' . $index,
+	);
+}
+fmpf_assert_same( 50, count( Field_Validator::sanitize_fields( $too_many_structured ) ), 'Sanitizer should enforce the 50-field limit.' );
+
+$builder_request = array(
+	'email'     => 'sayid@example.com',
+	'full_name' => 'Sayid',
+	'rating'    => '4',
+);
+$builder_result = Submission_Validator::validate( $builder_fields, $builder_request );
+fmpf_assert_true( $builder_result['valid'], 'A valid submission against builder fields should pass.' );
+
+$builder_forged           = $builder_request;
+$builder_forged['rating'] = '9';
+$builder_forged_result    = Submission_Validator::validate( $builder_fields, $builder_forged );
+fmpf_assert_true( ! $builder_forged_result['valid'], 'A scale value outside the generated range should fail.' );
+
 fwrite( STDOUT, "Validator tests passed.\n" );

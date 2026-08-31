@@ -1,23 +1,27 @@
 <?php
+/**
+ * WordPress personal-data export and erasure integration.
+ *
+ * @package FreeMPROForms
+ */
 
 namespace FreeMPROForms;
 
 defined( 'ABSPATH' ) || exit;
 
 final class Privacy_Manager {
-	private const EXPORTER_ID  = 'free-mpro-forms-submissions';
-	private const PER_PAGE     = 50;
-	private const META_FIELDS  = '_fmpf_fields';
-	private const META_FORM_ID = '_fmpf_form_id';
-	private const META_DATA    = '_fmpf_data';
-	private const META_TYPE    = '_fmpf_type';
-	private const META_STATUS  = '_fmpf_status';
+	private const EXPORTER_ID = 'free-mpro-forms-submissions';
+	private const PER_PAGE    = 50;
 
 	public static function init(): void {
 		add_filter( 'wp_privacy_personal_data_exporters', array( self::class, 'register_exporter' ) );
 		add_filter( 'wp_privacy_personal_data_erasers', array( self::class, 'register_eraser' ) );
 	}
 
+	/**
+	 * @param array<string, mixed> $exporters Registered exporters.
+	 * @return array<string, mixed>
+	 */
 	public static function register_exporter( array $exporters ): array {
 		$exporters[ self::EXPORTER_ID ] = array(
 			'exporter_friendly_name' => __( 'Free MPRO Forms submissions', 'free-mpro-forms' ),
@@ -27,6 +31,10 @@ final class Privacy_Manager {
 		return $exporters;
 	}
 
+	/**
+	 * @param array<string, mixed> $erasers Registered erasers.
+	 * @return array<string, mixed>
+	 */
 	public static function register_eraser( array $erasers ): array {
 		$erasers[ self::EXPORTER_ID ] = array(
 			'eraser_friendly_name' => __( 'Free MPRO Forms submissions', 'free-mpro-forms' ),
@@ -36,10 +44,12 @@ final class Privacy_Manager {
 		return $erasers;
 	}
 
+	/**
+	 * @return array{data: array<int, mixed>, done: bool}
+	 */
 	public static function export_personal_data( string $email_address, int $page = 1 ): array {
 		$email_address = sanitize_email( $email_address );
 		$page          = max( 1, absint( $page ) );
-		$export_items  = array();
 
 		if ( ! $email_address || ! is_email( $email_address ) ) {
 			return array(
@@ -48,30 +58,34 @@ final class Privacy_Manager {
 			);
 		}
 
-		$query = self::submission_query( $page );
-		foreach ( $query->posts as $submission_id ) {
-			$submission_id = absint( $submission_id );
-			$data          = self::submission_data( $submission_id );
+		$entries      = self::entry_page( $page );
+		$export_items = array();
 
-			if ( ! self::submission_matches_email( $submission_id, $data, $email_address ) ) {
+		foreach ( $entries as $entry ) {
+			if ( ! self::entry_matches_email( $entry, $email_address ) ) {
 				continue;
 			}
 
 			$export_items[] = array(
 				'group_id'    => self::EXPORTER_ID,
 				'group_label' => __( 'Form submissions', 'free-mpro-forms' ),
-				'item_id'     => 'fmpf-submission-' . $submission_id,
-				'data'        => self::export_fields( $submission_id, $data ),
+				'item_id'     => 'fmpf-entry-' . $entry['id'],
+				'data'        => self::export_fields( $entry ),
 			);
 		}
 
 		return array(
 			'data' => $export_items,
-			'done' => count( $query->posts ) < self::PER_PAGE,
+			'done' => count( $entries ) < self::PER_PAGE,
 		);
 	}
 
+	/**
+	 * @return array{items_removed: bool, items_retained: bool, messages: array<int, string>, done: bool}
+	 */
 	public static function erase_personal_data( string $email_address, int $page = 1 ): array {
+		global $wpdb;
+
 		$email_address  = sanitize_email( $email_address );
 		$page           = max( 1, absint( $page ) );
 		$items_removed  = false;
@@ -87,86 +101,80 @@ final class Privacy_Manager {
 			);
 		}
 
-		$query = self::submission_query( $page );
-		foreach ( $query->posts as $submission_id ) {
-			$submission_id = absint( $submission_id );
-			$data          = self::submission_data( $submission_id );
+		$entries = self::entry_page( $page );
 
-			if ( ! self::submission_matches_email( $submission_id, $data, $email_address ) ) {
+		foreach ( $entries as $entry ) {
+			if ( ! self::entry_matches_email( $entry, $email_address ) ) {
 				continue;
 			}
 
-			$updated_data   = update_post_meta( $submission_id, self::META_DATA, array() );
-			$updated_status = update_post_meta( $submission_id, self::META_STATUS, 'erased' );
+			$updated = $wpdb->update(
+				DB::entries_table(),
+				array(
+					'data'       => DB::encode( array() ),
+					'status'     => Entry_Repository::STATUS_READ,
+					'ip_hash'    => '',
+					'user_agent' => '',
+					'referer'    => '',
+				),
+				array( 'id' => (int) $entry['id'] ),
+				array( '%s', '%s', '%s', '%s', '%s' ),
+				array( '%d' )
+			);
 
-			if ( false !== $updated_data && false !== $updated_status ) {
+			if ( false !== $updated ) {
 				$items_removed = true;
-			} else {
-				$items_retained = true;
-				$messages[]     = sprintf(
-					/* translators: %d: Submission ID. */
-					__( 'Personal values in submission %d could not be erased.', 'free-mpro-forms' ),
-					$submission_id
-				);
+				continue;
 			}
+
+			$items_retained = true;
+			$messages[]     = sprintf(
+				/* translators: %d: entry ID. */
+				__( 'Personal values in submission %d could not be erased.', 'free-mpro-forms' ),
+				(int) $entry['id']
+			);
 		}
 
 		return array(
 			'items_removed'  => $items_removed,
 			'items_retained' => $items_retained,
 			'messages'       => array_values( array_unique( $messages ) ),
-			'done'           => count( $query->posts ) < self::PER_PAGE,
+			'done'           => count( $entries ) < self::PER_PAGE,
 		);
 	}
 
-	private static function submission_query( int $page ): \WP_Query {
-		return new \WP_Query(
+	/**
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function entry_page( int $page ): array {
+		return Entry_Repository::query(
 			array(
-				'post_type'              => 'fmpf_submission',
-				'post_status'            => 'any',
-				'fields'                 => 'ids',
-				'posts_per_page'         => self::PER_PAGE,
-				'paged'                  => $page,
-				'orderby'                => 'ID',
-				'order'                  => 'ASC',
-				'no_found_rows'          => true,
-				'cache_results'          => false,
-				'update_post_meta_cache' => false,
-				'update_post_term_cache' => false,
+				'per_page' => self::PER_PAGE,
+				'page'     => $page,
+				'orderby'  => 'id',
+				'order'    => 'ASC',
 			)
 		);
 	}
 
-	private static function submission_data( int $submission_id ): array {
-		$data = get_post_meta( $submission_id, self::META_DATA, true );
-		return is_array( $data ) ? $data : array();
-	}
+	/**
+	 * @param array<string, mixed> $entry Hydrated entry row.
+	 */
+	private static function entry_matches_email( array $entry, string $email_address ): bool {
+		foreach ( (array) $entry['data'] as $value ) {
+			if ( is_array( $value ) ) {
+				continue;
+			}
 
-	private static function submission_matches_email( int $submission_id, array $data, string $email_address ): bool {
-		$target      = strtolower( $email_address );
-		$email_names = self::email_field_names( $submission_id );
-
-		foreach ( $email_names as $field_name ) {
-			$value = isset( $data[ $field_name ] ) && is_scalar( $data[ $field_name ] )
-				? sanitize_email( (string) $data[ $field_name ] )
-				: '';
-
-			if ( $value && strtolower( $value ) === $target ) {
+			if ( 0 === strcasecmp( trim( (string) $value ), $email_address ) ) {
 				return true;
 			}
 		}
 
-		if ( $email_names ) {
-			return false;
-		}
+		if ( (int) $entry['user_id'] > 0 ) {
+			$user = get_userdata( (int) $entry['user_id'] );
 
-		foreach ( $data as $key => $value ) {
-			if ( ! is_scalar( $value ) || false === strpos( strtolower( (string) $key ), 'email' ) ) {
-				continue;
-			}
-
-			$value = sanitize_email( (string) $value );
-			if ( $value && strtolower( $value ) === $target ) {
+			if ( $user && 0 === strcasecmp( (string) $user->user_email, $email_address ) ) {
 				return true;
 			}
 		}
@@ -174,77 +182,38 @@ final class Privacy_Manager {
 		return false;
 	}
 
-	private static function email_field_names( int $submission_id ): array {
-		$form_id = absint( get_post_meta( $submission_id, self::META_FORM_ID, true ) );
-		if ( ! $form_id || 'fmpf_form' !== get_post_type( $form_id ) ) {
-			return array();
-		}
+	/**
+	 * @param array<string, mixed> $entry Hydrated entry row.
+	 * @return array<int, array{name: string, value: string}>
+	 */
+	private static function export_fields( array $entry ): array {
+		$form   = Form_Repository::get( (int) $entry['form_id'] );
+		$labels = array();
 
-		$fields = Field_Validator::parse_definition( (string) get_post_meta( $form_id, self::META_FIELDS, true ) );
-		$names  = array();
-
-		foreach ( $fields as $field ) {
-			if ( 'email' === $field['type'] ) {
-				$names[] = $field['name'];
+		foreach ( (array) ( $form['fields'] ?? array() ) as $field ) {
+			if ( ! empty( $field['name'] ) ) {
+				$labels[ $field['name'] ] = (string) $field['label'];
 			}
 		}
 
-		return array_values( array_unique( $names ) );
-	}
-
-	private static function export_fields( int $submission_id, array $data ): array {
-		$form_id = absint( get_post_meta( $submission_id, self::META_FORM_ID, true ) );
-		$labels  = self::field_labels( $form_id );
-		$post    = get_post( $submission_id );
-		$fields  = array(
+		$items = array(
 			array(
 				'name'  => __( 'Form', 'free-mpro-forms' ),
-				'value' => $form_id ? get_the_title( $form_id ) : __( 'Deleted form', 'free-mpro-forms' ),
+				'value' => (string) ( $form['title'] ?? __( 'Deleted form', 'free-mpro-forms' ) ),
 			),
 			array(
-				'name'  => __( 'Received', 'free-mpro-forms' ),
-				'value' => $post ? get_date_from_gmt( $post->post_date_gmt, 'Y-m-d H:i:s' ) : '',
-			),
-			array(
-				'name'  => __( 'Submission type', 'free-mpro-forms' ),
-				'value' => (string) get_post_meta( $submission_id, self::META_TYPE, true ),
-			),
-			array(
-				'name'  => __( 'Status', 'free-mpro-forms' ),
-				'value' => (string) get_post_meta( $submission_id, self::META_STATUS, true ),
+				'name'  => __( 'Submitted on', 'free-mpro-forms' ),
+				'value' => (string) $entry['created_at'],
 			),
 		);
 
-		foreach ( $data as $name => $value ) {
-			if ( is_array( $value ) ) {
-				$value = implode( ', ', array_map( 'strval', $value ) );
-			} elseif ( ! is_scalar( $value ) ) {
-				continue;
-			}
-
-			$fields[] = array(
-				'name'  => $labels[ $name ] ?? ucwords( str_replace( array( '-', '_' ), ' ', (string) $name ) ),
-				'value' => (string) $value,
+		foreach ( (array) $entry['data'] as $key => $value ) {
+			$items[] = array(
+				'name'  => $labels[ $key ] ?? (string) $key,
+				'value' => is_array( $value ) ? implode( ', ', $value ) : (string) $value,
 			);
 		}
 
-		return $fields;
-	}
-
-	private static function field_labels( int $form_id ): array {
-		if ( ! $form_id || 'fmpf_form' !== get_post_type( $form_id ) ) {
-			return array();
-		}
-
-		$fields = Field_Validator::parse_definition( (string) get_post_meta( $form_id, self::META_FIELDS, true ) );
-		$labels = array();
-
-		foreach ( $fields as $field ) {
-			if ( 'section' !== $field['type'] ) {
-				$labels[ $field['name'] ] = $field['label'];
-			}
-		}
-
-		return $labels;
+		return $items;
 	}
 }

@@ -28,6 +28,21 @@
 	grid-column: 1 / -1;
 }
 
+/*
+ * Single column is the default. Half-width fields only pair up when the form
+ * itself opts into the two-column layout, so a narrow theme never gets a
+ * cramped row it did not ask for.
+ */
+.fmpf-form-wrap:not(.fmpf-layout-two-column) .fmpf-field {
+	grid-column: 1 / -1;
+}
+
+@media screen and (max-width: 600px) {
+	.fmpf-form {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
 .fmpf-label {
 	display: block;
 }
