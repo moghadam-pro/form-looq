@@ -101,25 +101,30 @@ final class Page_Builder {
 		$raw_fields = isset( $_POST['fmpf_fields'] ) ? wp_unslash( $_POST['fmpf_fields'] ) : '[]'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$fields     = DB::decode( is_string( $raw_fields ) ? $raw_fields : '' );
 
-		$settings = array(
-			'submit_label'    => isset( $_POST['submit_label'] ) ? sanitize_text_field( wp_unslash( $_POST['submit_label'] ) ) : '',
-			'success_message' => isset( $_POST['success_message'] ) ? sanitize_textarea_field( wp_unslash( $_POST['success_message'] ) ) : '',
-			'layout'          => isset( $_POST['layout'] ) ? sanitize_key( wp_unslash( $_POST['layout'] ) ) : 'one-column',
-			'redirect_url'    => isset( $_POST['redirect_url'] ) ? esc_url_raw( wp_unslash( $_POST['redirect_url'] ) ) : '',
-			'store_ip'        => ! empty( $_POST['store_ip'] ),
-			'honeypot'        => ! empty( $_POST['honeypot'] ),
-		);
+		$update = array( 'fields' => $fields );
 
-		Form_Repository::update(
-			$form_id,
-			array(
-				'title'       => isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : $form['title'],
-				'description' => isset( $_POST['description'] ) ? sanitize_textarea_field( wp_unslash( $_POST['description'] ) ) : $form['description'],
-				'status'      => isset( $_POST['status'] ) ? sanitize_key( wp_unslash( $_POST['status'] ) ) : $form['status'],
-				'fields'      => $fields,
-				'settings'    => $settings,
-			)
-		);
+		/*
+		 * Only the settings tab renders the settings inputs, and an unchecked
+		 * checkbox is not posted at all. Without this marker, saving from the
+		 * fields or embed tab would read every setting as absent and reset the
+		 * form's submit label, success message, layout, redirect, and privacy
+		 * options back to their defaults.
+		 */
+		if ( ! empty( $_POST['fmpf_has_settings'] ) ) {
+			$update['title']       = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : $form['title'];
+			$update['description'] = isset( $_POST['description'] ) ? sanitize_textarea_field( wp_unslash( $_POST['description'] ) ) : $form['description'];
+			$update['status']      = isset( $_POST['status'] ) ? sanitize_key( wp_unslash( $_POST['status'] ) ) : $form['status'];
+			$update['settings']    = array(
+				'submit_label'    => isset( $_POST['submit_label'] ) ? sanitize_text_field( wp_unslash( $_POST['submit_label'] ) ) : '',
+				'success_message' => isset( $_POST['success_message'] ) ? sanitize_textarea_field( wp_unslash( $_POST['success_message'] ) ) : '',
+				'layout'          => isset( $_POST['layout'] ) ? sanitize_key( wp_unslash( $_POST['layout'] ) ) : 'one-column',
+				'redirect_url'    => isset( $_POST['redirect_url'] ) ? esc_url_raw( wp_unslash( $_POST['redirect_url'] ) ) : '',
+				'store_ip'        => ! empty( $_POST['store_ip'] ),
+				'honeypot'        => ! empty( $_POST['honeypot'] ),
+			);
+		}
+
+		Form_Repository::update( $form_id, $update );
 
 		$tab = isset( $_POST['tab'] ) ? sanitize_key( wp_unslash( $_POST['tab'] ) ) : 'fields';
 
@@ -263,6 +268,7 @@ final class Page_Builder {
 	private static function render_settings_tab( array $form ): void {
 		$settings = $form['settings'];
 		?>
+		<input type="hidden" name="fmpf_has_settings" value="1">
 		<table class="form-table" role="presentation">
 			<tbody>
 				<tr>

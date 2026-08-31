@@ -168,6 +168,11 @@ msgstr "فرم ثبت‌نام رویداد"
 msgid "Attendee details, session choice, and a satisfaction scale."
 msgstr "مشخصات شرکت‌کننده، انتخاب سانس و مقیاس رضایت."
 
+msgid "%s field"
+msgid_plural "%s fields"
+msgstr[0] "%s فیلد"
+msgstr[1] "%s فیلد"
+
 msgid "Empty"
 msgstr "خالی"
 
@@ -805,3 +810,444 @@ msgstr "ورودی‌ها بروزرسانی شد."
 
 msgid "The request could not be completed."
 msgstr "درخواست انجام نشد."
+
+# Template content and remaining interface strings
+msgid "Your details"
+msgstr "اطلاعات شما"
+
+msgid "Your message"
+msgstr "پیام شما"
+
+msgid "Full name"
+msgstr "نام و نام خانوادگی"
+
+msgid "Email address"
+msgstr "نشانی ایمیل"
+
+msgid "Phone number"
+msgstr "شماره تماس"
+
+msgid "Department"
+msgstr "واحد"
+
+msgid "Subject"
+msgstr "موضوع"
+
+msgid "Message"
+msgstr "پیام"
+
+msgid "Sales"
+msgstr "فروش"
+
+msgid "Support"
+msgstr "پشتیبانی"
+
+msgid "Billing"
+msgstr "امور مالی"
+
+msgid "Other"
+msgstr "سایر"
+
+msgid "I agree to be contacted about this enquiry."
+msgstr "با تماس گرفتن دربارهٔ این درخواست موافقم."
+
+msgid "Order"
+msgstr "سفارش"
+
+msgid "Product"
+msgstr "کالا"
+
+msgid "Product A"
+msgstr "کالای الف"
+
+msgid "Product B"
+msgstr "کالای ب"
+
+msgid "Product C"
+msgstr "کالای ج"
+
+msgid "Quantity"
+msgstr "تعداد"
+
+msgid "Discount code"
+msgstr "کد تخفیف"
+
+msgid "Delivery"
+msgstr "ارسال"
+
+msgid "Delivery address"
+msgstr "نشانی تحویل"
+
+msgid "Order notes"
+msgstr "یادداشت سفارش"
+
+msgid "Attendee"
+msgstr "شرکت‌کننده"
+
+msgid "Organisation"
+msgstr "سازمان"
+
+msgid "Session"
+msgstr "سانس"
+
+msgid "Which session will you attend?"
+msgstr "در کدام سانس شرکت می‌کنید؟"
+
+msgid "Morning"
+msgstr "صبح"
+
+msgid "Afternoon"
+msgstr "بعدازظهر"
+
+msgid "Both"
+msgstr "هر دو"
+
+msgid "How interested are you in this topic?"
+msgstr "چقدر به این موضوع علاقه دارید؟"
+
+msgid "Dietary or accessibility requirements"
+msgstr "نیازهای غذایی یا دسترس‌پذیری"
+
+msgid "Consent"
+msgstr "رضایت"
+
+msgid "Entry #%d"
+msgstr "ورودی #%d"
+
+msgid "%1$s (%2$s entries)"
+msgstr "%1$s (%2$s ورودی)"
+
+msgid "%1$s at %2$s"
+msgstr "%1$s ساعت %2$s"
+
+msgid "Paste into the code editor view of a post."
+msgstr "در نمای ویرایشگر کد یک نوشته جای‌گذاری کنید."
+
+msgid "Use inside a PHP template file."
+msgstr "داخل یک فایل قالب PHP استفاده کنید."
+
+msgid "Deleted form"
+msgstr "فرم حذف‌شده"
+
+msgid "No entries"
+msgstr "بدون ورودی"
+
+msgid "Show"
+msgstr "نمایش"
+
+msgid "Table: %s"
+msgstr "جدول: %s"
+
+msgid "present"
+msgstr "موجود"
+
+msgid "missing"
+msgstr "ناموجود"
+
+msgid "Not found"
+msgstr "یافت نشد"
+
+msgid "writable"
+msgstr "قابل نوشتن"
+
+msgid "not writable"
+msgstr "غیرقابل نوشتن"
+
+msgid "Not scheduled"
+msgstr "زمان‌بندی نشده"
+
+msgid "Not set"
+msgstr "تنظیم نشده"
+
+msgid "Unknown"
+msgstr "نامشخص"
+
+# Remaining interface, validation, privacy, and add-on strings
+msgid "%s is required."
+msgstr "%s الزامی است."
+
+msgid "Add-on settings"
+msgstr "تنظیمات افزودنی‌ها"
+
+msgid "CSV — spreadsheet friendly, UTF-8 with BOM"
+msgstr "CSV — سازگار با صفحه‌گسترده، UTF-8 با BOM"
+
+msgid "XML — structured, keeps field names and labels"
+msgstr "XML — ساخت‌یافته، نام و برچسب فیلدها را نگه می‌دارد"
+
+msgid "Close"
+msgstr "بستن"
+
+msgid "Copy failed. Select the text and copy it manually."
+msgstr "کپی نشد. متن را انتخاب و دستی کپی کنید."
+
+msgid "Copy the shortcode from the Embed tab into any post, page, or builder."
+msgstr "شورت‌کد را از تب کد جاسازی در هر نوشته، برگه یا صفحه‌ساز بگذارید."
+
+msgid "Create WordPress accounts from a form submission."
+msgstr "ساخت حساب وردپرس از روی ارسال فرم."
+
+msgid "Create your first form and place it on a page."
+msgstr "اولین فرم خود را بسازید و روی یک برگه بگذارید."
+
+msgid "Create your first form."
+msgstr "اولین فرم خود را بسازید."
+
+msgid "Creating a form"
+msgstr "ساخت یک فرم"
+
+msgid "Credentials are stored now so that SMS notifications and phone verification can be switched on in a later release. No message is sent by this version."
+msgstr "اطلاعات دسترسی از همین حالا ذخیره می‌شود تا در نسخه‌های بعدی بتوان اعلان پیامکی و اعتبارسنجی شماره را روشن کرد. این نسخه هیچ پیامکی ارسال نمی‌کند."
+
+msgid "Date format"
+msgstr "قالب تاریخ"
+
+msgid "Time format"
+msgstr "قالب زمان"
+
+msgid "Site time"
+msgstr "زمان سایت"
+
+msgid "UTC time"
+msgstr "زمان UTC"
+
+msgid "Delete this entry permanently?"
+msgstr "این ورودی برای همیشه حذف شود؟"
+
+msgid "Direction"
+msgstr "جهت"
+
+msgid "Follow the site"
+msgstr "پیروی از سایت"
+
+msgid "Right to left"
+msgstr "راست به چپ"
+
+msgid "Left to right"
+msgstr "چپ به راست"
+
+msgid "Disabled because nothing in this release needs activation."
+msgstr "غیرفعال است چون هیچ بخشی از این نسخه به فعال‌سازی نیاز ندارد."
+
+msgid "Embedding a form"
+msgstr "جاسازی یک فرم"
+
+msgid "Enter a valid email address."
+msgstr "یک نشانی ایمیل معتبر وارد کنید."
+
+msgid "Enter a valid number."
+msgstr "یک عدد معتبر وارد کنید."
+
+msgid "Enter a valid telephone number."
+msgstr "یک شماره تماس معتبر وارد کنید."
+
+msgid "Review this field and try again."
+msgstr "این فیلد را بررسی و دوباره تلاش کنید."
+
+msgid "Select one of the available options."
+msgstr "یکی از گزینه‌های موجود را انتخاب کنید."
+
+msgid "This value is longer than the allowed limit."
+msgstr "این مقدار از حد مجاز بلندتر است."
+
+msgid "The submission contained unexpected fields. Please reload the page and try again."
+msgstr "ارسال شامل فیلدهای غیرمنتظره بود. لطفاً صفحه را دوباره بارگذاری کنید و تلاش کنید."
+
+msgid "Please review the highlighted fields and try again."
+msgstr "لطفاً فیلدهای مشخص‌شده را بررسی و دوباره تلاش کنید."
+
+msgid "Entries and privacy"
+msgstr "ورودی‌ها و حریم خصوصی"
+
+msgid "Entries live in dedicated database tables on your own site and are never sent anywhere else."
+msgstr "ورودی‌ها در جدول‌های اختصاصی دیتابیس روی سایت خودتان ذخیره می‌شوند و هرگز جایی ارسال نمی‌شوند."
+
+msgid "Where entries are stored"
+msgstr "ورودی‌ها کجا ذخیره می‌شوند"
+
+msgid "Retention and erasure"
+msgstr "نگه‌داری و پاک‌سازی"
+
+msgid "Set a retention window, and use the WordPress privacy tools for personal data requests."
+msgstr "یک بازهٔ نگه‌داری تعیین کنید و برای درخواست‌های داده‌های شخصی از ابزارهای حریم خصوصی وردپرس استفاده کنید."
+
+msgid "Getting started"
+msgstr "شروع کار"
+
+msgid "How submissions are stored, exported, and erased."
+msgstr "ورودی‌ها چگونه ذخیره، برون‌ریزی و پاک می‌شوند."
+
+msgid "Pick a template, name the form, and arrange fields in the builder."
+msgstr "یک تمپلیت انتخاب کنید، نام فرم را بگذارید و فیلدها را در فرم‌ساز بچینید."
+
+msgid "More help"
+msgstr "راهنمای بیشتر"
+
+msgid "Exports every entry of the selected form. This release intentionally offers no filters or column options — the file is a complete, unfiltered copy."
+msgstr "همهٔ ورودی‌های فرم انتخاب‌شده را برون‌ریزی می‌کند. این نسخه عمداً هیچ فیلتر یا گزینهٔ ستونی ندارد — فایل یک نسخهٔ کامل و بدون فیلتر است."
+
+msgid "Importing has to reconcile field names, option values, and duplicate detection against forms it did not create. Rather than ship a version that silently corrupts entries, import stays off until the export format has been tested against real sites and the safest merge strategy is clear."
+msgstr "درون‌ریزی باید نام فیلدها، مقدار گزینه‌ها و تشخیص تکراری‌ها را با فرم‌هایی تطبیق دهد که خودش نساخته است. به‌جای انتشار نسخه‌ای که بی‌سروصدا ورودی‌ها را خراب کند، درون‌ریزی خاموش می‌ماند تا قالب خروجی روی سایت‌های واقعی آزموده شود و امن‌ترین راهبرد ادغام روشن گردد."
+
+msgid "It will arrive in a following release. Exports produced now will remain importable."
+msgstr "در نسخه‌های بعدی اضافه می‌شود. خروجی‌هایی که الان می‌گیرید بعداً قابل درون‌ریزی خواهند بود."
+
+msgid "There are no forms to export yet."
+msgstr "هنوز فرمی برای برون‌ریزی وجود ندارد."
+
+msgid "There are no forms yet, so there is nothing to show here."
+msgstr "هنوز فرمی وجود ندارد، پس چیزی برای نمایش نیست."
+
+msgid "For per-person data requests, use the built-in WordPress privacy tools at %s."
+msgstr "برای درخواست‌های داده‌ای هر شخص، از ابزارهای حریم خصوصی خود وردپرس در %s استفاده کنید."
+
+msgid "Tools → Export Personal Data"
+msgstr "ابزارها ← برون‌بری داده‌های شخصی"
+
+msgid "Fetch the add-on list from %s"
+msgstr "دریافت فهرست افزودنی‌ها از %s"
+
+msgid "When disabled, the bundled catalogue is shown instead and no external request is made."
+msgstr "وقتی خاموش باشد، فهرست داخلی نمایش داده می‌شود و هیچ درخواست بیرونی ارسال نمی‌شود."
+
+msgid "Filter by status"
+msgstr "پالایش بر اساس وضعیت"
+
+msgid "Form submissions"
+msgstr "ورودی‌های فرم"
+
+msgid "Free MPRO Forms"
+msgstr "Free MPRO Forms"
+
+msgid "Free MPRO Forms submissions"
+msgstr "ورودی‌های Free MPRO Forms"
+
+msgid "Personal values in submission %d could not be erased."
+msgstr "مقادیر شخصی در ورودی %d پاک نشد."
+
+msgid "Multisite"
+msgstr "چندسایتی"
+
+msgid "Table prefix"
+msgstr "پیشوند جدول"
+
+msgid "PHP memory limit"
+msgstr "محدودیت حافظهٔ PHP"
+
+msgid "PHP max execution time"
+msgstr "بیشینهٔ زمان اجرای PHP"
+
+msgid "PHP post max size"
+msgstr "بیشینهٔ اندازهٔ POST در PHP"
+
+msgid "SSL"
+msgstr "SSL"
+
+msgid "cURL"
+msgstr "cURL"
+
+msgid "mbstring"
+msgstr "mbstring"
+
+msgid "REST API"
+msgstr "REST API"
+
+msgid "REST API v2"
+msgstr "REST API v2"
+
+msgid "Plain-text report"
+msgstr "گزارش متنی"
+
+msgid "Paste this into a support request."
+msgstr "این را در درخواست پشتیبانی جای‌گذاری کنید."
+
+msgid "No forms yet."
+msgstr "هنوز فرمی نیست."
+
+msgid "Open inbox"
+msgstr "باز کردن صندوق ورودی"
+
+msgid "Single-question polls with live result bars."
+msgstr "نظرسنجی تک‌سؤالی با نمودار زندهٔ نتایج."
+
+msgid "Send admin alerts and visitor confirmations after each entry."
+msgstr "ارسال هشدار به مدیر و تأییدیه به بازدیدکننده پس از هر ورودی."
+
+msgid "Validate coupon codes inside order forms."
+msgstr "اعتبارسنجی کد تخفیف داخل فرم‌های سفارش."
+
+msgid "Scored questions with pass marks and per-answer feedback."
+msgstr "سؤالات نمره‌دار با حد نصاب قبولی و بازخورد برای هر پاسخ."
+
+msgid "Multi-page surveys with aggregated reporting."
+msgstr "نظرسنجی چندصفحه‌ای با گزارش تجمیعی."
+
+msgid "See the full catalogue on the project site"
+msgstr "دیدن فهرست کامل در سایت پروژه"
+
+msgid "Select a form to display."
+msgstr "یک فرم برای نمایش انتخاب کنید."
+
+msgid "Select form"
+msgstr "انتخاب فرم"
+
+msgid "— Select a form —"
+msgstr "— یک فرم انتخاب کنید —"
+
+msgid "Spacing, colours, and typography are controlled by the Advanced tab and your theme."
+msgstr "فاصله‌ها، رنگ‌ها و تایپوگرافی با تب پیشرفتهٔ المنتور و پوستهٔ شما کنترل می‌شوند."
+
+msgid "Showing the bundled catalogue. The live list at %s could not be reached, or remote fetching is disabled in Settings → Add-ons."
+msgstr "فهرست داخلی نمایش داده می‌شود. فهرست زندهٔ %s در دسترس نبود، یا دریافت از راه دور در تنظیمات ← افزودنی‌ها خاموش است."
+
+msgid "Showing the bundled quick reference. The live documentation at %s could not be reached."
+msgstr "راهنمای مختصر داخلی نمایش داده می‌شود. مستندات زندهٔ %s در دسترس نبود."
+
+msgid "Some future add-ons that carry ongoing hosting or maintenance costs — SMS delivery and similar services — may become paid. The free core will stay free, and this tab is where any license key would be entered."
+msgstr "برخی افزودنی‌های آینده که هزینهٔ مداوم میزبانی یا نگه‌داری دارند — مانند ارسال پیامک و سرویس‌های مشابه — ممکن است پولی شوند. هستهٔ رایگان رایگان می‌ماند و این تب جایی است که کلید لایسنس وارد خواهد شد."
+
+msgid "Templates, a drag-and-drop builder, an inbox with admin notes, and one-click embedding anywhere."
+msgstr "تمپلیت‌ها، فرم‌ساز درگ‌اند‌دراپ، صندوق ورودی با یادداشت مدیر، و جاسازی یک‌کلیکی در هر جا."
+
+msgid "Phone fields are validated server side, and gateway credentials are ready for SMS notifications and one-time codes."
+msgstr "فیلدهای شماره تماس سمت سرور اعتبارسنجی می‌شوند و اطلاعات درگاه برای اعلان پیامکی و کد یک‌بارمصرف آماده است."
+
+msgid "No frameworks, no build step, and assets load only on pages that actually render a form."
+msgstr "بدون فریم‌ورک، بدون مرحلهٔ build، و بارگذاری فایل‌ها فقط در صفحاتی که واقعاً فرم نمایش می‌دهند."
+
+msgid "That entry no longer exists."
+msgstr "این ورودی دیگر وجود ندارد."
+
+msgid "That form no longer exists."
+msgstr "این فرم دیگر وجود ندارد."
+
+msgid "The REST API is read-only groundwork in this release. Enabling it registers no public routes yet."
+msgstr "REST API در این نسخه فقط زیرساخت خواندنی است. روشن‌کردن آن هنوز هیچ مسیر عمومی ثبت نمی‌کند."
+
+msgid "The catalogue below shows what is being built. Activating an add-on will become available in a following release — nothing here is installable yet."
+msgstr "فهرست زیر نشان می‌دهد چه چیزهایی در دست ساخت است. فعال‌سازی افزودنی‌ها در نسخه‌های بعدی ممکن خواهد شد — هنوز هیچ‌کدام قابل نصب نیستند."
+
+msgid "The form builder needs JavaScript. Enable it to edit fields."
+msgstr "فرم‌ساز به جاوااسکریپت نیاز دارد. برای ویرایش فیلدها آن را روشن کنید."
+
+msgid "This entry has no stored values."
+msgstr "این ورودی هیچ مقدار ذخیره‌شده‌ای ندارد."
+
+msgid "You do not have permission to manage forms."
+msgstr "شما اجازهٔ مدیریت فرم‌ها را ندارید."
+
+msgid "You have unsaved changes."
+msgstr "تغییرات ذخیره‌نشده دارید."
+
+msgid "If a submission fails validation, sanitized field values may be stored temporarily in this WordPress installation for up to five minutes so the visitor can correct the form. The browser receives an opaque token rather than the submitted values."
+msgstr "اگر ارسالی اعتبارسنجی را رد کند، مقادیر پاک‌سازی‌شدهٔ فیلدها ممکن است تا پنج دقیقه به‌صورت موقت در همین وردپرس نگه‌داری شوند تا بازدیدکننده بتواند فرم را اصلاح کند. مرورگر به‌جای مقادیر ارسالی، یک توکن مبهم دریافت می‌کند."
+
+msgid "The core plugin does not send submissions to the plugin author, does not require a cloud account, and does not enable analytics or telemetry. Optional integrations added in future versions may process data through another service and should be disclosed separately when enabled."
+msgstr "هستهٔ پلاگین ورودی‌ها را برای سازندهٔ پلاگین ارسال نمی‌کند، به حساب ابری نیاز ندارد، و هیچ تحلیل یا تله‌متری فعال نمی‌کند. یکپارچگی‌های اختیاری که در نسخه‌های آینده اضافه شوند ممکن است داده را از سرویس دیگری عبور دهند و هنگام فعال‌سازی باید جداگانه اعلام شوند."
+
+msgid "When visitors submit a form created with Free MPRO Forms, the submitted values are stored in this website’s WordPress database. The specific personal data collected depends on the fields configured by the website administrator."
+msgstr "وقتی بازدیدکنندگان فرمی ساخته‌شده با Free MPRO Forms را ارسال می‌کنند، مقادیر ارسالی در دیتابیس وردپرس همین سایت ذخیره می‌شود. داده‌های شخصی دقیقی که جمع‌آوری می‌شود به فیلدهایی بستگی دارد که مدیر سایت تنظیم کرده است."
+
+msgid "Website administrators can choose a submission-retention period, use WordPress personal-data export and erasure tools for matching email addresses, delete submissions manually, and choose whether plugin data should be permanently removed during uninstall."
+msgstr "مدیران سایت می‌توانند بازهٔ نگه‌داری ورودی‌ها را تعیین کنند، از ابزارهای برون‌بری و پاک‌سازی داده‌های شخصی وردپرس برای نشانی‌های ایمیل منطبق استفاده کنند، ورودی‌ها را دستی حذف کنند، و انتخاب کنند که آیا داده‌های پلاگین هنگام حذف برای همیشه پاک شود یا نه."
+

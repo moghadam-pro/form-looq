@@ -23,8 +23,16 @@ final class Admin {
 	 */
 	private static array $hooks = array();
 
+	/**
+	 * Slugs that stay routable but are kept out of the sidebar.
+	 *
+	 * @var array<int, string>
+	 */
+	private static array $hidden = array();
+
 	public static function init(): void {
 		add_action( 'admin_menu', array( self::class, 'register_menu' ), 9 );
+		add_action( 'admin_head', array( self::class, 'hide_pages' ) );
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue' ) );
 		add_action( 'admin_print_scripts', array( self::class, 'no_conflict' ), 100 );
 		add_action( 'admin_print_styles', array( self::class, 'no_conflict' ), 100 );
@@ -97,7 +105,7 @@ final class Admin {
 			self::MENU_POSITION
 		);
 
-		$hidden = array();
+		self::$hidden = array();
 
 		foreach ( self::pages() as $slug => $page ) {
 			$hook = add_submenu_page(
@@ -114,12 +122,23 @@ final class Admin {
 			}
 
 			if ( ! empty( $page['hidden'] ) ) {
-				$hidden[] = $slug;
+				self::$hidden[] = $slug;
 			}
 		}
+	}
 
-		// Hidden pages stay routable but never appear in the sidebar.
-		foreach ( $hidden as $slug ) {
+	/**
+	 * Drop hidden pages from the sidebar.
+	 *
+	 * This deliberately runs on admin_head rather than admin_menu.
+	 * user_can_access_admin_page() decides access by looking the slug up in
+	 * $submenu, so removing an entry during admin_menu makes WordPress refuse
+	 * the page outright. admin_head fires after that check and before
+	 * menu-header.php renders the sidebar, which is the one window where the
+	 * entry can be removed without costing access to the page.
+	 */
+	public static function hide_pages(): void {
+		foreach ( self::$hidden as $slug ) {
 			remove_submenu_page( Plugin::MENU_SLUG, $slug );
 		}
 	}
@@ -224,6 +243,12 @@ final class Admin {
 			</div>
 		</div>
 		<?php
+		/*
+		 * WordPress moves admin notices to just after the first <h1> unless a
+		 * .wp-header-end marker says otherwise. Our <h1> lives inside the header
+		 * bar, so without this the notice would be injected into that flex row.
+		 */
+		echo '<hr class="wp-header-end">';
 	}
 
 	/**
