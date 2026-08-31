@@ -106,6 +106,11 @@ Not in this release. Export is complete; import is deliberately held back until 
 
 == Changelog ==
 
+= 0.3.1 =
+
+* Applied the plugin's brand color (#C61531) across admin and frontend styles, replacing the placeholder blue.
+* The admin menu now shows the actual brand icon instead of a placeholder, and the header bar and welcome screen use the finished logo artwork.
+
 = 0.3.0 =
 
 * Renamed the plugin from Free MPRO Forms to MPRO Forms. "Free" was dropped because the WordPress.org slug is permanent and a paid Pro edition is planned.

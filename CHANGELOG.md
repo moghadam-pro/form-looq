@@ -8,6 +8,23 @@ All notable changes to this project are documented here. The format follows
 
 Nothing yet.
 
+## [0.3.1] — 2026-08-31
+
+### Changed
+
+- **Brand color.** `--mpro-primary` / `--mpro-accent` in both stylesheets, and
+  the README version badge, move from placeholder blues to the plugin's own
+  color, `#C61531`, with a darker shade of it for hover and focus states.
+- **Menu icon.** The WordPress admin sidebar now shows the actual brand mark
+  (a hexagon enclosing a stylised "P") loaded from its own SVG file, instead
+  of a monochrome bar chart built inline in PHP. WordPress renders a custom
+  menu icon at reduced opacity and brings it to full opacity on hover or when
+  the menu is current — it does not force a silhouette — so the colored icon
+  renders as designed rather than as a placeholder.
+- **Header bar and welcome screen logo.** Both now use the supplied app-icon-style
+  JPG instead of the hand-drawn SVG, which is removed as nothing references it
+  anymore.
+
 ## [0.3.0] — 2026-08-31
 
 Renamed the plugin from Free MPRO Forms to MPRO Forms and synchronised every
@@ -154,7 +171,8 @@ Initial development foundation, never publicly released.
 - Opt-in data deletion during uninstall.
 - Shortcode embedding, responsive layouts, and automatic LTR/RTL direction.
 
-[Unreleased]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases/tag/v0.3.1
 [0.3.0]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases/tag/v0.3.0
 [0.2.0]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases/tag/v0.2.0
 [0.1.0]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases/tag/v0.1.0
