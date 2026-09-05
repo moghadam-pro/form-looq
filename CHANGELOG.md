@@ -8,6 +8,93 @@ All notable changes to this project are documented here. The format follows
 
 Nothing yet.
 
+## [0.3.3] — 2026-09-05
+
+Fixes from a pre-submission review against the WordPress.org plugin guidelines,
+covering an outbound request the review flagged as undisclosed telemetry, a set
+of settings that stored data behind no working feature, and several correctness
+and privacy bugs.
+
+### Removed
+
+- **The outbound catalogue fetch.** The Add-ons and Help screens called
+  `sayid.ir` on every visit, sending the site's own `home_url()` in the
+  user agent so usage could be tracked — opt-out only, and undisclosed as such
+  in the privacy policy text. `Remote_Content`, the `addons.json`/`docs.json`
+  contract, and the Add-ons screen are gone; Help now ships its content with
+  the plugin, and the only remaining outbound link is a plain click to the
+  project site.
+- **Settings and screens with no working feature behind them**: the REST API
+  and SMS/OTP tabs (an unused SMS API key was being stored and autoloaded),
+  the License tab, the Automatic updates checkbox, and the Import panel on
+  the Export screen. Shipping controls for features that do not exist yet
+  produced a misleading admin experience and, for the SMS key, an unnecessary
+  place to leak a credential.
+
+### Fixed
+
+- **CSV/formula injection in entry exports.** A visitor-supplied value
+  starting with `=`, `+`, `-`, `@`, a tab, or a carriage return is now
+  prefixed with an apostrophe before `fputcsv()` writes it, so spreadsheet
+  software renders it as text instead of evaluating it as a formula when an
+  admin opens the export.
+- **The "complete" export silently truncated at 100,000 entries.** The
+  500-batch cap in `Exporter::batches()` is removed; export now runs until
+  every entry is written, matching what the UI and readme already claimed.
+- **Timezone handling for entries.** `created_at` was written in the site's
+  local time but compared against a UTC cutoff during retention cleanup, and
+  the admin screens re-parsed that local-time string as if it were UTC before
+  converting it again for display — on a non-UTC site, both the retention
+  window and the displayed submission time could be off by the site's offset.
+  Entries are now timestamped in UTC (`current_time( 'mysql', true )`); the
+  existing display and cutoff logic is already written to expect that and is
+  unchanged.
+- **Incomplete privacy export and erasure.** The exporter left out an entry's
+  referring page, browser user agent, and admin note; the eraser cleared the
+  submitted values but left the visitor's WordPress account still linked to
+  the entry. Both now cover the full set of personal data an entry can carry,
+  and the privacy policy text lists it explicitly instead of only the
+  submitted field values.
+- **The retention cleanup cron ran daily for every site, including ones that
+  never configured a retention window.** `retention_days` defaults to 0
+  ("keep forever"), so the job had nothing to do on a fresh install but was
+  scheduled anyway. Activation now calls `Settings::sync_cron()`, which only
+  schedules the job while a retention window is actually set. An update that
+  replaces the plugin folder without a deactivate/reactivate cycle — the
+  common path for a manual ZIP upload — also reconciles it automatically on
+  the first request after updating, so a site already carrying the old
+  unconditional schedule from 0.3.2 does not have to touch Settings to clear
+  it.
+- **RTL forms defaulted to Persian regardless of the site's actual language.**
+  The "Select" and "Yes" fallback text checked `is_rtl()` and used a literal
+  Persian string, so an Arabic, Hebrew, or Urdu site — also RTL — saw Persian
+  wording. It now always comes from the plugin's own translation for the
+  current locale.
+- **An admin-configured external redirect URL was silently dropped.**
+  `wp_safe_redirect()` only allows the current site's own host, so a
+  post-submission redirect to another domain — set deliberately by a
+  capability-holding form administrator, not by the visitor — fell back to
+  the home page. The URL is now validated with `wp_http_validate_url()` and
+  honoured as configured.
+- **Form deletion was not safely ordered.** Entries were deleted before the
+  form row; if the form delete then failed, the form was left with no
+  entries. The form row is now deleted first, and entries are only removed
+  once that succeeds.
+- **Uninstall skipped capability cleanup when data deletion was off.** The
+  routine returned early before removing the `mpro_manage_forms` capability
+  from the administrator role, unless the site owner had also opted into
+  deleting all data. Capability cleanup now always runs on uninstall; only
+  dropping the tables and options stays behind the explicit opt-in. The table
+  name is also passed through `$wpdb->prepare()`'s `%i` identifier
+  placeholder instead of being interpolated directly.
+
+### Changed
+
+- **The system status report** no longer includes the server's document root
+  or the absolute uploads-folder path, and the plain-text version now carries
+  an explicit warning to review it before sharing it outside a support
+  request, since it still includes other server and environment details.
+
 ## [0.3.2] — 2026-08-31
 
 ### Fixed
@@ -187,7 +274,8 @@ Initial development foundation, never publicly released.
 - Opt-in data deletion during uninstall.
 - Shortcode embedding, responsive layouts, and automatic LTR/RTL direction.
 
-[Unreleased]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/compare/v0.3.3...HEAD
+[0.3.3]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases/tag/v0.3.3
 [0.3.2]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases/tag/v0.3.2
 [0.3.1]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases/tag/v0.3.1
 [0.3.0]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases/tag/v0.3.0

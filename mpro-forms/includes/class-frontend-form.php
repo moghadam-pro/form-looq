@@ -105,9 +105,11 @@ final class Frontend_Form {
 		);
 
 		$direction   = in_array( $atts['dir'], array( 'rtl', 'ltr' ), true ) ? $atts['dir'] : ( is_rtl() ? 'rtl' : 'ltr' );
-		$is_rtl      = 'rtl' === $direction;
-		$select      = $atts['select'] ?: ( $is_rtl ? 'انتخاب کنید' : __( 'Select', 'mpro-forms' ) );
-		$yes         = $atts['yes'] ?: ( $is_rtl ? 'بله' : __( 'Yes', 'mpro-forms' ) );
+		// Text direction is not a language: an Arabic, Hebrew, or Urdu site is
+		// also RTL, so the fallback word has to come from the current locale's
+		// translation, not from a hardcoded Persian string.
+		$select      = $atts['select'] ?: __( 'Select', 'mpro-forms' );
+		$yes         = $atts['yes'] ?: __( 'Yes', 'mpro-forms' );
 		$status_form = isset( $_GET['mpro_form'] ) ? absint( $_GET['mpro_form'] ) : 0;
 		$status      = $status_form === $form_id && isset( $_GET['mpro_status'] ) ? sanitize_key( wp_unslash( $_GET['mpro_status'] ) ) : '';
 		$token       = $status_form === $form_id && isset( $_GET['mpro_state'] ) ? sanitize_text_field( wp_unslash( $_GET['mpro_state'] ) ) : '';
@@ -193,8 +195,15 @@ final class Frontend_Form {
 
 		$redirect_url = (string) ( $form['settings']['redirect_url'] ?? '' );
 
-		if ( '' !== $redirect_url ) {
-			wp_safe_redirect( $redirect_url );
+		if ( '' !== $redirect_url && wp_http_validate_url( $redirect_url ) ) {
+			// wp_safe_redirect() would silently fall back to the home page for any
+			// host outside WP_ALLOWED_REDIRECT_HOSTS, even though this URL was
+			// deliberately configured by a capability-holding form administrator
+			// (not supplied by the visitor submitting the form). wp_redirect() is
+			// used intentionally so an external destination the site owner chose
+			// actually works.
+			// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
+			wp_redirect( $redirect_url );
 			exit;
 		}
 

@@ -33,13 +33,9 @@ final class Settings {
 	 */
 	public static function tabs(): array {
 		return array(
-			'editor'   => __( 'Editor', 'mpro-forms' ),
-			'addons'   => __( 'Add-ons', 'mpro-forms' ),
-			'license'  => __( 'License', 'mpro-forms' ),
-			'general'  => __( 'General', 'mpro-forms' ),
-			'widgets'  => __( 'Widgets', 'mpro-forms' ),
-			'rest'     => __( 'REST API', 'mpro-forms' ),
-			'sms'      => __( 'SMS', 'mpro-forms' ),
+			'editor'  => __( 'Editor', 'mpro-forms' ),
+			'general' => __( 'General', 'mpro-forms' ),
+			'widgets' => __( 'Widgets', 'mpro-forms' ),
 		);
 	}
 
@@ -53,53 +49,17 @@ final class Settings {
 			'default_submit_label'      => __( 'Submit', 'mpro-forms' ),
 			'confirm_before_leaving'    => true,
 
-			// Add-ons.
-			'addons_remote_enabled'     => true,
-			'addons_cache_hours'        => 12,
-
 			// General.
 			'output_css'                => true,
 			'no_conflict_mode'          => false,
 			'currency'                  => 'IRR',
 			'retention_days'            => 0,
 			'delete_data_on_uninstall'  => false,
-			'auto_update'               => false,
 
 			// Widgets.
 			'dashboard_widget'          => true,
 			'elementor_widget'          => true,
-
-			// REST API.
-			'rest_enabled'              => false,
-
-			// SMS.
-			'sms_enabled'               => false,
-			'sms_provider'              => '',
-			'sms_api_key'               => '',
-			'sms_sender'                => '',
-			'sms_verify_numbers'        => false,
 		);
-	}
-
-	/**
-	 * @return array<string, string>
-	 */
-	public static function sms_providers(): array {
-		$providers = array(
-			''             => __( 'Not selected', 'mpro-forms' ),
-			'kavenegar'    => 'Kavenegar',
-			'smsir'        => 'SMS.ir',
-			'melipayamak'  => 'MeliPayamak',
-			'ghasedak'     => 'Ghasedak',
-			'custom'       => __( 'Custom endpoint', 'mpro-forms' ),
-		);
-
-		/**
-		 * Filter the selectable SMS gateways.
-		 *
-		 * @param array<string, string> $providers Provider slug to label map.
-		 */
-		return apply_filters( 'mpro_forms_sms_providers', $providers );
 	}
 
 	/**
@@ -148,16 +108,11 @@ final class Settings {
 
 		$booleans = array(
 			'confirm_before_leaving',
-			'addons_remote_enabled',
 			'output_css',
 			'no_conflict_mode',
 			'delete_data_on_uninstall',
-			'auto_update',
 			'dashboard_widget',
 			'elementor_widget',
-			'rest_enabled',
-			'sms_enabled',
-			'sms_verify_numbers',
 		);
 
 		foreach ( $booleans as $key ) {
@@ -177,10 +132,6 @@ final class Settings {
 			$clean['default_submit_label'] = '' !== $label ? $label : __( 'Submit', 'mpro-forms' );
 		}
 
-		if ( array_key_exists( 'addons_cache_hours', $input ) ) {
-			$clean['addons_cache_hours'] = max( 1, min( 168, absint( $input['addons_cache_hours'] ) ) );
-		}
-
 		if ( array_key_exists( 'currency', $input ) ) {
 			$currency          = strtoupper( sanitize_text_field( (string) $input['currency'] ) );
 			$clean['currency'] = preg_match( '/^[A-Z]{3}$/', $currency ) ? $currency : 'IRR';
@@ -188,19 +139,6 @@ final class Settings {
 
 		if ( array_key_exists( 'retention_days', $input ) ) {
 			$clean['retention_days'] = max( 0, min( 3650, absint( $input['retention_days'] ) ) );
-		}
-
-		if ( array_key_exists( 'sms_provider', $input ) ) {
-			$provider              = sanitize_key( (string) $input['sms_provider'] );
-			$clean['sms_provider'] = array_key_exists( $provider, self::sms_providers() ) ? $provider : '';
-		}
-
-		if ( array_key_exists( 'sms_api_key', $input ) ) {
-			$clean['sms_api_key'] = sanitize_text_field( (string) $input['sms_api_key'] );
-		}
-
-		if ( array_key_exists( 'sms_sender', $input ) ) {
-			$clean['sms_sender'] = sanitize_text_field( (string) $input['sms_sender'] );
 		}
 
 		return $clean;

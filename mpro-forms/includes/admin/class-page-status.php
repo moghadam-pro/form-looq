@@ -54,7 +54,9 @@ final class Page_Status {
 			<?php endforeach; ?>
 
 			<h2><?php esc_html_e( 'Plain-text report', 'mpro-forms' ); ?></h2>
-			<p class="description"><?php esc_html_e( 'Paste this into a support request.', 'mpro-forms' ); ?></p>
+			<p class="description">
+				<?php esc_html_e( 'Paste this into a support request. It includes server and environment details — review it before sharing it with anyone outside your own support channel.', 'mpro-forms' ); ?>
+			</p>
 			<textarea id="mpro-status-report" class="large-text code" rows="12" readonly><?php echo esc_textarea( self::plain_text_report() ); ?></textarea>
 		</div>
 		<?php
@@ -69,15 +71,11 @@ final class Page_Status {
 		return array(
 			__( 'MPRO Forms', 'mpro-forms' ) => array(
 				__( 'Version', 'mpro-forms' )                => Plugin::version(),
-				__( 'Upload folder', 'mpro-forms' )          => (string) ( $uploads['basedir'] ?? '' ),
 				__( 'Upload folder permissions', 'mpro-forms' ) => self::directory_permissions( (string) ( $uploads['basedir'] ?? '' ) ),
 				__( 'Output CSS', 'mpro-forms' )             => self::yes_no( (bool) Settings::get( 'output_css' ) ),
 				__( 'Default theme', 'mpro-forms' )          => self::layout_label( (string) Settings::get( 'default_layout' ) ),
 				__( 'No-conflict mode', 'mpro-forms' )       => self::yes_no( (bool) Settings::get( 'no_conflict_mode' ) ),
 				__( 'Currency', 'mpro-forms' )               => (string) Settings::get( 'currency' ),
-				__( 'Background notifications', 'mpro-forms' ) => self::yes_no( (bool) Settings::get( 'sms_enabled' ) ),
-				__( 'Automatic updates', 'mpro-forms' )      => self::yes_no( (bool) Settings::get( 'auto_update' ) ),
-				__( 'REST API v2', 'mpro-forms' )            => self::yes_no( (bool) Settings::get( 'rest_enabled' ) ),
 				__( 'Style filter', 'mpro-forms' )           => self::yes_no( (bool) has_filter( 'mpro_forms_track_views' ) ),
 				__( 'Forms', 'mpro-forms' )                  => number_format_i18n( Form_Repository::count() ),
 				__( 'Entries', 'mpro-forms' )                => number_format_i18n( Entry_Repository::total() ),
@@ -101,7 +99,6 @@ final class Page_Status {
 			__( 'Server environment', 'mpro-forms' ) => array(
 				__( 'Web server', 'mpro-forms' )    => self::server_value( 'SERVER_SOFTWARE' ),
 				__( 'Port', 'mpro-forms' )          => self::server_value( 'SERVER_PORT' ),
-				__( 'Document root', 'mpro-forms' ) => self::server_value( 'DOCUMENT_ROOT' ),
 				__( 'PHP version', 'mpro-forms' )   => PHP_VERSION,
 				__( 'PHP memory limit', 'mpro-forms' ) => (string) ini_get( 'memory_limit' ),
 				__( 'PHP max execution time', 'mpro-forms' ) => (string) ini_get( 'max_execution_time' ),

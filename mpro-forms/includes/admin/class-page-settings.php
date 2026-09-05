@@ -124,60 +124,6 @@ final class Page_Settings {
 		<?php
 	}
 
-	private static function render_addons_tab(): void {
-		?>
-		<table class="form-table" role="presentation">
-			<tbody>
-				<tr>
-					<th scope="row"><?php esc_html_e( 'Add-on catalogue', 'mpro-forms' ); ?></th>
-					<td>
-						<label>
-							<input type="hidden" name="mpro_forms_settings[addons_remote_enabled]" value="0">
-							<input type="checkbox" name="mpro_forms_settings[addons_remote_enabled]" value="1" <?php checked( (bool) Settings::get( 'addons_remote_enabled' ) ); ?>>
-							<?php
-							printf(
-								/* translators: %s: catalogue URL. */
-								esc_html__( 'Fetch the add-on list from %s', 'mpro-forms' ),
-								'<code>' . esc_html( Plugin::HOME_URL . '/addons' ) . '</code>'
-							);
-							?>
-						</label>
-						<p class="description"><?php esc_html_e( 'When disabled, the bundled catalogue is shown instead and no external request is made.', 'mpro-forms' ); ?></p>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="mpro-addons-cache"><?php esc_html_e( 'Cache lifetime (hours)', 'mpro-forms' ); ?></label></th>
-					<td><input id="mpro-addons-cache" class="small-text" type="number" min="1" max="168" name="mpro_forms_settings[addons_cache_hours]" value="<?php echo esc_attr( (string) Settings::get( 'addons_cache_hours' ) ); ?>"></td>
-				</tr>
-			</tbody>
-		</table>
-		<?php
-	}
-
-	private static function render_license_tab(): void {
-		?>
-		<div class="notice notice-success inline mpro-license-banner">
-			<h2><?php esc_html_e( 'Every feature in this version is free.', 'mpro-forms' ); ?></h2>
-			<p><?php esc_html_e( 'No license key is required and no feature is gated. Install it on as many sites as you like.', 'mpro-forms' ); ?></p>
-			<p>
-				<?php esc_html_e( 'Some future add-ons that carry ongoing hosting or maintenance costs — SMS delivery and similar services — may become paid. The free core will stay free, and this tab is where any license key would be entered.', 'mpro-forms' ); ?>
-			</p>
-		</div>
-
-		<table class="form-table" role="presentation">
-			<tbody>
-				<tr>
-					<th scope="row"><label for="mpro-license-key"><?php esc_html_e( 'License key', 'mpro-forms' ); ?></label></th>
-					<td>
-						<input id="mpro-license-key" class="regular-text code" type="text" value="" disabled placeholder="<?php esc_attr_e( 'Not required in this version', 'mpro-forms' ); ?>">
-						<p class="description"><?php esc_html_e( 'Disabled because nothing in this release needs activation.', 'mpro-forms' ); ?></p>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-		<?php
-	}
-
 	private static function render_general_tab(): void {
 		?>
 		<table class="form-table" role="presentation">
@@ -216,16 +162,6 @@ final class Page_Settings {
 					<td>
 						<input id="mpro-retention" class="small-text" type="number" min="0" max="3650" name="mpro_forms_settings[retention_days]" value="<?php echo esc_attr( (string) Settings::get( 'retention_days' ) ); ?>">
 						<p class="description"><?php esc_html_e( 'Entries older than this are deleted by a daily job. Zero keeps entries forever.', 'mpro-forms' ); ?></p>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><?php esc_html_e( 'Automatic updates', 'mpro-forms' ); ?></th>
-					<td>
-						<label>
-							<input type="hidden" name="mpro_forms_settings[auto_update]" value="0">
-							<input type="checkbox" name="mpro_forms_settings[auto_update]" value="1" <?php checked( (bool) Settings::get( 'auto_update' ) ); ?>>
-							<?php esc_html_e( 'Allow WordPress to update this plugin automatically', 'mpro-forms' ); ?>
-						</label>
 					</td>
 				</tr>
 				<tr>
@@ -282,85 +218,4 @@ final class Page_Settings {
 		<?php
 	}
 
-	private static function render_rest_tab(): void {
-		?>
-		<div class="notice notice-info inline">
-			<p><?php esc_html_e( 'The REST API is read-only groundwork in this release. Enabling it registers no public routes yet.', 'mpro-forms' ); ?></p>
-		</div>
-
-		<table class="form-table" role="presentation">
-			<tbody>
-				<tr>
-					<th scope="row"><?php esc_html_e( 'REST API', 'mpro-forms' ); ?></th>
-					<td>
-						<label>
-							<input type="hidden" name="mpro_forms_settings[rest_enabled]" value="0">
-							<input type="checkbox" name="mpro_forms_settings[rest_enabled]" value="1" <?php checked( (bool) Settings::get( 'rest_enabled' ) ); ?>>
-							<?php esc_html_e( 'Enable the MPRO Forms REST namespace', 'mpro-forms' ); ?>
-						</label>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><?php esc_html_e( 'Namespace', 'mpro-forms' ); ?></th>
-					<td><code>mpro-forms/v1</code></td>
-				</tr>
-				<tr>
-					<th scope="row"><?php esc_html_e( 'Base URL', 'mpro-forms' ); ?></th>
-					<td><code><?php echo esc_html( rest_url( 'mpro-forms/v1' ) ); ?></code></td>
-				</tr>
-			</tbody>
-		</table>
-		<?php
-	}
-
-	private static function render_sms_tab(): void {
-		?>
-		<div class="notice notice-info inline">
-			<p><?php esc_html_e( 'Credentials are stored now so that SMS notifications and phone verification can be switched on in a later release. No message is sent by this version.', 'mpro-forms' ); ?></p>
-		</div>
-
-		<table class="form-table" role="presentation">
-			<tbody>
-				<tr>
-					<th scope="row"><?php esc_html_e( 'SMS integration', 'mpro-forms' ); ?></th>
-					<td>
-						<label>
-							<input type="hidden" name="mpro_forms_settings[sms_enabled]" value="0">
-							<input type="checkbox" name="mpro_forms_settings[sms_enabled]" value="1" <?php checked( (bool) Settings::get( 'sms_enabled' ) ); ?>>
-							<?php esc_html_e( 'Enable SMS features', 'mpro-forms' ); ?>
-						</label>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="mpro-sms-provider"><?php esc_html_e( 'Gateway', 'mpro-forms' ); ?></label></th>
-					<td>
-						<select id="mpro-sms-provider" name="mpro_forms_settings[sms_provider]">
-							<?php foreach ( Settings::sms_providers() as $value => $label ) : ?>
-								<option value="<?php echo esc_attr( $value ); ?>" <?php selected( Settings::get( 'sms_provider' ), $value ); ?>><?php echo esc_html( $label ); ?></option>
-							<?php endforeach; ?>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="mpro-sms-key"><?php esc_html_e( 'API key', 'mpro-forms' ); ?></label></th>
-					<td><input id="mpro-sms-key" class="regular-text code" type="password" autocomplete="off" name="mpro_forms_settings[sms_api_key]" value="<?php echo esc_attr( (string) Settings::get( 'sms_api_key' ) ); ?>"></td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="mpro-sms-sender"><?php esc_html_e( 'Sender number', 'mpro-forms' ); ?></label></th>
-					<td><input id="mpro-sms-sender" class="regular-text code" type="text" name="mpro_forms_settings[sms_sender]" value="<?php echo esc_attr( (string) Settings::get( 'sms_sender' ) ); ?>"></td>
-				</tr>
-				<tr>
-					<th scope="row"><?php esc_html_e( 'Phone verification', 'mpro-forms' ); ?></th>
-					<td>
-						<label>
-							<input type="hidden" name="mpro_forms_settings[sms_verify_numbers]" value="0">
-							<input type="checkbox" name="mpro_forms_settings[sms_verify_numbers]" value="1" <?php checked( (bool) Settings::get( 'sms_verify_numbers' ) ); ?>>
-							<?php esc_html_e( 'Require a one-time code for phone fields', 'mpro-forms' ); ?>
-						</label>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-		<?php
-	}
 }

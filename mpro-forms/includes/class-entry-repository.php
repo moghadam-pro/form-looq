@@ -116,7 +116,11 @@ final class Entry_Repository {
 				'user_agent' => self::limit( sanitize_text_field( (string) ( $context['user_agent'] ?? '' ) ), 255 ),
 				'referer'    => self::limit( esc_url_raw( (string) ( $context['referer'] ?? '' ) ), 255 ),
 				'user_id'    => get_current_user_id(),
-				'created_at' => current_time( 'mysql' ),
+				// Stored in UTC (not site local time) so it can be compared directly
+				// against the UTC cutoff in purge_older_than(), and so the admin
+				// screens' strtotime()+wp_date() conversion back to site time is
+				// correct instead of double-shifting by the site's offset.
+				'created_at' => current_time( 'mysql', true ),
 			),
 			array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s' )
 		);

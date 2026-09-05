@@ -1,6 +1,6 @@
 <?php
 /**
- * Import / Export screen.
+ * Entry export screen.
  *
  * @package MPROForms
  */
@@ -24,8 +24,8 @@ final class Page_Tools {
 		<div class="wrap mpro-wrap">
 			<?php
 			Admin::header(
-				__( 'Import / Export', 'mpro-forms' ),
-				__( 'Take a complete copy of a form\'s entries, or bring data in.', 'mpro-forms' )
+				__( 'Export', 'mpro-forms' ),
+				__( "Take a complete copy of a form's entries.", 'mpro-forms' )
 			);
 			Admin::render_notice();
 			?>
@@ -71,24 +71,6 @@ final class Page_Tools {
 							<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Download export', 'mpro-forms' ); ?></button></p>
 						</form>
 					<?php endif; ?>
-				</div>
-
-				<div class="mpro-card-panel is-disabled">
-					<h2><?php esc_html_e( 'Import entries', 'mpro-forms' ); ?></h2>
-
-					<div class="notice notice-warning inline">
-						<p><strong><?php esc_html_e( 'Import is disabled in this release.', 'mpro-forms' ); ?></strong></p>
-						<p>
-							<?php esc_html_e( 'Importing has to reconcile field names, option values, and duplicate detection against forms it did not create. Rather than ship a version that silently corrupts entries, import stays off until the export format has been tested against real sites and the safest merge strategy is clear.', 'mpro-forms' ); ?>
-						</p>
-						<p><?php esc_html_e( 'It will arrive in a following release. Exports produced now will remain importable.', 'mpro-forms' ); ?></p>
-					</div>
-
-					<p>
-						<label for="mpro-import-file"><strong><?php esc_html_e( 'Import file', 'mpro-forms' ); ?></strong></label><br>
-						<input id="mpro-import-file" type="file" disabled>
-					</p>
-					<p><button type="button" class="button" disabled><?php esc_html_e( 'Run import', 'mpro-forms' ); ?></button></p>
 				</div>
 			</div>
 

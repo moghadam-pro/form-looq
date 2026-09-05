@@ -30,9 +30,9 @@ final class Install {
 		update_option( self::OPTION_SCHEMA, self::SCHEMA_VERSION, false );
 		update_option( self::OPTION_VERSION, MPRO_FORMS_VERSION, false );
 
-		if ( ! wp_next_scheduled( 'mpro_forms_daily_cleanup' ) ) {
-			wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', 'mpro_forms_daily_cleanup' );
-		}
+		// Only schedules the job when a retention window is actually configured;
+		// a zero-day default means "keep forever," so there is nothing to run.
+		Settings::sync_cron();
 	}
 
 	public static function deactivate(): void {
@@ -40,6 +40,18 @@ final class Install {
 	}
 
 	public static function maybe_upgrade(): void {
+		$stored_version = (string) get_option( self::OPTION_VERSION, '' );
+
+		if ( $stored_version !== MPRO_FORMS_VERSION ) {
+			// A site updated by replacing the plugin folder (the common path for
+			// a manual ZIP upload) never re-fires register_activation_hook, so an
+			// unconditional cron schedule left behind by an older version — like
+			// 0.3.2's, which ran regardless of the retention setting — would
+			// otherwise survive until something else happened to touch it.
+			Settings::sync_cron();
+			update_option( self::OPTION_VERSION, MPRO_FORMS_VERSION, false );
+		}
+
 		if ( (int) get_option( self::OPTION_SCHEMA, 0 ) === self::SCHEMA_VERSION ) {
 			return;
 		}
@@ -48,7 +60,6 @@ final class Install {
 		self::install_tables();
 		self::add_capabilities();
 		update_option( self::OPTION_SCHEMA, self::SCHEMA_VERSION, false );
-		update_option( self::OPTION_VERSION, MPRO_FORMS_VERSION, false );
 	}
 
 	/**

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: MPRO Forms
  * Description: Privacy-first WordPress forms with local submissions, a drag-and-drop builder, and first-class RTL/LTR support.
- * Version: 0.3.2
+ * Version: 0.3.3
  * Author: Sayid Moghadam
  * Author URI: https://sayid.ir
  * Plugin URI: https://sayid.ir/mpro-forms
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'MPRO_FORMS_VERSION', '0.3.2' );
+define( 'MPRO_FORMS_VERSION', '0.3.3' );
 define( 'MPRO_FORMS_FILE', __FILE__ );
 define( 'MPRO_FORMS_DIR', plugin_dir_path( __FILE__ ) );
 
@@ -42,7 +42,6 @@ foreach (
 		'class-frontend-form',
 		'class-privacy-manager',
 		'class-privacy-policy',
-		'class-remote-content',
 		'class-dashboard-widget',
 		'class-elementor',
 	) as $mpro_class
@@ -65,7 +64,6 @@ if ( is_admin() ) {
 			'class-page-entry',
 			'class-page-settings',
 			'class-page-tools',
-			'class-page-addons',
 			'class-page-status',
 			'class-page-help',
 		) as $mpro_admin_class

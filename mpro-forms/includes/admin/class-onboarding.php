@@ -12,7 +12,6 @@
 namespace MPROForms\Admin;
 
 use MPROForms\Plugin;
-use MPROForms\Remote_Content;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -60,7 +59,7 @@ final class Onboarding {
 						<a class="button button-primary button-hero" href="<?php echo esc_url( Plugin::admin_url( Plugin::MENU_SLUG . '-new' ) ); ?>">
 							<?php esc_html_e( 'Create your first form', 'mpro-forms' ); ?>
 						</a>
-						<a class="button button-hero" href="<?php echo esc_url( Remote_Content::DOCS_URL ); ?>" target="_blank" rel="noopener noreferrer">
+						<a class="button button-hero" href="<?php echo esc_url( Plugin::admin_url( Plugin::MENU_SLUG . '-help' ) ); ?>">
 							<?php esc_html_e( 'Read the documentation', 'mpro-forms' ); ?>
 						</a>
 					</p>
@@ -70,9 +69,9 @@ final class Onboarding {
 					<?php
 					$features = array(
 						array(
-							'icon'  => 'smartphone',
-							'title' => __( 'SMS-ready with phone validation', 'mpro-forms' ),
-							'text'  => __( 'Phone fields are validated server side, and gateway credentials are ready for SMS notifications and one-time codes.', 'mpro-forms' ),
+							'icon'  => 'privacy',
+							'title' => __( 'Entries stay on your own site', 'mpro-forms' ),
+							'text'  => __( 'Submissions are stored in this site\'s own database tables and are never sent to an external service.', 'mpro-forms' ),
 						),
 						array(
 							'icon'  => 'welcome-widgets-menus',

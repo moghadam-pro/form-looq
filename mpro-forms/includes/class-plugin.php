@@ -52,25 +52,14 @@ final class Plugin {
 	 * WordPress runs through translate() once the text domain is loaded.
 	 */
 	public static function name(): string {
-		$name = __( 'MPRO Forms', 'mpro-forms' );
-
-		return ( 'MPRO Forms' === $name && self::is_persian() ) ? 'فرم‌ساز ام‌پرو' : $name;
+		return __( 'MPRO Forms', 'mpro-forms' );
 	}
 
 	/**
 	 * Menu label for the top-level entry.
-	 *
-	 * Persian admins see the localized label even before the bundled translation
-	 * files are loaded, because the menu is the plugin's most visible surface.
 	 */
 	public static function menu_label(): string {
-		$label = __( 'Forms', 'mpro-forms' );
-
-		return ( 'Forms' === $label && self::is_persian() ) ? 'فرم‌ها' : $label;
-	}
-
-	private static function is_persian(): bool {
-		return 0 === strpos( determine_locale(), 'fa' );
+		return __( 'Forms', 'mpro-forms' );
 	}
 
 	/**

@@ -17,6 +17,15 @@ wp_clear_scheduled_hook( 'mpro_forms_daily_cleanup' );
 delete_transient( 'mpro_forms_remote_addons' );
 delete_transient( 'mpro_forms_remote_docs' );
 
+// The capability is meaningless clutter on the role once the plugin that
+// checks it is gone, so this runs unconditionally rather than only when the
+// site owner also opts into deleting forms and entries below.
+$mpro_role = get_role( 'administrator' );
+
+if ( $mpro_role instanceof WP_Role ) {
+	$mpro_role->remove_cap( 'mpro_manage_forms' );
+}
+
 $mpro_forms_settings = get_option( 'mpro_forms_settings', array() );
 $mpro_forms_settings = is_array( $mpro_forms_settings ) ? $mpro_forms_settings : array();
 
@@ -29,7 +38,7 @@ global $wpdb;
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
 foreach ( array( 'entries', 'forms' ) as $mpro_table ) {
 	$mpro_table_name = $wpdb->prefix . 'mpro_' . $mpro_table;
-	$wpdb->query( "DROP TABLE IF EXISTS `{$mpro_table_name}`" );
+	$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $mpro_table_name ) );
 }
 // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
 
@@ -45,12 +54,6 @@ foreach (
 	) as $mpro_option
 ) {
 	delete_option( $mpro_option );
-}
-
-$mpro_role = get_role( 'administrator' );
-
-if ( $mpro_role instanceof WP_Role ) {
-	$mpro_role->remove_cap( 'mpro_manage_forms' );
 }
 
 $mpro_patterns = array(

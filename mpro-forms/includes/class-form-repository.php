@@ -253,18 +253,26 @@ final class Form_Repository {
 
 	/**
 	 * Delete a form and every entry that belongs to it.
+	 *
+	 * The form row is deleted first: if that fails, nothing is touched, so a
+	 * failed delete never leaves a form stripped of its entries. Only once the
+	 * form itself is confirmed gone are its entries removed.
 	 */
 	public static function delete( int $form_id ): bool {
 		global $wpdb;
 
-		if ( $form_id <= 0 ) {
+		if ( $form_id <= 0 || ! self::get( $form_id ) ) {
 			return false;
 		}
 
-		$wpdb->delete( DB::entries_table(), array( 'form_id' => $form_id ), array( '%d' ) );
 		$deleted = $wpdb->delete( DB::forms_table(), array( 'id' => $form_id ), array( '%d' ) );
 
+		if ( ! $deleted ) {
+			return false;
+		}
+
 		self::flush( $form_id );
+		$wpdb->delete( DB::entries_table(), array( 'form_id' => $form_id ), array( '%d' ) );
 
 		/**
 		 * Fires after a form and its entries are deleted.
@@ -273,7 +281,7 @@ final class Form_Repository {
 		 */
 		do_action( 'mpro_forms_form_deleted', $form_id );
 
-		return (bool) $deleted;
+		return true;
 	}
 
 	public static function record_view( int $form_id ): void {

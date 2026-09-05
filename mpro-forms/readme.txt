@@ -4,7 +4,7 @@ Tags: forms, contact form, form builder, rtl, submissions
 Requires at least: 6.5
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 0.3.2
+Stable tag: 0.3.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,16 +47,6 @@ MPRO Forms is an open-source WordPress form plugin focused on straightforward fo
 * WordPress personal-data export and erasure integration.
 * Configurable entry retention with a daily cleanup job.
 * Data is kept when the plugin is deleted unless deletion is explicitly enabled.
-
-== External services ==
-
-The Add-ons and Help screens can load their content from the project website at https://sayid.ir/mpro-forms — specifically `https://sayid.ir/mpro-forms/addons.json` and `https://sayid.ir/mpro-forms/docs.json`.
-
-These requests send only the standard HTTP headers plus a user agent identifying the plugin version and the site URL, so the project can tell which releases are in use. No form content, entry data, or personal data is transmitted. Responses are cached locally and the plugin falls back to a bundled catalogue when the site cannot be reached.
-
-This behaviour can be turned off entirely under Settings → Add-ons, after which the plugin makes no external requests at all.
-
-Site terms and privacy policy: https://sayid.ir/mpro-forms
 
 == Installation ==
 
@@ -106,6 +96,22 @@ Not in this release. Export is complete; import is deliberately held back until 
 
 == Changelog ==
 
+= 0.3.3 =
+
+* Removed: the plugin no longer contacts the project website automatically. The Add-ons and Help screens previously fetched a catalogue from it on every visit, sending the site's own URL along in the request — that behaviour is gone, and the Help screen now ships its content with the plugin. The Add-ons screen is removed entirely, since nothing on it was ever installable.
+* Removed: settings and screens that stored data but implemented nothing — the REST API and SMS/OTP tabs (including the unused SMS API key field), the License tab, the Automatic updates checkbox, and the Import panel on the Export screen.
+* Fixed: a visitor could submit a value starting with `=`, `+`, `-`, or `@` that spreadsheet software reads as a formula when an admin opens an exported CSV (CSV/formula injection). Such values are now prefixed with an apostrophe before being written out.
+* Fixed: exporting more than 100,000 entries silently stopped instead of exporting everything, even though the screen advertised a complete export. The cap is removed.
+* Fixed: entries were timestamped in the site's local time but compared against a UTC cutoff for retention, and displayed by parsing that local time as if it were UTC and converting it again — on a non-UTC site both the retention window and the displayed submission time could be off by the site's UTC offset. Entries are now timestamped in UTC and converted to site time only for display.
+* Fixed: the privacy exporter left out the entry's referring page, browser user agent, and admin note, and the eraser left the visitor's user account attached to an otherwise-anonymised entry. Both now cover the full set of personal data a submission can carry.
+* Fixed: the daily retention cleanup job was scheduled on every install even when retention was left at its default of "keep forever," so it ran daily and did nothing. It is now scheduled only while a retention window is actually configured.
+* Fixed: a right-to-left site whose language isn't Persian — Arabic, Hebrew, Urdu — saw the frontend "Select" and "Yes" defaults in Persian, because the fallback checked text direction instead of the site's language. It now always comes from the plugin's own translation.
+* Fixed: an admin-configured post-submission redirect to an external domain was silently replaced with the home page, because the safe-redirect helper only allows configured hosts. The URL is validated instead and honoured as configured.
+* Fixed: deleting a form removed its entries before the form row itself, so a failed delete could leave a form with no entries. The form row is now deleted first, and entries are only removed once that succeeds.
+* Fixed: uninstalling with data deletion turned off skipped removing the plugin's capability from the administrator role, leaving it there permanently. Capability cleanup now always runs; only the destructive table and option removal stays behind the opt-in.
+* Changed: the system status report no longer includes the server's document root or the absolute uploads-folder path, and the plain-text report now carries an explicit warning before it is copied, since it still contains other server details.
+* Changed: `readme.txt` no longer describes an add-on catalogue fetch as an "External service" — there is no longer an automatic outbound request to describe.
+
 = 0.3.2 =
 
 * Fixed: the dashboard widget rendered with no styling because its stylesheet was never loaded on the WordPress Dashboard screen. Redesigned it at the same time: bordered stat cards, the unread count in the brand color, and an inline bar next to each conversion rate.
@@ -150,6 +156,10 @@ Not in this release. Export is complete; import is deliberately held back until 
 * Added validation, accessible error states, privacy tools, retention settings, rate limiting, and automated checks.
 
 == Upgrade Notice ==
+
+= 0.3.3 =
+
+Removes the outbound Add-ons/Help catalogue fetch and every setting that stored data without a working feature behind it (REST, SMS, License, Automatic updates, Import). Fixes a CSV export formula-injection issue, a timezone bug in retention and displayed submission times, and an incomplete privacy export/eraser. If you had those settings configured, review Settings after updating — the removed ones are dropped from storage the next time settings are saved.
 
 = 0.3.0 =
 

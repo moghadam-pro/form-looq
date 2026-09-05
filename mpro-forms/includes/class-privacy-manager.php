@@ -112,13 +112,18 @@ final class Privacy_Manager {
 				DB::entries_table(),
 				array(
 					'data'       => DB::encode( array() ),
+					'note'       => '',
 					'status'     => Entry_Repository::STATUS_READ,
 					'ip_hash'    => '',
 					'user_agent' => '',
 					'referer'    => '',
+					// The account link itself identifies the requester; clearing it
+					// (rather than just the fields above) is what makes the entry
+					// stop being personal data instead of merely anonymised-looking.
+					'user_id'    => 0,
 				),
 				array( 'id' => (int) $entry['id'] ),
-				array( '%s', '%s', '%s', '%s', '%s' ),
+				array( '%s', '%s', '%s', '%s', '%s', '%s', '%d' ),
 				array( '%d' )
 			);
 
@@ -211,6 +216,43 @@ final class Privacy_Manager {
 			$items[] = array(
 				'name'  => $labels[ $key ] ?? (string) $key,
 				'value' => is_array( $value ) ? implode( ', ', $value ) : (string) $value,
+			);
+		}
+
+		if ( '' !== (string) $entry['referer'] ) {
+			$items[] = array(
+				'name'  => __( 'Referring page', 'mpro-forms' ),
+				'value' => (string) $entry['referer'],
+			);
+		}
+
+		if ( '' !== (string) $entry['user_agent'] ) {
+			$items[] = array(
+				'name'  => __( 'Browser user agent', 'mpro-forms' ),
+				'value' => (string) $entry['user_agent'],
+			);
+		}
+
+		if ( '' !== (string) $entry['ip_hash'] ) {
+			$items[] = array(
+				'name'  => __( 'IP address', 'mpro-forms' ),
+				'value' => __( 'Stored as a salted hash, not recoverable in plain form.', 'mpro-forms' ),
+			);
+		}
+
+		if ( (int) $entry['user_id'] > 0 ) {
+			$user = get_userdata( (int) $entry['user_id'] );
+
+			$items[] = array(
+				'name'  => __( 'Submitted while signed in as', 'mpro-forms' ),
+				'value' => $user ? (string) $user->user_login : (string) $entry['user_id'],
+			);
+		}
+
+		if ( '' !== (string) $entry['note'] ) {
+			$items[] = array(
+				'name'  => __( 'Admin note', 'mpro-forms' ),
+				'value' => (string) $entry['note'],
 			);
 		}
 

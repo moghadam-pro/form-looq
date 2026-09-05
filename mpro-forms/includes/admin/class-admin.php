@@ -64,12 +64,8 @@ final class Admin {
 				'callback' => array( Page_Settings::class, 'render' ),
 			),
 			Plugin::MENU_SLUG . '-tools'   => array(
-				'title'    => __( 'Import / Export', 'mpro-forms' ),
+				'title'    => __( 'Export', 'mpro-forms' ),
 				'callback' => array( Page_Tools::class, 'render' ),
-			),
-			Plugin::MENU_SLUG . '-addons'  => array(
-				'title'    => __( 'Add-ons', 'mpro-forms' ),
-				'callback' => array( Page_Addons::class, 'render' ),
 			),
 			Plugin::MENU_SLUG . '-status'  => array(
 				'title'    => __( 'System status', 'mpro-forms' ),
