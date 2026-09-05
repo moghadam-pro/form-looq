@@ -14,7 +14,7 @@ Until the first stable release, only the latest version receives fixes.
 Please report security issues privately rather than opening a public issue.
 
 - **Email:** security@sayid.ir
-- **GitHub:** open a [private security advisory](https://github.com/moghadam-pro/mpro-forms-wp-plugin/security/advisories/new)
+- **GitHub:** open a [private security advisory](https://github.com/moghadam-pro/form-looq/security/advisories/new)
 
 Useful details to include:
 
