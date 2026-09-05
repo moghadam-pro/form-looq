@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<ruleset name="MPRO Forms Release Gate">
+<ruleset name="Form LOOQ Release Gate">
 	<description>Focused WordPress release checks for security, SQL safety, internationalization, and deprecated APIs.</description>
 
-	<file>mpro-forms</file>
+	<file>form-looq</file>
 
 	<arg name="basepath" value="."/>
 	<arg name="colors"/>

@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 const AxeBuilder = require('@axe-core/playwright').default;
 
 async function makeSubmissionOldEnough(page) {
-  await page.locator('input[name="mpro_started_at"]').evaluate((input) => {
+  await page.locator('input[name="looq_started_at"]').evaluate((input) => {
     input.value = String(Math.floor(Date.now() / 1000) - 5);
   });
 }
@@ -27,14 +27,14 @@ async function expectNoSeriousAccessibilityViolations(page, includeSelector) {
 test('English LTR form exposes labels, help, keyboard order, and success state', async ({ page }) => {
   await page.goto('/english-form/');
 
-  const wrapper = page.locator('.mpro-form-wrap');
+  const wrapper = page.locator('.looq-form-wrap');
   const nameInput = page.getByLabel('Full name (required)');
   const emailInput = page.getByLabel('Email address (required)');
 
   await expect(wrapper).toHaveAttribute('dir', 'ltr');
   await expect(nameInput).toBeVisible();
   await expect(page.getByText('Enter your first and last name.')).toBeVisible();
-  await expectNoSeriousAccessibilityViolations(page, '.mpro-form-wrap');
+  await expectNoSeriousAccessibilityViolations(page, '.looq-form-wrap');
 
   await nameInput.focus();
   await page.keyboard.press('Tab');
@@ -49,14 +49,14 @@ test('English LTR form exposes labels, help, keyboard order, and success state',
   await page.getByRole('button', { name: 'Send message' }).click();
 
   await expect(page.getByRole('status')).toContainText('Thank you');
-  await expect(page).not.toHaveURL(/mpro_status=/);
-  await expectNoSeriousAccessibilityViolations(page, '.mpro-form-wrap');
+  await expect(page).not.toHaveURL(/looq_status=/);
+  await expectNoSeriousAccessibilityViolations(page, '.looq-form-wrap');
 });
 
 test('Server-side errors are summarized, linked, focused, and exposed accessibly', async ({ page }) => {
   await page.goto('/english-form/');
 
-  await page.locator('form.mpro-form').evaluate((form) => {
+  await page.locator('form.looq-form').evaluate((form) => {
     form.noValidate = true;
   });
   await makeSubmissionOldEnough(page);
@@ -70,14 +70,14 @@ test('Server-side errors are summarized, linked, focused, and exposed accessibly
   const nameInput = page.getByLabel('Full name (required)');
   await expect(nameInput).toHaveAttribute('aria-invalid', 'true');
   await expect(nameInput).toBeFocused();
-  await expect(page).not.toHaveURL(/mpro_state=/);
-  await expectNoSeriousAccessibilityViolations(page, '.mpro-form-wrap');
+  await expect(page).not.toHaveURL(/looq_state=/);
+  await expectNoSeriousAccessibilityViolations(page, '.looq-form-wrap');
 });
 
 test('Persian RTL form keeps logical direction and accessible group semantics', async ({ page }) => {
   await page.goto('/persian-form/');
 
-  const wrapper = page.locator('.mpro-form-wrap');
+  const wrapper = page.locator('.looq-form-wrap');
   const nameInput = page.getByLabel('نام و نام خانوادگی (required)');
   const emailInput = page.getByLabel('ایمیل (required)');
 
@@ -91,7 +91,7 @@ test('Persian RTL form keeps logical direction and accessible group semantics', 
 
   const computedDirection = await wrapper.evaluate((element) => getComputedStyle(element).direction);
   expect(computedDirection).toBe('rtl');
-  await expectNoSeriousAccessibilityViolations(page, '.mpro-form-wrap');
+  await expectNoSeriousAccessibilityViolations(page, '.looq-form-wrap');
 
   await nameInput.focus();
   await page.keyboard.press('Tab');

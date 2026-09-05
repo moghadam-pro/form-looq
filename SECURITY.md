@@ -33,7 +33,7 @@ Please give a reasonable window for a fix before disclosing publicly.
 
 **In scope**
 
-- Anything in the `mpro-forms/` directory.
+- Anything in the `form-looq/` directory.
 - Privilege escalation, SQL injection, XSS, CSRF, and unauthorised data access.
 - Bypassing the capability checks that gate plugin screens.
 - Bypassing submission validation or rate limiting.
@@ -53,7 +53,7 @@ Points that are deliberate rather than accidental, and worth understanding befor
 reporting:
 
 - **Capability gating.** Every admin screen begins with `Admin::guard()`, which
-  checks `mpro_manage_forms` or `manage_options`.
+  checks `looq_manage_forms` or `manage_options`.
 - **Nonces.** Every state-changing request — row actions, bulk actions, settings
   saves, form saves, exports, note saves — is nonce-verified.
 - **Client input is untrusted.** The builder posts field definitions as JSON.

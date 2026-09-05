@@ -1,0 +1,253 @@
+.looq-form-wrap {
+	--looq-primary: #C61531;
+	--looq-accent: #9E1127;
+	--looq-text: #1f2937;
+	--looq-muted: #6b7280;
+	--looq-surface: #fff;
+	--looq-border: #d1d5db;
+	--looq-error: #b91c1c;
+	color: var(--looq-text);
+
+	/*
+	 * The form takes the surrounding theme's typeface. Set --looq-font on this
+	 * wrapper (or any ancestor) to override it for a single form or site-wide.
+	 */
+	font-family: var(--looq-font, inherit);
+}
+
+.looq-form {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 18px;
+}
+
+.looq-field {
+	display: grid;
+	gap: 8px;
+	font-size: .9rem;
+	font-weight: 700;
+}
+
+.looq-field--wide,
+.looq-section {
+	grid-column: 1 / -1;
+}
+
+/*
+ * Single column is the default. Half-width fields only pair up when the form
+ * itself opts into the two-column layout, so a narrow theme never gets a
+ * cramped row it did not ask for.
+ */
+.looq-form-wrap:not(.looq-layout-two-column) .looq-field {
+	grid-column: 1 / -1;
+}
+
+@media screen and (max-width: 600px) {
+	.looq-form {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.looq-label {
+	display: block;
+}
+
+.looq-form input,
+.looq-form select,
+.looq-form textarea {
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 48px;
+	padding: 11px 13px;
+	border: 1px solid var(--looq-border);
+	border-radius: 8px;
+	background: var(--looq-surface);
+	color: var(--looq-text);
+	font: inherit;
+}
+
+.looq-form textarea {
+	min-height: 128px;
+	resize: vertical;
+}
+
+.looq-form input:focus,
+.looq-form select:focus,
+.looq-form textarea:focus,
+.looq-fieldset[tabindex="-1"]:focus {
+	border-color: var(--looq-primary);
+	outline: 3px solid color-mix(in srgb, var(--looq-primary) 22%, transparent);
+	outline-offset: 2px;
+}
+
+.looq-form button {
+	grid-column: 1 / -1;
+	justify-self: end;
+	min-height: 44px;
+	padding: 0 22px;
+	border: 0;
+	border-radius: 8px;
+	background: var(--looq-primary);
+	color: #fff;
+	font-weight: 700;
+	font-size: .95rem;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.looq-form button:hover,
+.looq-form button:focus-visible {
+	background: var(--looq-accent);
+}
+
+.looq-section {
+	margin-top: 18px;
+	padding-top: 24px;
+	border-top: 1px solid var(--looq-border);
+}
+
+.looq-section:first-child {
+	margin-top: 0;
+	padding-top: 0;
+	border-top: 0;
+}
+
+.looq-section h2 {
+	margin: 0 0 6px;
+	font-size: 1.35rem;
+}
+
+.looq-section p,
+.looq-help {
+	margin: 0;
+	color: var(--looq-muted);
+	font-weight: 400;
+}
+
+.looq-fieldset {
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.looq-choice-group {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.looq-choice-group label,
+.looq-checkbox {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 13px;
+	border: 1px solid var(--looq-border);
+	border-radius: 8px;
+	background: var(--looq-surface);
+	font-weight: 500;
+	cursor: pointer;
+}
+
+.looq-choice-group input,
+.looq-checkbox input {
+	width: 18px;
+	min-height: 18px;
+	margin: 0;
+	padding: 0;
+	accent-color: var(--looq-primary);
+}
+
+.looq-scale {
+	display: grid;
+	grid-template-columns: repeat(5, minmax(44px, 1fr));
+}
+
+.looq-scale label {
+	justify-content: center;
+}
+
+.looq-notice {
+	margin: 0 0 20px;
+	padding: 14px 16px;
+	border-radius: 8px;
+	background: #dcfce7;
+	color: #14532d;
+}
+
+.looq-notice.is-error {
+	background: #fee2e2;
+	color: #7f1d1d;
+}
+
+.looq-notice:focus {
+	outline: 3px solid currentColor;
+	outline-offset: 3px;
+}
+
+.looq-error-summary p {
+	margin: 0;
+}
+
+.looq-error-summary ul {
+	margin: 10px 0 0;
+	padding-inline-start: 22px;
+}
+
+.looq-error-summary a {
+	color: inherit;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.looq-field.is-invalid input,
+.looq-field.is-invalid select,
+.looq-field.is-invalid textarea,
+.looq-fieldset.is-invalid .looq-choice-group label {
+	border-color: var(--looq-error);
+}
+
+.looq-field-error {
+	margin: 0;
+	color: var(--looq-error);
+	font-size: .875rem;
+	font-weight: 600;
+}
+
+.looq-honeypot {
+	position: absolute !important;
+	width: 1px !important;
+	height: 1px !important;
+	padding: 0 !important;
+	margin: -1px !important;
+	overflow: hidden !important;
+	clip: rect(0, 0, 0, 0) !important;
+	clip-path: inset(50%) !important;
+	white-space: nowrap !important;
+	border: 0 !important;
+}
+
+[dir="rtl"].looq-form-wrap .looq-form button {
+	justify-self: start;
+}
+
+@media (max-width: 700px) {
+	.looq-form {
+		grid-template-columns: 1fr;
+	}
+
+	.looq-form button,
+	[dir="rtl"].looq-form-wrap .looq-form button {
+		justify-self: stretch;
+		width: 100%;
+	}
+
+	.looq-scale {
+		grid-template-columns: repeat(5, minmax(36px, 1fr));
+	}
+
+	.looq-scale label {
+		padding: 9px 5px;
+	}
+}

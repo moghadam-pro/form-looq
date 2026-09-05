@@ -1,14 +1,14 @@
-# MPRO Forms
+# Form LOOQ
 
 > A free, privacy-first WordPress form plugin with a drag-and-drop builder, local
 > entry storage, and first-class RTL/LTR support.
 
-[![Version](https://img.shields.io/badge/version-0.3.0-C61531)](https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases)
+[![Version](https://img.shields.io/badge/version-0.4.0-C61531)](https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases)
 [![WordPress](https://img.shields.io/badge/wordpress-6.5%2B-21759b)](https://wordpress.org)
 [![PHP](https://img.shields.io/badge/php-8.1%2B-777bb4)](https://www.php.net)
 [![License](https://img.shields.io/badge/license-GPLv2%2B-green)](LICENSE)
 
-MPRO Forms is for people who need practical WordPress forms without a
+Form LOOQ (formerly MPRO Forms) is for people who need practical WordPress forms without a
 license key, an external account, or a mandatory cloud service. Every entry stays
 in your own database, the whole plugin ships without a build step, and nothing is
 gated behind a paywall.
@@ -80,7 +80,7 @@ Rocketgenius, or any other commercial form product.
 
 ### From a release
 
-1. Download `mpro-forms.zip` from the
+1. Download `form-looq.zip` from the
    [releases page](https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases).
 2. Upload it through **Plugins → Add New → Upload Plugin**.
 3. Activate it.
@@ -90,7 +90,7 @@ Rocketgenius, or any other commercial form product.
 
 ```bash
 git clone https://github.com/moghadam-pro/mpro-forms-wp-plugin.git
-cp -r mpro-forms-wp-plugin/mpro-forms /path/to/wp-content/plugins/
+cp -r mpro-forms-wp-plugin/form-looq /path/to/wp-content/plugins/
 ```
 
 **Requirements:** WordPress 6.5+, PHP 8.1+.
@@ -102,13 +102,13 @@ cp -r mpro-forms-wp-plugin/mpro-forms /path/to/wp-content/plugins/
 Create a form, then copy its shortcode from the **Embed** tab:
 
 ```
-[mpro_form id="12"]
+[looq_form id="12"]
 ```
 
 In a theme template:
 
 ```php
-<?php echo do_shortcode( '[mpro_form id="12"]' ); ?>
+<?php echo do_shortcode( '[looq_form id="12"]' ); ?>
 ```
 
 The shortcode accepts a few optional attributes:
@@ -129,8 +129,8 @@ Forms and entries are stored in two tables the plugin owns:
 
 | Table | Contents |
 | --- | --- |
-| `{prefix}mpro_forms` | Form definitions, settings, view and entry counts |
-| `{prefix}mpro_entries` | Submitted values, status, admin note, and metadata |
+| `{prefix}looq_forms` | Form definitions, settings, view and entry counts |
+| `{prefix}looq_entries` | Submitted values, status, admin note, and metadata |
 
 Because the plugin owns these tables and never drops them on its own, **deleting
 and reinstalling the plugin — or replacing the folder during an update — leaves
@@ -150,13 +150,13 @@ the plugin.
 
 ### External requests
 
-The **Add-ons** and **Help** screens can load their content from
-`https://sayid.ir/mpro-forms`. These requests send only standard HTTP
-headers plus a user agent identifying the plugin version and site URL — no form
-content, entry data, or personal data. Responses are cached, a bundled fallback
-is used when the site is unreachable, and the whole mechanism can be switched off
-under **Settings → Add-ons**, after which the plugin makes no external requests
-at all.
+The **Add-ons** screen can optionally load its catalogue from
+`https://formlooq.ir`. This is **off by default** — no request is made until an
+admin explicitly turns it on under **Settings → Add-ons**, where the exact data
+sent (standard HTTP headers plus a user agent identifying the plugin version and
+site URL — no form content, entry data, or personal data) is disclosed before
+the setting is enabled. Responses are cached, and a bundled fallback catalogue is
+shown when the setting is off or the site cannot be reached.
 
 ---
 
@@ -166,17 +166,17 @@ at all.
 
 | Hook | Arguments |
 | --- | --- |
-| `mpro_forms_form_created` | `int $form_id` |
-| `mpro_forms_form_updated` | `int $form_id` |
-| `mpro_forms_form_deleted` | `int $form_id` |
-| `mpro_forms_entry_created` | `int $entry_id, int $form_id` |
-| `mpro_forms_entry_deleted` | `int $entry_id` |
+| `form_looq_form_created` | `int $form_id` |
+| `form_looq_form_updated` | `int $form_id` |
+| `form_looq_form_deleted` | `int $form_id` |
+| `form_looq_entry_created` | `int $entry_id, int $form_id` |
+| `form_looq_entry_deleted` | `int $entry_id` |
 
 ```php
 add_action(
-	'mpro_forms_entry_created',
+	'form_looq_entry_created',
 	function ( $entry_id, $form_id ) {
-		$entry = \MPROForms\Entry_Repository::get( $entry_id );
+		$entry = \FormLooq\Entry_Repository::get( $entry_id );
 		// your logic here
 	},
 	10,
@@ -188,18 +188,17 @@ add_action(
 
 | Hook | Filters |
 | --- | --- |
-| `mpro_forms_capability` | The capability gating every plugin screen |
-| `mpro_forms_templates` | Starter template definitions |
-| `mpro_forms_track_views` | Whether a form view is counted |
-| `mpro_forms_sms_providers` | Selectable SMS gateways |
-| `mpro_forms_rate_limit_enabled` | Whether rate limiting applies to a form |
-| `mpro_forms_rate_limit_windows` | Limit and window sizes |
-| `mpro_forms_rate_limit_identity` | The visitor identity used for limiting |
+| `form_looq_capability` | The capability gating every plugin screen |
+| `form_looq_templates` | Starter template definitions |
+| `form_looq_track_views` | Whether a form view is counted |
+| `form_looq_rate_limit_enabled` | Whether rate limiting applies to a form |
+| `form_looq_rate_limit_windows` | Limit and window sizes |
+| `form_looq_rate_limit_identity` | The visitor identity used for limiting |
 
 ### Storing an entry programmatically
 
 ```php
-mpro_forms_store_submission(
+form_looq_store_submission(
 	12,
 	array(
 		'full_name'     => 'Sayid',

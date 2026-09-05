@@ -43,20 +43,20 @@ function wp_unslash( mixed $value ): mixed {
 	return is_string( $value ) ? stripslashes( $value ) : $value;
 }
 
-function mpro_test_fail( string $message ): never {
+function looq_test_fail( string $message ): never {
 	fwrite( STDERR, "FAIL: {$message}\n" );
 	exit( 1 );
 }
 
-function mpro_assert_true( bool $condition, string $message ): void {
+function looq_assert_true( bool $condition, string $message ): void {
 	if ( ! $condition ) {
-		mpro_test_fail( $message );
+		looq_test_fail( $message );
 	}
 }
 
-function mpro_assert_same( mixed $expected, mixed $actual, string $message ): void {
+function looq_assert_same( mixed $expected, mixed $actual, string $message ): void {
 	if ( $expected !== $actual ) {
-		mpro_test_fail(
+		looq_test_fail(
 			$message . "\nExpected: " . var_export( $expected, true ) . "\nActual: " . var_export( $actual, true )
 		);
 	}

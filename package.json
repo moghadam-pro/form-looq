@@ -1,5 +1,5 @@
 {
-  "name": "mpro-forms",
+  "name": "form-looq",
   "private": true,
   "scripts": {
     "test:e2e": "playwright test"

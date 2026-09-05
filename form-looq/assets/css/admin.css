@@ -1,0 +1,789 @@
+/*
+ * Form LOOQ — admin styles.
+ *
+ * Deliberately thin: the screens use core WordPress components, and this file
+ * only adds the plugin header bar, the builder canvas, and card layouts.
+ * Logical properties keep every layout correct in both LTR and RTL admins.
+ */
+
+/*
+ * Every plugin screen inherits the admin typeface rather than declaring one, so
+ * a site-wide font plugin restyles these screens along with the rest of wp-admin.
+ * The rules below only re-establish inheritance where a browser default would
+ * otherwise break it: form controls and buttons do not inherit font by default.
+ */
+.looq-wrap,
+.looq-wrap input,
+.looq-wrap select,
+.looq-wrap textarea,
+.looq-wrap button,
+.looq-welcome,
+.looq-welcome input,
+.looq-welcome button,
+.looq-dashboard,
+.looq-dashboard button {
+	font-family: inherit;
+}
+
+.looq-wrap {
+	--looq-border: #dcdcde;
+	--looq-surface: #fff;
+	--looq-muted: #646970;
+	--looq-accent: #C61531;
+}
+
+/* Header bar --------------------------------------------------------------- */
+
+.looq-header {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+	margin: 0 0 16px;
+	padding: 12px 16px;
+	background: var(--looq-surface);
+	border: 1px solid var(--looq-border);
+	border-radius: 4px;
+}
+
+.looq-header__logo {
+	width: 32px;
+	height: 32px;
+	border-radius: 6px;
+	flex: none;
+}
+
+.looq-header__identity {
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+	padding-inline-end: 12px;
+	border-inline-end: 1px solid var(--looq-border);
+}
+
+.looq-header__name {
+	font-weight: 600;
+}
+
+.looq-header__version {
+	font-size: 12px;
+	color: var(--looq-muted);
+}
+
+.looq-header__page {
+	min-width: 0;
+}
+
+.looq-header__title {
+	margin: 0;
+	padding: 0;
+	font-size: 18px;
+	line-height: 1.3;
+}
+
+.looq-header__subtitle {
+	margin: 2px 0 0;
+	color: var(--looq-muted);
+	font-size: 13px;
+}
+
+.looq-page-actions {
+	margin: 12px 0;
+}
+
+/* List tables -------------------------------------------------------------- */
+
+.looq-row-description {
+	color: var(--looq-muted);
+	font-size: 12px;
+	margin-top: 2px;
+}
+
+.looq-status {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 10px;
+	font-size: 12px;
+	line-height: 1.6;
+	background: #f0f0f1;
+	color: #1d2327;
+}
+
+.looq-status--active {
+	background: #edfaef;
+	color: #00450c;
+}
+
+.looq-status--inactive {
+	background: #fcf0f1;
+	color: #8a2424;
+}
+
+.looq-status--unread {
+	background: #f0f6fc;
+	color: #043959;
+}
+
+tr.looq-entry-unread td,
+tr.looq-entry-unread th {
+	font-weight: 600;
+}
+
+/* New-form modal ----------------------------------------------------------- */
+
+.looq-modal__inner {
+	max-width: 900px;
+	padding: 24px;
+	background: var(--looq-surface);
+	border: 1px solid var(--looq-border);
+	border-radius: 4px;
+}
+
+.looq-steps {
+	display: flex;
+	gap: 16px;
+	margin: 0 0 16px;
+	padding: 0;
+	list-style: none;
+	color: var(--looq-muted);
+	font-size: 13px;
+}
+
+.looq-steps .is-current {
+	color: var(--looq-accent);
+	font-weight: 600;
+}
+
+.looq-modal__lead {
+	color: var(--looq-muted);
+}
+
+.looq-template-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+	gap: 16px;
+	margin-top: 16px;
+}
+
+.looq-template-card {
+	display: block;
+	padding: 16px;
+	border: 1px solid var(--looq-border);
+	border-radius: 4px;
+	background: var(--looq-surface);
+	text-decoration: none;
+	color: inherit;
+}
+
+.looq-template-card:hover,
+.looq-template-card:focus {
+	border-color: var(--looq-accent);
+	box-shadow: 0 0 0 1px var(--looq-accent);
+}
+
+.looq-template-card.is-blank {
+	border-style: dashed;
+}
+
+.looq-template-card__icon {
+	color: var(--looq-accent);
+	font-size: 24px;
+	width: 24px;
+	height: 24px;
+}
+
+.looq-template-card__title {
+	display: block;
+	margin: 8px 0 4px;
+	font-weight: 600;
+}
+
+.looq-template-card__description {
+	display: block;
+	color: var(--looq-muted);
+	font-size: 13px;
+}
+
+.looq-template-card__meta {
+	display: block;
+	margin-top: 8px;
+	font-size: 12px;
+	color: var(--looq-muted);
+}
+
+/* Builder ------------------------------------------------------------------ */
+
+.looq-builder {
+	display: grid;
+	grid-template-columns: 240px minmax(0, 1fr);
+	gap: 20px;
+	margin-top: 16px;
+	align-items: start;
+}
+
+@media screen and (max-width: 782px) {
+	.looq-builder {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.looq-builder__palette,
+.looq-builder__canvas {
+	background: var(--looq-surface);
+	border: 1px solid var(--looq-border);
+	border-radius: 4px;
+	padding: 16px;
+}
+
+.looq-builder__palette h2,
+.looq-builder__canvas h2 {
+	margin-top: 0;
+	font-size: 14px;
+}
+
+.looq-palette {
+	margin: 12px 0 0;
+	padding: 0;
+	list-style: none;
+	display: grid;
+	gap: 6px;
+}
+
+.looq-palette__item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	padding: 8px 10px;
+	background: #f6f7f7;
+	border: 1px solid var(--looq-border);
+	border-radius: 3px;
+	cursor: grab;
+	text-align: start;
+	font: inherit;
+	color: inherit;
+}
+
+.looq-palette__item:hover {
+	border-color: var(--looq-accent);
+	background: #f0f6fc;
+}
+
+.looq-canvas {
+	display: grid;
+	gap: 12px;
+	min-height: 200px;
+}
+
+.looq-canvas__empty {
+	margin: 0;
+	padding: 40px 16px;
+	border: 2px dashed var(--looq-border);
+	border-radius: 4px;
+	text-align: center;
+	color: var(--looq-muted);
+}
+
+.looq-card {
+	border: 1px solid var(--looq-border);
+	border-radius: 4px;
+	background: var(--looq-surface);
+}
+
+.looq-card.is-dragging {
+	opacity: 0.5;
+}
+
+.looq-card.is-drop-target {
+	border-color: var(--looq-accent);
+	box-shadow: 0 -3px 0 -1px var(--looq-accent);
+}
+
+.looq-card__head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 12px;
+	background: #f6f7f7;
+	border-block-end: 1px solid var(--looq-border);
+}
+
+.looq-card__handle {
+	cursor: grab;
+	color: var(--looq-muted);
+}
+
+.looq-card__icon {
+	color: var(--looq-accent);
+}
+
+.looq-card__summary {
+	color: var(--looq-muted);
+	font-size: 12px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.looq-card__tools {
+	margin-inline-start: auto;
+	display: flex;
+	gap: 2px;
+}
+
+.looq-card__tool {
+	background: none;
+	border: 0;
+	padding: 2px;
+	cursor: pointer;
+	color: var(--looq-muted);
+}
+
+.looq-card__tool:hover {
+	color: var(--looq-accent);
+}
+
+.looq-card__body {
+	padding: 12px;
+	display: grid;
+	gap: 10px;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.looq-card__control {
+	margin: 0;
+}
+
+.looq-card__control label {
+	display: block;
+	font-size: 12px;
+	font-weight: 600;
+	margin-bottom: 3px;
+}
+
+.looq-card__flags {
+	grid-column: 1 / -1;
+	display: flex;
+	gap: 20px;
+	align-items: center;
+	margin: 0;
+	flex-wrap: wrap;
+}
+
+.looq-builder__save {
+	margin-top: 16px;
+}
+
+/* Embed + copy ------------------------------------------------------------- */
+
+.looq-embed {
+	display: grid;
+	gap: 20px;
+	max-width: 760px;
+	margin-top: 16px;
+}
+
+.looq-embed__item h3 {
+	margin: 0 0 4px;
+}
+
+.looq-copy {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.looq-copy input {
+	flex: 1 1 auto;
+}
+
+/* Inbox and entry ---------------------------------------------------------- */
+
+.looq-inbox__bar {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	padding: 12px 16px;
+	margin-bottom: 12px;
+	background: var(--looq-surface);
+	border: 1px solid var(--looq-border);
+	border-radius: 4px;
+}
+
+.looq-inbox__export {
+	margin-inline-start: auto;
+}
+
+.looq-entry {
+	display: grid;
+	grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+	gap: 20px;
+	align-items: start;
+}
+
+@media screen and (max-width: 960px) {
+	.looq-entry {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.looq-entry__note textarea {
+	margin-bottom: 8px;
+}
+
+/* Cards, add-ons, docs ----------------------------------------------------- */
+
+.looq-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+	gap: 20px;
+	align-items: start;
+}
+
+.looq-card-panel {
+	padding: 16px 20px;
+	background: var(--looq-surface);
+	border: 1px solid var(--looq-border);
+	border-radius: 4px;
+}
+
+.looq-card-panel h2 {
+	margin-top: 0;
+}
+
+.looq-addons-banner {
+	padding: 12px 16px;
+}
+
+.looq-addon-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+	gap: 16px;
+	margin: 16px 0;
+}
+
+.looq-addon-card {
+	position: relative;
+	padding: 20px;
+	background: var(--looq-surface);
+	border: 1px solid var(--looq-border);
+	border-radius: 4px;
+	display: flex;
+	flex-direction: column;
+}
+
+.looq-addon-card__icon {
+	font-size: 28px;
+	width: 28px;
+	height: 28px;
+	color: var(--looq-accent);
+}
+
+.looq-addon-card__title {
+	margin: 10px 0 6px;
+	font-size: 15px;
+}
+
+.looq-addon-card__description {
+	margin: 0 0 12px;
+	color: var(--looq-muted);
+	font-size: 13px;
+	flex: 1 1 auto;
+}
+
+.looq-addon-card__badge {
+	position: absolute;
+	inset-block-start: 12px;
+	inset-inline-end: 12px;
+	font-size: 11px;
+	background: #f0f6fc;
+	color: #043959;
+	border-radius: 10px;
+	padding: 1px 8px;
+}
+
+.looq-addon-card__footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	border-block-start: 1px solid var(--looq-border);
+	padding-block-start: 12px;
+}
+
+.looq-toggle.is-disabled {
+	color: var(--looq-muted);
+	cursor: not-allowed;
+}
+
+.looq-docs {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+	gap: 20px;
+	margin: 16px 0;
+}
+
+.looq-docs__section {
+	padding: 16px 20px;
+	background: var(--looq-surface);
+	border: 1px solid var(--looq-border);
+	border-radius: 4px;
+}
+
+.looq-docs__section h2 {
+	margin-top: 0;
+	font-size: 15px;
+}
+
+.looq-docs__list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: grid;
+	gap: 10px;
+}
+
+.looq-docs__excerpt {
+	display: block;
+	color: var(--looq-muted);
+	font-size: 12px;
+}
+
+.looq-status-table {
+	margin-bottom: 20px;
+}
+
+/* Dashboard widget --------------------------------------------------------- */
+
+/*
+ * This stylesheet is only enqueued on the plugin's own admin screens by
+ * default (see Admin::enqueue). Dashboard_Widget::enqueue() loads it a second
+ * time, screen-scoped to index.php, purely so these rules reach the
+ * WordPress dashboard too - without that, the widget renders as bare browser
+ * defaults, which is the "no structure" bug this design fixes.
+ */
+
+.looq-dashboard {
+	margin: -12px;
+}
+
+.looq-dashboard__stats {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.looq-dashboard__stat {
+	padding: 14px 10px;
+	text-align: center;
+	border-inline-start: 1px solid #f0f0f1;
+}
+
+.looq-dashboard__stat:first-child {
+	border-inline-start: 0;
+}
+
+.looq-dashboard__stat-value {
+	display: block;
+	font-size: 22px;
+	font-weight: 600;
+	line-height: 1.3;
+	color: #1d2327;
+}
+
+.looq-dashboard__stat--unread .looq-dashboard__stat-value {
+	color: #C61531;
+}
+
+.looq-dashboard__stat-label {
+	display: block;
+	font-size: 12px;
+	color: #646970;
+	margin-block-start: 2px;
+}
+
+.looq-dashboard__section {
+	padding: 14px 16px 4px;
+	border-block-start: 1px solid #f0f0f1;
+}
+
+.looq-dashboard__heading {
+	margin: 0 0 10px;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .04em;
+	color: #646970;
+}
+
+.looq-dashboard__empty {
+	margin: 0 0 4px;
+	color: #646970;
+}
+
+.looq-dashboard__table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.looq-dashboard__table th {
+	text-align: start;
+	padding: 0 0 8px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .03em;
+	color: #a7aaad;
+}
+
+.looq-dashboard__table td {
+	text-align: start;
+	padding: 9px 0;
+	border-block-start: 1px solid #f0f0f1;
+	font-size: 13px;
+	vertical-align: middle;
+}
+
+.looq-dashboard__table tr:first-child td {
+	border-block-start: 0;
+}
+
+.looq-dashboard__table a {
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.looq-dashboard__table a:hover {
+	color: #C61531;
+}
+
+.looq-dashboard__num {
+	font-variant-numeric: tabular-nums;
+}
+
+.looq-dashboard__rate {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.looq-dashboard__rate-bar {
+	position: relative;
+	width: 46px;
+	height: 5px;
+	border-radius: 3px;
+	background: #f0f0f1;
+	overflow: hidden;
+	flex: none;
+}
+
+.looq-dashboard__rate-bar span {
+	position: absolute;
+	inset-inline-start: 0;
+	top: 0;
+	bottom: 0;
+	background: #C61531;
+	border-radius: inherit;
+}
+
+.looq-dashboard__actions {
+	display: flex;
+	gap: 8px;
+	margin: 0;
+	padding: 14px 16px;
+	border-block-start: 1px solid #f0f0f1;
+}
+
+/* Welcome modal ------------------------------------------------------------ */
+
+.looq-welcome {
+	position: fixed;
+	inset: 0;
+	z-index: 160000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+	overflow: auto;
+}
+
+.looq-welcome__backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.7);
+}
+
+.looq-welcome__dialog {
+	position: relative;
+	max-width: 860px;
+	width: 100%;
+	background: #fff;
+	border-radius: 6px;
+	padding: 32px;
+	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.looq-welcome__close {
+	position: absolute;
+	inset-block-start: 12px;
+	inset-inline-end: 16px;
+	font-size: 24px;
+	line-height: 1;
+	text-decoration: none;
+	color: #646970;
+}
+
+.looq-welcome__hero {
+	text-align: center;
+	padding-block-end: 24px;
+	border-block-end: 1px solid #dcdcde;
+}
+
+.looq-welcome__logo {
+	border-radius: 12px;
+}
+
+.looq-welcome__hero h1 {
+	margin: 12px 0 8px;
+	font-size: 24px;
+}
+
+.looq-welcome__hero p {
+	max-width: 560px;
+	margin: 0 auto;
+	color: #646970;
+}
+
+.looq-welcome__cta {
+	margin-top: 20px;
+}
+
+.looq-welcome__features {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 24px;
+	padding: 24px 0;
+}
+
+.looq-welcome__feature .dashicons {
+	font-size: 28px;
+	width: 28px;
+	height: 28px;
+	color: #C61531;
+}
+
+.looq-welcome__feature h2 {
+	font-size: 15px;
+	margin: 8px 0 6px;
+}
+
+.looq-welcome__feature p {
+	margin: 0;
+	color: #646970;
+	font-size: 13px;
+}
+
+.looq-welcome__footer {
+	margin: 0;
+	text-align: center;
+}

@@ -8,6 +8,51 @@ All notable changes to this project are documented here. The format follows
 
 Nothing yet.
 
+## [0.4.0] — 2026-09-05
+
+Renamed the plugin from MPRO Forms to Form LOOQ and moved it to its own domain,
+`formlooq.ir` (previously `sayid.ir/mpro-forms`).
+
+### Changed
+
+- **Every identifier resynchronised with the new name**, the same way the
+  0.3.0 rename synchronised MPRO Forms's own identifiers:
+  - Slug and text domain: `mpro-forms` → `form-looq`. The plugin directory and
+    main file are renamed to match.
+  - Namespace: `MPROForms` → `FormLooq`; constants `MPRO_FORMS_*` → `FORM_LOOQ_*`.
+  - Shortcode: `[mpro_form]` → `[looq_form]`.
+  - Hooks: `mpro_forms_*` → `form_looq_*`.
+  - Database tables: `{prefix}mpro_forms` / `{prefix}mpro_entries` →
+    `{prefix}looq_forms` / `{prefix}looq_entries`.
+  - Options, transients, cron hook, and capability moved from the `mpro_`
+    prefix to `form_looq_` (or `looq_` for the capability and request keys).
+  - CSS classes and asset handles moved from `mpro-` to `looq-`.
+  - The plugin name and description on the Plugins screen show "Form LOOQ" /
+    "فرم لوک" for Persian admins.
+- **`Plugin::HOME_URL`** moved from `https://sayid.ir/mpro-forms` to
+  `https://formlooq.ir`.
+
+### Added
+
+- **The Add-ons and Help screens' remote catalogue fetch is back**, removed in
+  0.3.3 because it ran by default and was not disclosed as sending the site's
+  URL to the project's server. This time it ships **off by default**: nothing
+  is requested until an admin explicitly enables it under Settings → Add-ons,
+  where the exact data sent is disclosed before the setting can be turned on.
+  The endpoints are the plugin's own new domain,
+  `https://formlooq.ir/addons.json` and `https://formlooq.ir/docs.json`.
+
+### Migration
+
+Installs updated from 0.3.x are migrated automatically on the first request
+after updating: the `mpro_` tables are renamed, `mpro_forms_*` options are
+copied to their `form_looq_*` equivalents, the old cron event is cleared, and
+the old `mpro_manage_forms` capability is removed from the administrator role
+— the same two-step chain (`fmpf_` → `mpro_` → `looq_`) `migrate_legacy_names()`
+already ran for the 0.3.0 rename, extended by one more generation. The
+shortcode aliases `[mpro_form]` and `[free_mpro_form]` keep rendering
+unchanged, so no existing page or post needs editing.
+
 ## [0.3.3] — 2026-09-05
 
 Fixes from a pre-submission review against the WordPress.org plugin guidelines,
@@ -274,7 +319,8 @@ Initial development foundation, never publicly released.
 - Opt-in data deletion during uninstall.
 - Shortcode embedding, responsive layouts, and automatic LTR/RTL direction.
 
-[Unreleased]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/compare/v0.3.3...HEAD
+[Unreleased]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases/tag/v0.4.0
 [0.3.3]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases/tag/v0.3.3
 [0.3.2]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases/tag/v0.3.2
 [0.3.1]: https://github.com/moghadam-pro/mpro-forms-wp-plugin/releases/tag/v0.3.1
