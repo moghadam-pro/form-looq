@@ -13,8 +13,8 @@ license key, an external account, or a mandatory cloud service. Every entry stay
 in your own database, the whole plugin ships without a build step, and nothing is
 gated behind a paywall.
 
-**Project status:** pre-release. 0.2.0 is feature-complete for its scope and
-under active testing ahead of the first public stable release.
+**Project status:** pre-release. Version 0.4.0 is the current public development
+release and is under active testing ahead of the first stable release.
 
 The project is independent and is not affiliated with Gravity Forms,
 Rocketgenius, or any other commercial form product.
