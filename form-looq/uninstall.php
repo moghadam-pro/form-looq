@@ -63,13 +63,14 @@ $looq_patterns = array(
 
 foreach ( $looq_patterns as $looq_pattern ) {
 	// A wildcard lookup is required because state and rate-limit tokens are intentionally opaque.
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	$looq_option_names = $wpdb->get_col(
 		$wpdb->prepare(
 			"SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s",
 			$looq_pattern
 		)
 	);
+	// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 	foreach ( $looq_option_names as $looq_option_name ) {
 		delete_transient( substr( $looq_option_name, strlen( '_transient_' ) ) );

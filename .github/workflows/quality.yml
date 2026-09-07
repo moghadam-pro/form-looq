@@ -93,6 +93,25 @@ jobs:
           ignore-codes: |
             WordPress.Security.EscapeOutput.OutputNotEscaped
 
+  # Runs the same tool with none of the exclusions above, so what it actually
+  # flags is visible instead of hidden behind exclude-checks/ignore-codes.
+  # continue-on-error because this is not yet the enforced gate — plugin-check
+  # (above) still is — but its output should be reviewed before every release,
+  # and its exclusions narrowed or removed as real findings get fixed rather
+  # than silenced.
+  plugin-check-strict:
+    name: WordPress Plugin Check (unrestricted, informational)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Run Plugin Check with no exclusions
+        uses: wordpress/plugin-check-action@v1
+        with:
+          build-dir: './form-looq'
+          slug: 'form-looq'
+
   data-lifecycle:
     name: WP ${{ matrix.wordpress }} / PHP ${{ matrix.php }} integration
     runs-on: ubuntu-latest

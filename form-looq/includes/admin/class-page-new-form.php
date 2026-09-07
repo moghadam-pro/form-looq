@@ -53,7 +53,7 @@ final class Page_New_Form {
 				'fields'      => Templates::fields( $template ),
 				'settings'    => array(
 					'layout'       => (string) Settings::get( 'default_layout', 'one-column' ),
-					'submit_label' => (string) Settings::get( 'default_submit_label', __( 'Submit', 'form-looq' ) ),
+					'submit_label' => Settings::default_submit_label(),
 					'store_ip'     => true,
 					'honeypot'     => true,
 				),

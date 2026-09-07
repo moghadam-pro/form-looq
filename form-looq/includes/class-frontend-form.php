@@ -9,8 +9,12 @@ final class Frontend_Form {
 		add_shortcode( 'looq_form', array( self::class, 'shortcode' ) );
 
 		// Pre-rename aliases, so content saved under either earlier product name
-		// (Free MPRO Forms, then MPRO Forms) keeps rendering unchanged.
+		// (Free MPRO Forms, then MPRO Forms) keeps rendering unchanged. These
+		// tag names are deliberately not prefixed with this plugin's current
+		// prefix: they must match exactly what old content already contains.
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedElementFound
 		add_shortcode( 'mpro_form', array( self::class, 'shortcode' ) );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedElementFound
 		add_shortcode( 'free_mpro_form', array( self::class, 'shortcode' ) );
 		add_action( 'wp_enqueue_scripts', array( self::class, 'register_assets' ) );
 		add_action( 'admin_post_looq_submit', array( self::class, 'handle_submission' ) );

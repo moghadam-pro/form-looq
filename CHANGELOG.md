@@ -8,6 +8,59 @@ All notable changes to this project are documented here. The format follows
 
 Nothing yet.
 
+## [0.4.2] — 2026-09-07
+
+Fixes from a strict pre-submission review of 0.4.1, focused on Plugin Check
+findings that were real bugs rather than false positives.
+
+### Fixed
+
+- **Translation loading triggered too early.** Both `Install::activate()` and
+  `Install::maybe_upgrade()` (on the first request after an update, when the
+  stored version differs from the running one) call `Settings::sync_cron()`,
+  which reads `Settings::defaults()` — and that array called
+  `__( 'Submit', 'form-looq' )` inline. Both call paths run during
+  `plugins_loaded`, before `form_looq_load_textdomain()` loads the text
+  domain on `init`, so WordPress logged a "Translation loading … triggered
+  too early" notice on every fresh activation — exactly the scenario Plugin
+  Check's automated test exercises. `defaults()` no longer calls a
+  translation function; a new `Settings::default_submit_label()` reads the
+  stored value and falls back to the translated string lazily, only when
+  actually called (always after `init` in every real call site). The
+  settings-page field now shows this as a placeholder instead of a
+  pre-filled value, and saving an empty value now stores `''` ("use the
+  default") instead of locking in the English word "Submit" as a literal
+  custom value.
+- **Two `phpcs:ignore` comments were not actually suppressing anything.**
+  `Form_Repository::recount_entries()` and one query in `uninstall.php` both
+  place the interpolated SQL two to three lines below a single-line
+  `phpcs:ignore` comment, inside a multi-line `$wpdb->prepare()` call —
+  `phpcs:ignore` only covers the line immediately after it, so neither
+  comment reached the line PHPCS actually flags. Both now wrap the full
+  statement in `phpcs:disable` / `phpcs:enable` instead, which isn't
+  sensitive to exactly which line inside the statement the sniff attributes
+  the finding to. `uninstall.php`'s comment was also missing
+  `WordPress.DB.PreparedSQL.InterpolatedNotPrepared` from its ignored-codes
+  list entirely.
+- **The `[mpro_form]` and `[free_mpro_form]` compatibility shortcodes had no
+  suppression comment** for the naming-convention check that flags
+  unprefixed globals, unlike this plugin's other deliberate exception
+  (`DONOTCACHEPAGE`, documented in 0.4.1). They can't be prefixed — old
+  content depends on those exact tag names — so both now carry the same kind
+  of inline, justified `phpcs:ignore` instead of being either silently
+  flagged or excluded plugin-wide.
+
+### Changed
+
+- **Two `Upgrade Notice` entries exceeded the readme parser's 300-character
+  limit** (0.4.0 at 319, 0.3.3 at 461) and would render truncated on the
+  plugin directory page. Both are shortened to fit.
+- **Added an unrestricted Plugin Check CI job** (`plugin-check-strict`,
+  `continue-on-error: true`) that runs with none of `plugin-check`'s
+  `exclude-checks`/`ignore-codes`, so what those exclusions hide stays
+  visible in every run instead of only appearing when someone manually
+  reruns the tool without them.
+
 ## [0.4.1] — 2026-09-07
 
 Fixes from a review of the 0.4.0 rename, focused on a CI gap that had left the
@@ -386,7 +439,8 @@ Initial development foundation, never publicly released.
 - Opt-in data deletion during uninstall.
 - Shortcode embedding, responsive layouts, and automatic LTR/RTL direction.
 
-[Unreleased]: https://github.com/moghadam-pro/form-looq/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/moghadam-pro/form-looq/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/moghadam-pro/form-looq/releases/tag/v0.4.2
 [0.4.1]: https://github.com/moghadam-pro/form-looq/releases/tag/v0.4.1
 [0.4.0]: https://github.com/moghadam-pro/form-looq/releases/tag/v0.4.0
 [0.3.3]: https://github.com/moghadam-pro/form-looq/releases/tag/v0.3.3

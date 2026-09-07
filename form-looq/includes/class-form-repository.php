@@ -304,7 +304,7 @@ final class Form_Repository {
 		$forms   = DB::forms_table();
 		$entries = DB::entries_table();
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$wpdb->query(
 			$wpdb->prepare(
 				"UPDATE {$forms} SET entries_count = (SELECT COUNT(*) FROM {$entries} WHERE form_id = %d) WHERE id = %d",
@@ -312,6 +312,7 @@ final class Form_Repository {
 				$form_id
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		self::flush( $form_id );
 	}

@@ -105,7 +105,10 @@ final class Page_Settings {
 				</tr>
 				<tr>
 					<th scope="row"><label for="looq-default-submit"><?php esc_html_e( 'Default submit label', 'form-looq' ); ?></label></th>
-					<td><input id="looq-default-submit" class="regular-text" type="text" name="form_looq_settings[default_submit_label]" value="<?php echo esc_attr( (string) Settings::get( 'default_submit_label' ) ); ?>"></td>
+					<td>
+						<input id="looq-default-submit" class="regular-text" type="text" name="form_looq_settings[default_submit_label]" value="<?php echo esc_attr( (string) Settings::get( 'default_submit_label' ) ); ?>" placeholder="<?php echo esc_attr( Settings::default_submit_label() ); ?>">
+						<p class="description"><?php esc_html_e( 'Leave empty to use the translated default.', 'form-looq' ); ?></p>
+					</td>
 				</tr>
 				<tr>
 					<th scope="row"><?php esc_html_e( 'Unsaved changes', 'form-looq' ); ?></th>

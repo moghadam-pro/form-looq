@@ -1171,3 +1171,6 @@ msgstr "ثبت‌نام کاربر"
 msgid "Create WordPress accounts from a form submission."
 msgstr "ساخت حساب کاربری وردپرس از روی ارسال فرم."
 
+msgid "Leave empty to use the translated default."
+msgstr "برای استفاده از مقدار پیش‌فرض ترجمه‌شده، خالی بگذارید."
+
