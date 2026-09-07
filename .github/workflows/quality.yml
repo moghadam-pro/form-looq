@@ -95,14 +95,11 @@ jobs:
 
   # Runs the same tool with none of the exclusions above, so what it actually
   # flags is visible instead of hidden behind exclude-checks/ignore-codes.
-  # continue-on-error because this is not yet the enforced gate — plugin-check
-  # (above) still is — but its output should be reviewed before every release,
-  # and its exclusions narrowed or removed as real findings get fixed rather
-  # than silenced.
+  # This unrestricted run is enforced so a release cannot hide new errors
+  # behind the narrowed compatibility gate above.
   plugin-check-strict:
-    name: WordPress Plugin Check (unrestricted, informational)
+    name: WordPress Plugin Check (unrestricted)
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
