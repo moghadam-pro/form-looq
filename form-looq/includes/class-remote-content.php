@@ -103,7 +103,16 @@ final class Remote_Content {
 
 		$ttl = max( 1, (int) Settings::get( 'addons_cache_hours', 12 ) ) * HOUR_IN_SECONDS;
 
-		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+		// A misconfigured host can return its own homepage with a 200 status for
+		// any missing path (including this JSON endpoint) instead of a 404, so
+		// the response code alone isn't proof the body is the JSON expected here.
+		$content_type = (string) wp_remote_retrieve_header( $response, 'content-type' );
+
+		if (
+			is_wp_error( $response )
+			|| 200 !== (int) wp_remote_retrieve_response_code( $response )
+			|| ! str_contains( $content_type, 'json' )
+		) {
 			// Cache the miss briefly so a broken endpoint does not slow every page load.
 			set_transient( $transient, array(), min( $ttl, HOUR_IN_SECONDS ) );
 

@@ -48,19 +48,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf /tmp/mpro-wordpress
-          wp core download --version="${{ matrix.wordpress }}" --path=/tmp/mpro-wordpress --force
+          rm -rf /tmp/form-looq-wordpress
+          wp core download --version="${{ matrix.wordpress }}" --path=/tmp/form-looq-wordpress --force
           wp config create \
-            --path=/tmp/mpro-wordpress \
+            --path=/tmp/form-looq-wordpress \
             --dbname=wordpress_test \
             --dbuser=root \
             --dbpass=root \
             --dbhost=127.0.0.1:3306 \
             --skip-check
           wp core install \
-            --path=/tmp/mpro-wordpress \
-            --url=http://mpro-forms.test \
-            --title="MPRO Forms Integration" \
+            --path=/tmp/form-looq-wordpress \
+            --url=http://form-looq.test \
+            --title="Form LOOQ Integration" \
             --admin_user=admin \
             --admin_password=integration-password \
             --admin_email=admin@example.com \
@@ -70,14 +70,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cp -R "$GITHUB_WORKSPACE/mpro-forms" /tmp/mpro-wordpress/wp-content/plugins/mpro-forms
-          wp plugin activate mpro-forms --path=/tmp/mpro-wordpress
+          cp -R "$GITHUB_WORKSPACE/form-looq" /tmp/form-looq-wordpress/wp-content/plugins/form-looq
+          wp plugin activate form-looq --path=/tmp/form-looq-wordpress
 
       - name: Run privacy, retention, and uninstall checks
         shell: bash
         run: |
           set +e
-          wp eval-file "$GITHUB_WORKSPACE/tests/integration/privacy-retention-uninstall.php" --path=/tmp/mpro-wordpress 2>&1 | tee integration-output.txt
+          wp eval-file "$GITHUB_WORKSPACE/tests/integration/privacy-retention-uninstall.php" --path=/tmp/form-looq-wordpress 2>&1 | tee integration-output.txt
           echo "${PIPESTATUS[0]}" > integration-exit-code
           set -e
 

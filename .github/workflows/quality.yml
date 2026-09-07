@@ -5,6 +5,9 @@ on:
   pull_request:
     paths:
       - '.github/ci/run-quality'
+  # Lets "Build or Draft Release" require this entire suite to pass in the
+  # same run, instead of only building and shipping a ZIP on its own.
+  workflow_call:
 
 permissions:
   contents: read
@@ -31,7 +34,7 @@ jobs:
           set -euo pipefail
           while IFS= read -r -d '' file; do
             php -l "$file"
-          done < <(find mpro-forms tests -type f -name '*.php' -print0)
+          done < <(find form-looq tests -type f -name '*.php' -print0)
       - name: Run validator tests
         run: php tests/validator-test.php
 
@@ -51,7 +54,7 @@ jobs:
           set -euo pipefail
           while IFS= read -r -d '' file; do
             node --check "$file"
-          done < <(find mpro-forms tests/e2e -type f -name '*.js' -print0)
+          done < <(find form-looq tests/e2e -type f -name '*.js' -print0)
 
   wordpress-standards:
     name: WordPress security standards
@@ -79,12 +82,16 @@ jobs:
       - name: Run Plugin Check
         uses: wordpress/plugin-check-action@v1
         with:
-          build-dir: './mpro-forms'
-          slug: 'mpro-forms'
+          build-dir: './form-looq'
+          slug: 'form-looq'
           exclude-checks: 'plugin_review_phpcs'
+          # WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
+          # was previously ignored repo-wide for the one legitimate case
+          # (DONOTCACHEPAGE, a cross-plugin caching convention that must stay
+          # unprefixed) — that line now carries its own inline
+          # phpcs:ignore instead, so this global exclusion is no longer needed.
           ignore-codes: |
             WordPress.Security.EscapeOutput.OutputNotEscaped
-            WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
 
   data-lifecycle:
     name: WP ${{ matrix.wordpress }} / PHP ${{ matrix.php }} integration
@@ -123,19 +130,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf /tmp/mpro-wordpress
-          wp core download --version="${{ matrix.wordpress }}" --path=/tmp/mpro-wordpress --force
+          rm -rf /tmp/form-looq-wordpress
+          wp core download --version="${{ matrix.wordpress }}" --path=/tmp/form-looq-wordpress --force
           wp config create \
-            --path=/tmp/mpro-wordpress \
+            --path=/tmp/form-looq-wordpress \
             --dbname=wordpress_test \
             --dbuser=root \
             --dbpass=root \
             --dbhost=127.0.0.1:3306 \
             --skip-check
           wp core install \
-            --path=/tmp/mpro-wordpress \
-            --url=http://mpro-forms.test \
-            --title="MPRO Forms Integration" \
+            --path=/tmp/form-looq-wordpress \
+            --url=http://form-looq.test \
+            --title="Form LOOQ Integration" \
             --admin_user=admin \
             --admin_password=integration-password \
             --admin_email=admin@example.com \
@@ -144,12 +151,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cp -R "$GITHUB_WORKSPACE/mpro-forms" /tmp/mpro-wordpress/wp-content/plugins/mpro-forms
-          wp plugin activate mpro-forms --path=/tmp/mpro-wordpress
+          cp -R "$GITHUB_WORKSPACE/form-looq" /tmp/form-looq-wordpress/wp-content/plugins/form-looq
+          wp plugin activate form-looq --path=/tmp/form-looq-wordpress
       - name: Run privacy, retention, and uninstall checks
-        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/privacy-retention-uninstall.php" --path=/tmp/mpro-wordpress
+        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/privacy-retention-uninstall.php" --path=/tmp/form-looq-wordpress
       - name: Run rate-limit checks
-        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/rate-limit.php" --path=/tmp/mpro-wordpress
+        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/rate-limit.php" --path=/tmp/form-looq-wordpress
 
   browser-e2e:
     name: Chromium LTR RTL and keyboard validation
@@ -188,38 +195,38 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf /tmp/mpro-browser-wordpress
-          wp core download --version=latest --path=/tmp/mpro-browser-wordpress --force
+          rm -rf /tmp/form-looq-browser-wordpress
+          wp core download --version=latest --path=/tmp/form-looq-browser-wordpress --force
           wp config create \
-            --path=/tmp/mpro-browser-wordpress \
+            --path=/tmp/form-looq-browser-wordpress \
             --dbname=wordpress_browser \
             --dbuser=root \
             --dbpass=root \
             --dbhost=127.0.0.1:3306 \
             --skip-check
           wp core install \
-            --path=/tmp/mpro-browser-wordpress \
+            --path=/tmp/form-looq-browser-wordpress \
             --url=http://127.0.0.1:8080 \
-            --title="MPRO Forms Browser Tests" \
+            --title="Form LOOQ Browser Tests" \
             --admin_user=admin \
             --admin_password=browser-password \
             --admin_email=admin@example.com \
             --skip-email
-          cp -R "$GITHUB_WORKSPACE/mpro-forms" /tmp/mpro-browser-wordpress/wp-content/plugins/mpro-forms
-          wp plugin activate mpro-forms --path=/tmp/mpro-browser-wordpress
-          wp eval-file "$GITHUB_WORKSPACE/tests/e2e/seed-wordpress.php" --path=/tmp/mpro-browser-wordpress
+          cp -R "$GITHUB_WORKSPACE/form-looq" /tmp/form-looq-browser-wordpress/wp-content/plugins/form-looq
+          wp plugin activate form-looq --path=/tmp/form-looq-browser-wordpress
+          wp eval-file "$GITHUB_WORKSPACE/tests/e2e/seed-wordpress.php" --path=/tmp/form-looq-browser-wordpress
       - name: Start WordPress server
         shell: bash
         run: |
           set -euo pipefail
-          nohup wp server --host=127.0.0.1 --port=8080 --path=/tmp/mpro-browser-wordpress > /tmp/mpro-wp-server.log 2>&1 &
+          nohup wp server --host=127.0.0.1 --port=8080 --path=/tmp/form-looq-browser-wordpress > /tmp/form-looq-wp-server.log 2>&1 &
           for attempt in {1..30}; do
             if curl --fail --silent http://127.0.0.1:8080/english-form/ > /dev/null; then
               exit 0
             fi
             sleep 1
           done
-          cat /tmp/mpro-wp-server.log
+          cat /tmp/form-looq-wp-server.log
           exit 1
       - name: Run Chromium browser tests
         run: npm run test:e2e
@@ -231,7 +238,7 @@ jobs:
           path: |
             playwright-report
             test-results
-            /tmp/mpro-wp-server.log
+            /tmp/form-looq-wp-server.log
           if-no-files-found: ignore
 
   package-build:
@@ -246,14 +253,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(unzip -Z1 dist/mpro-forms.zip | head -n 1)" = 'mpro-forms/'
-          unzip -Z1 dist/mpro-forms.zip | grep -q '^mpro-forms/mpro-forms.php$'
-          unzip -Z1 dist/mpro-forms.zip | grep -q '^mpro-forms/readme.txt$'
+          test "$(unzip -Z1 dist/form-looq.zip | head -n 1)" = 'form-looq/'
+          unzip -Z1 dist/form-looq.zip | grep -q '^form-looq/form-looq.php$'
+          unzip -Z1 dist/form-looq.zip | grep -q '^form-looq/readme.txt$'
       - name: Upload installable ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: mpro-forms-package
-          path: dist/mpro-forms.zip
+          name: form-looq-package
+          path: dist/form-looq.zip
           if-no-files-found: error
 
   release-candidate:
@@ -287,64 +294,71 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf /tmp/mpro-rc-wordpress
-          wp core download --version=latest --path=/tmp/mpro-rc-wordpress --force
+          rm -rf /tmp/form-looq-rc-wordpress
+          wp core download --version=latest --path=/tmp/form-looq-rc-wordpress --force
           wp config create \
-            --path=/tmp/mpro-rc-wordpress \
+            --path=/tmp/form-looq-rc-wordpress \
             --dbname=wordpress_rc \
             --dbuser=root \
             --dbpass=root \
             --dbhost=127.0.0.1:3306 \
             --skip-check
           wp core install \
-            --path=/tmp/mpro-rc-wordpress \
-            --url=http://mpro-forms-rc.test \
-            --title="MPRO Forms Release Candidate" \
+            --path=/tmp/form-looq-rc-wordpress \
+            --url=http://form-looq-rc.test \
+            --title="Form LOOQ Release Candidate" \
             --admin_user=admin \
             --admin_password=rc-password \
             --admin_email=admin@example.com \
             --skip-email
       - name: Install the packaged ZIP
-        run: wp plugin install "$GITHUB_WORKSPACE/dist/mpro-forms.zip" --activate --path=/tmp/mpro-rc-wordpress
+        run: wp plugin install "$GITHUB_WORKSPACE/dist/form-looq.zip" --activate --path=/tmp/form-looq-rc-wordpress
+      - name: Read the packaged version
+        shell: bash
+        run: |
+          set -euo pipefail
+          HEADER_VERSION="$(sed -n 's/^[[:space:]]*\*[[:space:]]*Version:[[:space:]]*//p' form-looq/form-looq.php | head -n 1 | tr -d '\r')"
+          echo "FORM_LOOQ_RC_VERSION=$HEADER_VERSION" >> "$GITHUB_ENV"
       - name: Create and verify packaged data
         shell: bash
         run: |
           set -euo pipefail
-          RESULT="$(wp eval-file "$GITHUB_WORKSPACE/tests/integration/release-candidate.php" --path=/tmp/mpro-rc-wordpress)"
-          echo "$RESULT" | jq -e '.version == "0.2.0" and .form_id > 0 and .entry_id > 0' >/dev/null
-          echo "MPRO_RC_FORM_ID=$(echo "$RESULT" | jq -r '.form_id')" >> "$GITHUB_ENV"
-          echo "MPRO_RC_ENTRY_ID=$(echo "$RESULT" | jq -r '.entry_id')" >> "$GITHUB_ENV"
+          RESULT="$(wp eval-file "$GITHUB_WORKSPACE/tests/integration/release-candidate.php" --path=/tmp/form-looq-rc-wordpress)"
+          echo "$RESULT" | jq -e --arg version "$FORM_LOOQ_RC_VERSION" '.version == $version and .form_id > 0 and .entry_id > 0' >/dev/null
+          echo "FORM_LOOQ_RC_FORM_ID=$(echo "$RESULT" | jq -r '.form_id')" >> "$GITHUB_ENV"
+          echo "FORM_LOOQ_RC_ENTRY_ID=$(echo "$RESULT" | jq -r '.entry_id')" >> "$GITHUB_ENV"
       - name: Verify deactivate and reactivate cycle
         shell: bash
         run: |
           set -euo pipefail
-          wp plugin deactivate mpro-forms --path=/tmp/mpro-rc-wordpress
-          wp plugin activate mpro-forms --path=/tmp/mpro-rc-wordpress
-          test "$(wp db query "SELECT COUNT(*) FROM wp_mpro_entries WHERE id = $MPRO_RC_ENTRY_ID" --skip-column-names --path=/tmp/mpro-rc-wordpress)" = '1'
-      # The core promise of the 0.2.0 storage model: deleting the plugin and
-      # reinstalling it must leave forms and entries untouched.
+          wp plugin deactivate form-looq --path=/tmp/form-looq-rc-wordpress
+          wp plugin activate form-looq --path=/tmp/form-looq-rc-wordpress
+          test "$(wp db query "SELECT COUNT(*) FROM wp_looq_entries WHERE id = $FORM_LOOQ_RC_ENTRY_ID" --skip-column-names --path=/tmp/form-looq-rc-wordpress)" = '1'
+      # The core promise of the dedicated-table storage model (since 0.2.0):
+      # deleting the plugin and reinstalling it must leave forms and entries
+      # untouched.
       - name: Verify default uninstall preserves data
         shell: bash
         run: |
           set -euo pipefail
-          wp plugin deactivate mpro-forms --path=/tmp/mpro-rc-wordpress
-          wp plugin uninstall mpro-forms --path=/tmp/mpro-rc-wordpress
-          test "$(wp db query "SELECT COUNT(*) FROM wp_mpro_forms WHERE id = $MPRO_RC_FORM_ID" --skip-column-names --path=/tmp/mpro-rc-wordpress)" = '1'
-          test "$(wp db query "SELECT COUNT(*) FROM wp_mpro_entries WHERE id = $MPRO_RC_ENTRY_ID" --skip-column-names --path=/tmp/mpro-rc-wordpress)" = '1'
+          wp plugin deactivate form-looq --path=/tmp/form-looq-rc-wordpress
+          wp plugin uninstall form-looq --path=/tmp/form-looq-rc-wordpress
+          test "$(wp db query "SELECT COUNT(*) FROM wp_looq_forms WHERE id = $FORM_LOOQ_RC_FORM_ID" --skip-column-names --path=/tmp/form-looq-rc-wordpress)" = '1'
+          test "$(wp db query "SELECT COUNT(*) FROM wp_looq_entries WHERE id = $FORM_LOOQ_RC_ENTRY_ID" --skip-column-names --path=/tmp/form-looq-rc-wordpress)" = '1'
       - name: Reinstall the same ZIP and verify preserved data
         shell: bash
         run: |
           set -euo pipefail
-          wp plugin install "$GITHUB_WORKSPACE/dist/mpro-forms.zip" --activate --path=/tmp/mpro-rc-wordpress
-          test "$(wp plugin get mpro-forms --field=version --path=/tmp/mpro-rc-wordpress)" = '0.2.0'
-          test "$(wp db query "SELECT status FROM wp_mpro_forms WHERE id = $MPRO_RC_FORM_ID" --skip-column-names --path=/tmp/mpro-rc-wordpress)" = 'active'
-          test "$(wp db query "SELECT status FROM wp_mpro_entries WHERE id = $MPRO_RC_ENTRY_ID" --skip-column-names --path=/tmp/mpro-rc-wordpress)" = 'unread'
+          wp plugin install "$GITHUB_WORKSPACE/dist/form-looq.zip" --activate --path=/tmp/form-looq-rc-wordpress
+          test "$(wp plugin get form-looq --field=version --path=/tmp/form-looq-rc-wordpress)" = "$FORM_LOOQ_RC_VERSION"
+          test "$(wp db query "SELECT status FROM wp_looq_forms WHERE id = $FORM_LOOQ_RC_FORM_ID" --skip-column-names --path=/tmp/form-looq-rc-wordpress)" = 'active'
+          test "$(wp db query "SELECT status FROM wp_looq_entries WHERE id = $FORM_LOOQ_RC_ENTRY_ID" --skip-column-names --path=/tmp/form-looq-rc-wordpress)" = 'unread'
       - name: Verify opt-in uninstall removes the tables
         shell: bash
         run: |
           set -euo pipefail
-          wp option patch update mpro_forms_settings delete_data_on_uninstall 1 --path=/tmp/mpro-rc-wordpress
-          wp plugin deactivate mpro-forms --path=/tmp/mpro-rc-wordpress
-          wp plugin uninstall mpro-forms --path=/tmp/mpro-rc-wordpress
-          test "$(wp db query "SHOW TABLES LIKE 'wp_mpro_forms'" --skip-column-names --path=/tmp/mpro-rc-wordpress)" = ''
-          test "$(wp db query "SHOW TABLES LIKE 'wp_mpro_entries'" --skip-column-names --path=/tmp/mpro-rc-wordpress)" = ''
+          wp option patch update form_looq_settings delete_data_on_uninstall 1 --path=/tmp/form-looq-rc-wordpress
+          wp plugin deactivate form-looq --path=/tmp/form-looq-rc-wordpress
+          wp plugin uninstall form-looq --path=/tmp/form-looq-rc-wordpress
+          test "$(wp db query "SHOW TABLES LIKE 'wp_looq_forms'" --skip-column-names --path=/tmp/form-looq-rc-wordpress)" = ''
+          test "$(wp db query "SHOW TABLES LIKE 'wp_looq_entries'" --skip-column-names --path=/tmp/form-looq-rc-wordpress)" = ''

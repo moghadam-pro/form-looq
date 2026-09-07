@@ -154,8 +154,8 @@ The **Add-ons** screen can optionally load its catalogue from
 `https://formlooq.ir`. This is **off by default** — no request is made until an
 admin explicitly turns it on under **Settings → Add-ons**, where the exact data
 sent (standard HTTP headers plus a user agent identifying the plugin version and
-site URL — no form content, entry data, or personal data) is disclosed before
-the setting is enabled. Responses are cached, and a bundled fallback catalogue is
+the site's own URL — no form content or entry data) is disclosed before the
+setting is enabled. Responses are cached, and a bundled fallback catalogue is
 shown when the setting is off or the site cannot be reached.
 
 ---

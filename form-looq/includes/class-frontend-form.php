@@ -55,6 +55,10 @@ final class Frontend_Form {
 		}
 
 		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			// This exact, unprefixed name is a cross-plugin convention that page
+			// caching plugins (WP Super Cache, W3 Total Cache, and others) look
+			// for directly - prefixing it would silently stop it from working.
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
 			define( 'DONOTCACHEPAGE', true );
 		}
 
@@ -198,14 +202,25 @@ final class Frontend_Form {
 		$redirect_url = (string) ( $form['settings']['redirect_url'] ?? '' );
 
 		if ( '' !== $redirect_url && wp_http_validate_url( $redirect_url ) ) {
-			// wp_safe_redirect() would silently fall back to the home page for any
-			// host outside WP_ALLOWED_REDIRECT_HOSTS, even though this URL was
-			// deliberately configured by a capability-holding form administrator
-			// (not supplied by the visitor submitting the form). wp_redirect() is
-			// used intentionally so an external destination the site owner chose
-			// actually works.
-			// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
-			wp_redirect( $redirect_url );
+			// wp_safe_redirect() only allows WP_ALLOWED_REDIRECT_HOSTS, which would
+			// silently fall back to the home page for the external destination a
+			// capability-holding form administrator deliberately configured here
+			// (this is never visitor-supplied). Rather than bypass the safe-redirect
+			// helper, the destination's own host is added to the allow-list for the
+			// duration of this one redirect, so wp_safe_redirect() itself honours it.
+			$redirect_host = wp_parse_url( $redirect_url, PHP_URL_HOST );
+
+			if ( is_string( $redirect_host ) && '' !== $redirect_host ) {
+				add_filter(
+					'allowed_redirect_hosts',
+					static function ( array $hosts ) use ( $redirect_host ): array {
+						$hosts[] = $redirect_host;
+						return $hosts;
+					}
+				);
+			}
+
+			wp_safe_redirect( $redirect_url );
 			exit;
 		}
 

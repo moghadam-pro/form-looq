@@ -16,8 +16,20 @@ permissions:
   contents: write
 
 jobs:
+  # Running the full quality suite (PHP/JS syntax, WPCS, WordPress Plugin
+  # Check, and real WordPress integration/browser tests) as a dependency of
+  # this workflow — rather than leaving it as a separate, optional run — is
+  # what makes a green "Build or Draft Release" mean the packaged plugin
+  # actually passed those checks, instead of only meaning the ZIP built.
+  quality-gates:
+    name: Quality gates
+    uses: ./.github/workflows/quality.yml
+    permissions:
+      contents: read
+
   build:
     name: Build release package
+    needs: quality-gates
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository

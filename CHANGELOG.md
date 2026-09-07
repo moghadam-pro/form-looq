@@ -8,6 +8,73 @@ All notable changes to this project are documented here. The format follows
 
 Nothing yet.
 
+## [0.4.1] — 2026-09-07
+
+Fixes from a review of the 0.4.0 rename, focused on a CI gap that had left the
+quality-gate suite silently not running since the rename, plus a redirect
+safety bypass and an overstated privacy claim.
+
+### Fixed
+
+- **CI workflows still targeted the pre-rename `mpro-forms` layout.**
+  `.github/workflows/*.yml` referenced the `mpro-forms` directory, plugin
+  slug, `wp_mpro_forms`/`wp_mpro_entries` tables, and `mpro_forms_settings`
+  option — none of which have existed since 0.4.0 — so every job that
+  depended on them (PHP/JS syntax, WPCS, Plugin Check, real WordPress
+  integration and browser tests, the release-candidate install cycle) was
+  failing to even find the plugin, or in `plugin-check`'s case simply
+  checking a `./mpro-forms` directory that no longer existed. `v0.4.0`'s
+  green "Build or Publish Release" run only reflects the ZIP having been
+  built — the quality suite did not actually run against it. All workflow
+  files now point at `form-looq` throughout.
+- **The packaged release-candidate check hardcoded `0.2.0`** as the expected
+  plugin version, a leftover from before the 0.2.0 storage rewrite. It now
+  reads the version out of the built package's own header and compares
+  against that, so the check stays correct across future version bumps
+  instead of silently asserting the wrong thing (or being wrong again the
+  next time it's touched).
+- **The post-submission external redirect used `wp_redirect()` directly**,
+  bypassing `wp_safe_redirect()`'s host allow-list entirely to work around it
+  rejecting a destination outside the current site. It now adds the
+  admin-configured destination's own host to the `allowed_redirect_hosts`
+  filter for the duration of that one redirect and calls
+  `wp_safe_redirect()`, so the safe-redirect check runs and passes on its own
+  terms rather than being routed around.
+- **The Add-ons opt-in disclosure and this project's own docs overstated what
+  is and isn't sent.** "No form content, entry data, or personal data" is
+  incorrect on its own terms — the site's URL, which the request does send,
+  is exactly the kind of thing a reader would expect "personal data" to rule
+  out. The wording (in `Settings → Add-ons`, `readme.txt`, and `README.md`)
+  now states only what is and isn't transmitted, without characterising it
+  either way.
+- **A catalogue endpoint returning its own homepage with a 200 status** for a
+  missing `addons.json`/`docs.json` path (rather than a genuine 404) was
+  treated as a valid response, since only the HTTP status was checked before
+  attempting to decode the body as JSON. `Remote_Content::fetch()` now also
+  requires the response's `Content-Type` header to contain `json` before
+  treating it as one; anything else degrades to the bundled catalogue exactly
+  like an unreachable host does.
+
+### Changed
+
+- **`Build or Draft Release` now requires the full quality-gate suite to pass
+  in the same run.** `quality.yml` gained a `workflow_call` trigger, and
+  `release.yml`'s build job now runs as `needs: quality-gates` against it —
+  previously the release workflow only built and uploaded a ZIP, with no
+  dependency on Plugin Check, WPCS, or the integration/browser tests having
+  passed at all.
+- **Narrowed the WordPress Plugin Check ignore list.** The repo-wide
+  exclusion for `WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound`
+  covered exactly one legitimate case — `DONOTCACHEPAGE`, a cross-plugin
+  caching-plugin convention that must stay unprefixed to work — which now
+  carries its own inline `phpcs:ignore` comment instead, so the global
+  exclusion could be dropped.
+- **Terms of use and privacy policy** in the External services section of
+  `readme.txt` now point to `formlooq.ir/terms` and `formlooq.ir/privacy`
+  respectively, instead of both linking to the site's homepage.
+- **`.po` header metadata completed**: `PO-Revision-Date`, `Last-Translator`,
+  and `Language-Team` were missing from `form-looq-fa_IR.po`.
+
 ## [0.4.0] — 2026-09-05
 
 Renamed the plugin from MPRO Forms to Form LOOQ and moved it to its own domain,
@@ -319,7 +386,8 @@ Initial development foundation, never publicly released.
 - Opt-in data deletion during uninstall.
 - Shortcode embedding, responsive layouts, and automatic LTR/RTL direction.
 
-[Unreleased]: https://github.com/moghadam-pro/form-looq/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/moghadam-pro/form-looq/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/moghadam-pro/form-looq/releases/tag/v0.4.1
 [0.4.0]: https://github.com/moghadam-pro/form-looq/releases/tag/v0.4.0
 [0.3.3]: https://github.com/moghadam-pro/form-looq/releases/tag/v0.3.3
 [0.3.2]: https://github.com/moghadam-pro/form-looq/releases/tag/v0.3.2

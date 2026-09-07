@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Form LOOQ
  * Description: Privacy-first WordPress forms with local submissions, a drag-and-drop builder, and first-class RTL/LTR support.
- * Version: 0.4.0
+ * Version: 0.4.1
  * Author: Sayid Moghadam
  * Author URI: https://sayid.ir
  * Plugin URI: https://formlooq.ir
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'FORM_LOOQ_VERSION', '0.4.0' );
+define( 'FORM_LOOQ_VERSION', '0.4.1' );
 define( 'FORM_LOOQ_FILE', __FILE__ );
 define( 'FORM_LOOQ_DIR', plugin_dir_path( __FILE__ ) );
 

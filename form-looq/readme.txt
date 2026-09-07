@@ -4,7 +4,7 @@ Tags: forms, contact form, form builder, rtl, submissions
 Requires at least: 6.5
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 0.4.0
+Stable tag: 0.4.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -53,9 +53,10 @@ Form LOOQ (formerly MPRO Forms) is an open-source WordPress form plugin focused 
 
 The Add-ons and Help screens can optionally load their content from the project website at https://formlooq.ir — specifically `https://formlooq.ir/addons.json` and `https://formlooq.ir/docs.json`.
 
-This is **off by default**. No request is made until an administrator explicitly turns it on under Settings → Add-ons, where this same disclosure is shown before the setting can be enabled. When turned on, each request sends only the standard HTTP headers plus a user agent identifying the plugin version and the site's URL, so the project can tell which releases are in use. No form content, entry data, or personal data is transmitted. Responses are cached locally, and the plugin falls back to bundled content when the setting is off or the site cannot be reached.
+This is **off by default**. No request is made until an administrator explicitly turns it on under Settings → Add-ons, where this same disclosure is shown before the setting can be enabled. When turned on, each request sends only the standard HTTP headers plus a user agent identifying the plugin version and the site's own URL, so the project can tell which releases are in use — no form content or entry data is transmitted. Responses are cached locally, and the plugin falls back to bundled content when the setting is off or the site cannot be reached.
 
-Terms of use and privacy policy: https://formlooq.ir
+Terms of use: https://formlooq.ir/terms
+Privacy policy: https://formlooq.ir/privacy
 
 == Installation ==
 
@@ -104,6 +105,16 @@ Not in this release. Export is complete; import is deliberately held back until 
 5. The system status report.
 
 == Changelog ==
+
+= 0.4.1 =
+
+* Fixed: the external redirect after a form submission used `wp_redirect()` directly to work around `wp_safe_redirect()`'s host allow-list. It now adds the admin-configured destination's own host to `allowed_redirect_hosts` for that one redirect and calls `wp_safe_redirect()`, so the safe-redirect check is honoured rather than bypassed.
+* Fixed: the Settings → Add-ons disclosure and this readme both said the opt-in catalogue request sends "no personal data" — overstated, since the site's own URL is part of what's sent. The wording now only says what is and isn't sent, without characterising it either way.
+* Fixed: a catalogue endpoint that returns its own homepage with a 200 status for a missing path (instead of a 404) was treated as a valid response. The fetch now also checks the response's Content-Type before treating the body as JSON.
+* Changed: `Terms of use` and `Privacy policy` in the External services section now point to dedicated pages (`formlooq.ir/terms`, `formlooq.ir/privacy`) instead of both pointing at the homepage.
+* Changed: the project's CI workflows (`.github/workflows/*.yml`) still referenced the pre-rename `mpro-forms` paths, plugin slug, database table and option names, and a hardcoded `0.2.0` version check left over from before the 0.2.0 storage rewrite — none of it matched the 0.4.0 codebase, so the whole quality-gate suite (Plugin Check, WPCS, real WordPress integration and browser tests) had been silently not running since the rename. All of it now points at `form-looq`, and the version check reads the actual packaged version instead of a hardcoded one.
+* Changed: **Build or Draft Release** now requires the full quality-gate suite to pass in the same run before it will build or publish a release, instead of only building and uploading a ZIP on its own.
+* Changed: narrowed the WordPress Plugin Check ignore list — `DONOTCACHEPAGE` (a cross-plugin caching convention that must stay unprefixed) now carries its own inline suppression comment instead of being excluded repo-wide.
 
 = 0.4.0 =
 
@@ -170,6 +181,10 @@ Not in this release. Export is complete; import is deliberately held back until 
 * Added validation, accessible error states, privacy tools, retention settings, rate limiting, and automated checks.
 
 == Upgrade Notice ==
+
+= 0.4.1 =
+
+Fixes the external-redirect safety bypass, an overstated privacy claim in the Add-ons disclosure, and CI workflows that had silently stopped running the quality-gate suite since the 0.4.0 rename.
 
 = 0.4.0 =
 

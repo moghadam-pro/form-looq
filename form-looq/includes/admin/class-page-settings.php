@@ -130,7 +130,7 @@ final class Page_Settings {
 				<?php
 				printf(
 					/* translators: %s: catalogue endpoint URL. */
-					esc_html__( "Turning this on makes the Add-ons and Help screens request %s. Each request sends only standard HTTP headers plus a user agent identifying the plugin version and this site's URL — no form content, entry data, or personal data. Nothing is sent unless you enable it here.", 'form-looq' ),
+					esc_html__( "Turning this on makes the Add-ons and Help screens request %s. Each request sends only standard HTTP headers plus a user agent identifying the plugin version and this site's own URL — no form content or entry data. Nothing is sent unless you enable it here.", 'form-looq' ),
 					'<code>' . esc_html( Plugin::HOME_URL ) . '</code>'
 				);
 				?>
