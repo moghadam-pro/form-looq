@@ -114,6 +114,7 @@ final class Exporter {
 			fputcsv( $handle, array_map( array( self::class, 'escape_csv_cell' ), $row ), ',', '"', '\\' );
 		}
 
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- This closes the php://output response stream; WP_Filesystem is not applicable.
 		fclose( $handle );
 	}
 
