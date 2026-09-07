@@ -285,7 +285,7 @@ once no install predates 0.3.0.
 ## [0.2.0] — 2026-08-31
 
 The plugin was rebuilt around dedicated database tables and gained its full admin
-experience. See [DECISIONS.md](https://github.com/moghadam-pro/form-looq/blob/docs/docs/DECISIONS.md)
+experience. See [DECISIONS.md](docs/archive/mpro-era/DECISIONS.md)
 on the `docs` branch for the reasoning behind the larger changes.
 
 ### Changed
