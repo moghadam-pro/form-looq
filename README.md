@@ -3,7 +3,7 @@
 > A free, privacy-first WordPress form plugin with a drag-and-drop builder, local
 > entry storage, and first-class RTL/LTR support.
 
-[![Version](https://img.shields.io/badge/version-0.4.0-C61531)](https://github.com/moghadam-pro/form-looq/releases)
+[![Version](https://img.shields.io/badge/version-0.4.1-C61531)](https://github.com/moghadam-pro/form-looq/releases)
 [![WordPress](https://img.shields.io/badge/wordpress-6.5%2B-21759b)](https://wordpress.org)
 [![PHP](https://img.shields.io/badge/php-8.1%2B-777bb4)](https://www.php.net)
 [![License](https://img.shields.io/badge/license-GPLv2%2B-green)](LICENSE)
@@ -13,7 +13,7 @@ license key, an external account, or a mandatory cloud service. Every entry stay
 in your own database, the whole plugin ships without a build step, and nothing is
 gated behind a paywall.
 
-**Project status:** pre-release. Version 0.4.0 is the current public development
+**Project status:** pre-release. Version 0.4.1 is the current public development
 release and is under active testing ahead of the first stable release.
 
 The project is independent and is not affiliated with Gravity Forms,
@@ -240,8 +240,8 @@ php tests/validator-test.php
 composer install && vendor/bin/phpcs
 ```
 
-Development documentation, the architecture reference, and the decision log live
-on the [`docs` branch](https://github.com/moghadam-pro/form-looq/tree/docs).
+Development documentation and the architecture reference live in
+[`docs/`](docs/README.md) on `main`, alongside the source they describe.
 
 ---
 
