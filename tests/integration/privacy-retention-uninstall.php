@@ -21,8 +21,9 @@ function looq_test_create_form(): int {
 	$form_id = Form_Repository::create(
 		array(
 			'title'  => 'Integration Test Form',
-			'status' => Form_Repository::STATUS_ACTIVE,
-			'fields' => array(
+			'status'   => Form_Repository::STATUS_ACTIVE,
+			'settings' => array( 'store_ip' => true ),
+			'fields'   => array(
 				array(
 					'type'     => 'email',
 					'name'     => 'email',
