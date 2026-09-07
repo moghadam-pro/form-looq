@@ -357,7 +357,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          wp option patch update form_looq_settings delete_data_on_uninstall 1 --path=/tmp/form-looq-rc-wordpress
+          wp option update form_looq_settings '{"delete_data_on_uninstall":true}' --format=json --path=/tmp/form-looq-rc-wordpress
           wp plugin deactivate form-looq --path=/tmp/form-looq-rc-wordpress
           wp plugin uninstall form-looq --path=/tmp/form-looq-rc-wordpress
           test "$(wp db query "SHOW TABLES LIKE 'wp_looq_forms'" --skip-column-names --path=/tmp/form-looq-rc-wordpress)" = ''
