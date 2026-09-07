@@ -4,7 +4,7 @@ Tags: forms, contact form, form builder, rtl, submissions
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.4.1
+Stable tag: 0.4.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -106,6 +106,14 @@ Not in this release. Export is complete; import is deliberately held back until 
 
 == Changelog ==
 
+= 0.4.2 =
+
+* Fixed: activating or updating the plugin triggered `__( 'Submit', 'form-looq' )` during `plugins_loaded` — before the `init` hook loads this plugin's text domain — logging a "Translation loading … triggered too early" notice. `Settings::defaults()` no longer calls a translation function; the translated fallback is read lazily by a new `Settings::default_submit_label()` instead.
+* Fixed: two `phpcs:ignore` comments for interpolated SQL sat one to three lines above the line the violation is actually reported on (inside a multi-line `$wpdb->prepare()` call), so they silently suppressed nothing. Both now wrap the full statement with `phpcs:disable`/`phpcs:enable` instead of a single-line `phpcs:ignore`.
+* Fixed: the `[mpro_form]` and `[free_mpro_form]` backward-compatibility shortcode aliases — deliberately unprefixed, since they must match old content exactly — had no suppression comment for the naming-convention check that flags them, unlike the plugin's other intentional exception (`DONOTCACHEPAGE`). Both now carry one.
+* Changed: two `Upgrade Notice` entries (0.4.0, 0.3.3) exceeded the readme parser's 300-character display limit and would have been truncated on the plugin directory; both are shortened.
+* Changed: added an unrestricted "WordPress Plugin Check (informational)" CI job that runs with none of the existing exclusions, so what they're actually hiding stays visible instead of only ever running the narrowed version.
+
 = 0.4.1 =
 
 * Fixed: the external redirect after a form submission used `wp_redirect()` directly to work around `wp_safe_redirect()`'s host allow-list. It now adds the admin-configured destination's own host to `allowed_redirect_hosts` for that one redirect and calls `wp_safe_redirect()`, so the safe-redirect check is honoured rather than bypassed.
@@ -182,17 +190,21 @@ Not in this release. Export is complete; import is deliberately held back until 
 
 == Upgrade Notice ==
 
+= 0.4.2 =
+
+Fixes a translation-loaded-too-early notice on activation/update, two SQL-safety suppression comments that weren't actually taking effect, and missing suppression comments on the legacy shortcode aliases.
+
 = 0.4.1 =
 
 Fixes the external-redirect safety bypass, an overstated privacy claim in the Add-ons disclosure, and CI workflows that had silently stopped running the quality-gate suite since the 0.4.0 rename.
 
 = 0.4.0 =
 
-The plugin is now Form LOOQ at formlooq.ir. The shortcode is now [looq_form] — [mpro_form] and [free_mpro_form] keep working as aliases. Forms, entries, and settings migrate automatically on the first request after updating. The Add-ons catalogue fetch is back, off by default; review Settings → Add-ons if you want it.
+The plugin is now Form LOOQ at formlooq.ir. The shortcode is now [looq_form] — [mpro_form] and [free_mpro_form] still work as aliases. Forms, entries, and settings migrate automatically. The Add-ons catalogue fetch is back, off by default.
 
 = 0.3.3 =
 
-Removes the outbound Add-ons/Help catalogue fetch and every setting that stored data without a working feature behind it (REST, SMS, License, Automatic updates, Import). Fixes a CSV export formula-injection issue, a timezone bug in retention and displayed submission times, and an incomplete privacy export/eraser. If you had those settings configured, review Settings after updating — the removed ones are dropped from storage the next time settings are saved.
+Removes the outbound Add-ons/Help catalogue fetch and settings with no working feature (REST, SMS, License, Automatic updates, Import). Fixes a CSV formula-injection issue, a retention timezone bug, and an incomplete privacy export/eraser. Removed settings are dropped from storage on the next save.
 
 = 0.3.0 =
 

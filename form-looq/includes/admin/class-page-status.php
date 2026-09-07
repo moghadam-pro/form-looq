@@ -163,6 +163,7 @@ final class Page_Status {
 		return sprintf(
 			'%s (%s)',
 			$mode,
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- Read-only diagnostics for an arbitrary runtime path; no filesystem mutation occurs.
 			is_writable( $path ) ? __( 'writable', 'form-looq' ) : __( 'not writable', 'form-looq' )
 		);
 	}

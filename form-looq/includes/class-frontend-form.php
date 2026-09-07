@@ -9,8 +9,12 @@ final class Frontend_Form {
 		add_shortcode( 'looq_form', array( self::class, 'shortcode' ) );
 
 		// Pre-rename aliases, so content saved under either earlier product name
-		// (Free MPRO Forms, then MPRO Forms) keeps rendering unchanged.
+		// (Free MPRO Forms, then MPRO Forms) keeps rendering unchanged. These
+		// tag names are deliberately not prefixed with this plugin's current
+		// prefix: they must match exactly what old content already contains.
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedElementFound
 		add_shortcode( 'mpro_form', array( self::class, 'shortcode' ) );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedElementFound
 		add_shortcode( 'free_mpro_form', array( self::class, 'shortcode' ) );
 		add_action( 'wp_enqueue_scripts', array( self::class, 'register_assets' ) );
 		add_action( 'admin_post_looq_submit', array( self::class, 'handle_submission' ) );
@@ -308,18 +312,22 @@ final class Frontend_Form {
 		$common = ( $required ? ' required aria-required="true"' : '' ) . ( $described_by ? ' aria-describedby="' . esc_attr( $described_by ) . '"' : '' ) . ( $error ? ' aria-invalid="true"' : '' );
 
 		if ( 'textarea' === $field['type'] ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attribute fragments are assembled from fixed strings and individually escaped values above.
 			echo '<textarea id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field['name'] ) . '" rows="5" maxlength="5000"' . $placeholder . $common . '>' . esc_textarea( $value ) . '</textarea>';
 		} elseif ( 'select' === $field['type'] ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- The common attribute fragment contains fixed strings and an esc_attr()-escaped ID.
 			echo '<select id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field['name'] ) . '"' . $common . '><option value="">' . esc_html( $select_label ) . '</option>';
 			foreach ( $field['options'] as $option ) {
 				echo '<option value="' . esc_attr( $option ) . '"' . selected( $value, $option, false ) . '>' . esc_html( $option ) . '</option>';
 			}
 			echo '</select>';
 		} elseif ( 'number' === $field['type'] ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- The common attribute fragment contains fixed strings and an esc_attr()-escaped ID.
 			echo '<input id="' . esc_attr( $field_id ) . '" type="number" step="any" name="' . esc_attr( $field['name'] ) . '" value="' . esc_attr( $value ) . '"' . $common . '>';
 		} else {
 			$maxlength    = 'tel' === $field['type'] ? 40 : 500;
 			$autocomplete = 'email' === $field['type'] ? 'email' : ( 'tel' === $field['type'] ? 'tel' : 'off' );
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attribute fragments are assembled from fixed strings and individually escaped values above.
 			echo '<input id="' . esc_attr( $field_id ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $field['name'] ) . '" value="' . esc_attr( $value ) . '" maxlength="' . esc_attr( (string) $maxlength ) . '" autocomplete="' . esc_attr( $autocomplete ) . '"' . $placeholder . $common . '>';
 		}
 
