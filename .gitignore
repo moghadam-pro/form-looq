@@ -1,3 +1,13 @@
 /dist/
 node_modules/
 vendor/
+
+# Cross-platform OS metadata
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+[Tt]humbs.db
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
