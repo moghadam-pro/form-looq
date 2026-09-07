@@ -304,10 +304,12 @@ final class Form_Repository {
 		$forms   = DB::forms_table();
 		$entries = DB::entries_table();
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query(
 			$wpdb->prepare(
-				"UPDATE {$forms} SET entries_count = (SELECT COUNT(*) FROM {$entries} WHERE form_id = %d) WHERE id = %d",
+				'UPDATE %i SET entries_count = (SELECT COUNT(*) FROM %i WHERE form_id = %d) WHERE id = %d',
+				$forms,
+				$entries,
 				$form_id,
 				$form_id
 			)
