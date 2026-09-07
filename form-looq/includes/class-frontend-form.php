@@ -312,18 +312,22 @@ final class Frontend_Form {
 		$common = ( $required ? ' required aria-required="true"' : '' ) . ( $described_by ? ' aria-describedby="' . esc_attr( $described_by ) . '"' : '' ) . ( $error ? ' aria-invalid="true"' : '' );
 
 		if ( 'textarea' === $field['type'] ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attribute fragments are assembled from fixed strings and individually escaped values above.
 			echo '<textarea id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field['name'] ) . '" rows="5" maxlength="5000"' . $placeholder . $common . '>' . esc_textarea( $value ) . '</textarea>';
 		} elseif ( 'select' === $field['type'] ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- The common attribute fragment contains fixed strings and an esc_attr()-escaped ID.
 			echo '<select id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field['name'] ) . '"' . $common . '><option value="">' . esc_html( $select_label ) . '</option>';
 			foreach ( $field['options'] as $option ) {
 				echo '<option value="' . esc_attr( $option ) . '"' . selected( $value, $option, false ) . '>' . esc_html( $option ) . '</option>';
 			}
 			echo '</select>';
 		} elseif ( 'number' === $field['type'] ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- The common attribute fragment contains fixed strings and an esc_attr()-escaped ID.
 			echo '<input id="' . esc_attr( $field_id ) . '" type="number" step="any" name="' . esc_attr( $field['name'] ) . '" value="' . esc_attr( $value ) . '"' . $common . '>';
 		} else {
 			$maxlength    = 'tel' === $field['type'] ? 40 : 500;
 			$autocomplete = 'email' === $field['type'] ? 'email' : ( 'tel' === $field['type'] ? 'tel' : 'off' );
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attribute fragments are assembled from fixed strings and individually escaped values above.
 			echo '<input id="' . esc_attr( $field_id ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $field['name'] ) . '" value="' . esc_attr( $value ) . '" maxlength="' . esc_attr( (string) $maxlength ) . '" autocomplete="' . esc_attr( $autocomplete ) . '"' . $placeholder . $common . '>';
 		}
 
