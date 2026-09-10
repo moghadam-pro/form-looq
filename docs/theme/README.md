@@ -19,6 +19,9 @@
 
 The header and footer select the correct lockup from the URL language.
 
+The WordPress theme card uses the approved 1200×900 Form LOOQ product cover at
+`screenshot.png`.
+
 ## Plugin catalogue endpoints
 
 The theme serves `/addons.json` and `/docs.json` with the exact version-1 contracts consumed by the plugin's optional remote-content feature. Plain `/addons`, `/docs`, `/privacy`, and `/terms` URLs redirect to their canonical English equivalents so existing plugin links remain valid.
