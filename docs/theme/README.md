@@ -45,6 +45,17 @@ Product content is centralized in `inc/content-data.php`. English and Persian en
 
 Current capabilities were checked against Form LOOQ 0.4.2. Do not present roadmap features such as email notifications, conditional fields, multi-step forms, file uploads, SMS delivery, or add-on activation as shipped functionality.
 
+## Public feedback form
+
+The homepage and Support page render Form LOOQ form ID `5` for bug reports and
+feature requests. If the plugin or form is unavailable, visitors receive a
+GitHub issue link instead of a broken shortcode. The production form ID can be
+changed without editing templates:
+
+```php
+add_filter( 'formlooq_theme_support_form_id', static fn() => 12 );
+```
+
 ## Deployment
 
 1. Build `dist/formlooq-theme.zip`.

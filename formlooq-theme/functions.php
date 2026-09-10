@@ -66,6 +66,19 @@ function formlooq_download_url(): string {
 	return (string) apply_filters( 'formlooq_theme_download_url', 'https://github.com/moghadam-pro/form-looq/releases/latest/download/form-looq.zip' );
 }
 
+/**
+ * Render the public feedback form, with a useful fallback when the plugin is inactive.
+ */
+function formlooq_support_form(): string {
+	$form_id = (int) apply_filters( 'formlooq_theme_support_form_id', 5 );
+	if ( shortcode_exists( 'looq_form' ) && $form_id > 0 ) {
+		return do_shortcode( '[looq_form id="' . $form_id . '"]' );
+	}
+
+	$label = formlooq_is_fa() ? 'ثبت درخواست در گیت‌هاب' : 'Open a GitHub request';
+	return '<p class="support-fallback"><a class="button button-primary" href="https://github.com/moghadam-pro/form-looq/issues/new">' . esc_html( $label ) . '</a></p>';
+}
+
 add_filter(
 	'query_vars',
 	static function ( array $vars ): array {

@@ -156,6 +156,18 @@ html[dir="rtl"] .section-head h2, html[dir="rtl"] .page-hero h1 { line-height: 1
 .use-card p { margin: 0; color: var(--looq-muted); font-size: .85rem; }
 .use-icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: .8rem; color: var(--looq-red); background: var(--looq-red-soft); font-weight: 900; }
 
+.support-section { padding-top: 1rem; }
+.support-grid { display: grid; grid-template-columns: minmax(0,.82fr) minmax(420px,1.18fr); align-items: start; gap: clamp(2rem,6vw,6rem); }
+.support-copy h2 { margin: 0 0 1rem; font-size: clamp(2rem,4vw,3.5rem); line-height: 1.17; letter-spacing: -.045em; }
+.support-copy > p { color: var(--looq-muted); font-size: 1.04rem; }
+.support-options { display: grid; gap: .75rem; margin-top: 1.6rem; }
+.support-option { padding: 1rem 1.1rem; border: 1px solid var(--looq-line); border-radius: var(--looq-radius-sm); background: #fff; }
+.support-option strong { display: block; margin-bottom: .15rem; }
+.support-option span { color: var(--looq-muted); font-size: .84rem; }
+.support-form { padding: clamp(1.25rem,3vw,2rem); border: 1px solid var(--looq-line); border-radius: var(--looq-radius); background: #fff; box-shadow: var(--looq-shadow); }
+.support-form > h2 { margin-top: 0; font-size: 1.3rem; }
+.support-form .looq-form { margin: 0; }
+
 .cta { padding: 2rem 0 6rem; }
 .cta-box { position: relative; overflow: hidden; padding: clamp(2.5rem,6vw,5rem); border-radius: var(--looq-radius-lg); color: #fff; background: var(--looq-red); }
 .cta-box::after { position: absolute; width: 460px; height: 460px; inset-block-start: -250px; inset-inline-end: -120px; border: 80px solid rgba(255,255,255,.08); border-radius: 50%; content: ""; }
@@ -199,7 +211,7 @@ html[dir="rtl"] .section-head h2, html[dir="rtl"] .page-hero h1 { line-height: 1
   .site-nav.is-open { display: grid; }
   .menu-toggle { display: block; }
   .header-actions .button { display: none; }
-  .hero-grid, .split { grid-template-columns: 1fr; }
+  .hero-grid, .split, .support-grid { grid-template-columns: 1fr; }
   .hero-grid { gap: 4rem; }
   .builder-window { max-width: 620px; margin-inline: auto; }
   .feature-grid { grid-template-columns: repeat(2,1fr); }

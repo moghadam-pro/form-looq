@@ -38,7 +38,7 @@ function formlooq_docs_feed(): array {
 				'articles' => array(
 					array( 'title' => 'Install the plugin', 'url' => $docs . '#install', 'excerpt' => 'Upload the official ZIP, activate it, and open Forms.' ),
 					array( 'title' => 'Create your first form', 'url' => $docs . '#first-form', 'excerpt' => 'Pick a template, name the form, and arrange fields.' ),
-					array( 'title' => 'Embed a form', 'url' => $docs . '#embed', 'excerpt' => 'Use a shortcode, block, PHP template, or Elementor widget.' ),
+					array( 'title' => 'Embed a form', 'url' => $docs . '#embed', 'excerpt' => 'Use a shortcode, PHP template, or Elementor widget.' ),
 				),
 			),
 			array(
