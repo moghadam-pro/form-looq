@@ -19,6 +19,10 @@
 
 The header and footer select the correct lockup from the URL language.
 
+## Plugin catalogue endpoints
+
+The theme serves `/addons.json` and `/docs.json` with the exact version-1 contracts consumed by the plugin's optional remote-content feature. Plain `/addons`, `/docs`, `/privacy`, and `/terms` URLs redirect to their canonical English equivalents so existing plugin links remain valid.
+
 ## Local development
 
 Copy or symlink `formlooq-theme/` to `wp-content/themes/formlooq-theme`, activate it, and use pretty permalinks. Activation flushes rewrite rules once.

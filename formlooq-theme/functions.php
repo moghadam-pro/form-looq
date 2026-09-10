@@ -71,6 +71,7 @@ add_filter(
 	static function ( array $vars ): array {
 		$vars[] = 'formlooq_lang';
 		$vars[] = 'formlooq_route';
+		$vars[] = 'formlooq_feed';
 		return $vars;
 	}
 );
@@ -81,6 +82,8 @@ add_action(
 		$routes = 'features|demos|docs|addons|download|changelog|support|privacy|terms|about';
 		add_rewrite_rule( '^(fa|en)/?$', 'index.php?formlooq_lang=$matches[1]&formlooq_route=home', 'top' );
 		add_rewrite_rule( '^(fa|en)/(' . $routes . ')/?$', 'index.php?formlooq_lang=$matches[1]&formlooq_route=$matches[2]', 'top' );
+		add_rewrite_rule( '^(addons|docs)\.json$', 'index.php?formlooq_feed=$matches[1]', 'top' );
+		add_rewrite_rule( '^(' . $routes . ')/?$', 'index.php?formlooq_route=$matches[1]', 'top' );
 		remove_action( 'wp_head', 'rel_canonical' );
 	}
 );
@@ -109,6 +112,16 @@ add_action(
 add_action(
 	'template_redirect',
 	static function (): void {
+		$feed = sanitize_key( (string) get_query_var( 'formlooq_feed' ) );
+		if ( in_array( $feed, array( 'addons', 'docs' ), true ) ) {
+			nocache_headers();
+			wp_send_json( 'addons' === $feed ? formlooq_addons_feed() : formlooq_docs_feed() );
+		}
+		$route = formlooq_route();
+		if ( ! get_query_var( 'formlooq_lang' ) && 'home' !== $route ) {
+			wp_safe_redirect( formlooq_url( $route, 'en' ), 301 );
+			exit;
+		}
 		if ( is_front_page() && ! get_query_var( 'formlooq_lang' ) ) {
 			wp_safe_redirect( formlooq_url( 'home', 'en' ), 302 );
 			exit;
@@ -154,3 +167,4 @@ add_action(
 );
 
 require_once get_template_directory() . '/inc/content.php';
+require_once get_template_directory() . '/inc/remote-content.php';
