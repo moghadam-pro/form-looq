@@ -1,0 +1,3 @@
+<?php /** 404. @package Formlooq_Theme */ status_header( 404 ); get_header(); ?>
+<main id="main"><header class="page-hero"><div class="looq-narrow"><span class="eyebrow">404</span><h1><?php echo esc_html( formlooq_is_fa() ? 'این صفحه پیدا نشد.' : 'This page could not be found.' ); ?></h1><p><?php echo esc_html( formlooq_is_fa() ? 'ممکن است آدرس تغییر کرده باشد.' : 'The address may have changed.' ); ?></p></div></header><div class="page-body looq-narrow"><a class="button button-primary" href="<?php echo esc_url( formlooq_url() ); ?>"><?php echo esc_html( formlooq_is_fa() ? 'بازگشت به خانه' : 'Back home' ); ?></a></div></main>
+<?php get_footer(); ?>
