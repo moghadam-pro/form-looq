@@ -169,6 +169,8 @@ jobs:
           set -euo pipefail
           cp -R "$GITHUB_WORKSPACE/form-looq" /tmp/form-looq-wordpress/wp-content/plugins/form-looq
           wp plugin activate form-looq --path=/tmp/form-looq-wordpress
+      - name: Run repository query checks
+        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/repository-queries.php" --path=/tmp/form-looq-wordpress
       - name: Run privacy, retention, and uninstall checks
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/privacy-retention-uninstall.php" --path=/tmp/form-looq-wordpress
       - name: Run rate-limit checks

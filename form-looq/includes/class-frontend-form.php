@@ -54,6 +54,8 @@ final class Frontend_Form {
 	}
 
 	public static function protect_state_page(): void {
+		// Only disables page caching; no submission is processed by this GET flag.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['looq_state'] ) ) {
 			return;
 		}
@@ -120,9 +122,14 @@ final class Frontend_Form {
 		// translation, not from a hardcoded Persian string.
 		$select      = $atts['select'] ?: __( 'Select', 'form-looq' );
 		$yes         = $atts['yes'] ?: __( 'Yes', 'form-looq' );
+		// Display-only redirect parameters. Error values require a random, expiring,
+		// single-use token bound to this form in Submission_State::consume().
+		// Submission POSTs are nonce-verified in handle_submission().
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$status_form = isset( $_GET['looq_form'] ) ? absint( $_GET['looq_form'] ) : 0;
 		$status      = $status_form === $form_id && isset( $_GET['looq_status'] ) ? sanitize_key( wp_unslash( $_GET['looq_status'] ) ) : '';
 		$token       = $status_form === $form_id && isset( $_GET['looq_state'] ) ? sanitize_text_field( wp_unslash( $_GET['looq_state'] ) ) : '';
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 		$state       = 'error' === $status && $token ? Submission_State::consume( $token, $form_id ) : array();
 		$values      = is_array( $state['values'] ?? null ) ? $state['values'] : array();
 		$errors      = is_array( $state['errors'] ?? null ) ? $state['errors'] : array();

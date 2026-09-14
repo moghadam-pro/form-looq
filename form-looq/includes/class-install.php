@@ -96,7 +96,7 @@ final class Install {
 				}
 
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$wpdb->query( "RENAME TABLE `{$legacy}` TO `{$current}`" );
+				$wpdb->query( $wpdb->prepare( 'RENAME TABLE %i TO %i', $legacy, $current ) );
 			}
 		}
 

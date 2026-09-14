@@ -20,10 +20,10 @@ delete_transient( 'form_looq_remote_docs' );
 // The capability is meaningless clutter on the role once the plugin that
 // checks it is gone, so this runs unconditionally rather than only when the
 // site owner also opts into deleting forms and entries below.
-$looq_role = get_role( 'administrator' );
+$form_looq_role = get_role( 'administrator' );
 
-if ( $looq_role instanceof WP_Role ) {
-	$looq_role->remove_cap( 'looq_manage_forms' );
+if ( $form_looq_role instanceof WP_Role ) {
+	$form_looq_role->remove_cap( 'looq_manage_forms' );
 }
 
 $form_looq_settings = get_option( 'form_looq_settings', array() );
@@ -36,9 +36,9 @@ if ( empty( $form_looq_settings['delete_data_on_uninstall'] ) ) {
 global $wpdb;
 
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
-foreach ( array( 'entries', 'forms' ) as $looq_table ) {
-	$looq_table_name = $wpdb->prefix . 'looq_' . $looq_table;
-	$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $looq_table_name ) );
+foreach ( array( 'entries', 'forms' ) as $form_looq_table ) {
+	$form_looq_table_name = $wpdb->prefix . 'looq_' . $form_looq_table;
+	$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $form_looq_table_name ) );
 }
 // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
 
@@ -51,28 +51,28 @@ foreach (
 		'form_looq_show_welcome',
 		'form_looq_retention_days',
 		'form_looq_delete_data_on_uninstall',
-	) as $looq_option
+	) as $form_looq_option
 ) {
-	delete_option( $looq_option );
+	delete_option( $form_looq_option );
 }
 
-$looq_patterns = array(
+$form_looq_patterns = array(
 	$wpdb->esc_like( '_transient_form_looq_state_' ) . '%',
 	$wpdb->esc_like( '_transient_form_looq_rate_' ) . '%',
 );
 
-foreach ( $looq_patterns as $looq_pattern ) {
+foreach ( $form_looq_patterns as $form_looq_pattern ) {
 	// A wildcard lookup is required because state and rate-limit tokens are intentionally opaque.
 	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-	$looq_option_names = $wpdb->get_col(
+	$form_looq_option_names = $wpdb->get_col(
 		$wpdb->prepare(
 			"SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s",
-			$looq_pattern
+			$form_looq_pattern
 		)
 	);
 	// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-	foreach ( $looq_option_names as $looq_option_name ) {
-		delete_transient( substr( $looq_option_name, strlen( '_transient_' ) ) );
+	foreach ( $form_looq_option_names as $form_looq_option_name ) {
+		delete_transient( substr( $form_looq_option_name, strlen( '_transient_' ) ) );
 	}
 }

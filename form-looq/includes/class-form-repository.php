@@ -45,7 +45,7 @@ final class Form_Repository {
 
 		$table = DB::forms_table();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $form_id ), ARRAY_A );
+		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE id = %d', $table, $form_id ), ARRAY_A );
 
 		if ( ! $row ) {
 			return null;
@@ -78,7 +78,7 @@ final class Form_Repository {
 
 		$table  = DB::forms_table();
 		$where  = array( '1=1' );
-		$params = array();
+		$params = array( $table );
 
 		if ( $args['status'] && array_key_exists( $args['status'], self::statuses() ) ) {
 			$where[]  = 'status = %s';
@@ -100,10 +100,12 @@ final class Form_Repository {
 		$params[] = $per_page;
 		$params[] = $offset;
 
-		$sql = 'SELECT * FROM ' . $table . ' WHERE ' . implode( ' AND ', $where )
+		$sql = 'SELECT * FROM %i WHERE ' . implode( ' AND ', $where )
 			. ' ORDER BY ' . $orderby . ' ' . $order . ' LIMIT %d OFFSET %d';
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+		// WHERE fragments are internal placeholders; ordering is allowlisted. All values
+		// and the table identifier are prepared. List reads stay fresh after entry writes.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$rows = $wpdb->get_results( $wpdb->prepare( $sql, $params ), ARRAY_A );
 
 		return array_map( array( self::class, 'hydrate' ), is_array( $rows ) ? $rows : array() );
@@ -117,7 +119,7 @@ final class Form_Repository {
 
 		$table  = DB::forms_table();
 		$where  = array( '1=1' );
-		$params = array();
+		$params = array( $table );
 
 		if ( ! empty( $args['status'] ) && array_key_exists( $args['status'], self::statuses() ) ) {
 			$where[]  = 'status = %s';
@@ -131,15 +133,11 @@ final class Form_Repository {
 			$params[] = $like;
 		}
 
-		$sql = 'SELECT COUNT(*) FROM ' . $table . ' WHERE ' . implode( ' AND ', $where );
+		$sql = 'SELECT COUNT(*) FROM %i WHERE ' . implode( ' AND ', $where );
 
-		if ( $params ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
-			return (int) $wpdb->get_var( $wpdb->prepare( $sql, $params ) );
-		}
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
-		return (int) $wpdb->get_var( $sql );
+		// The WHERE fragments are fixed internally; every value and table identifier is prepared.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+		return (int) $wpdb->get_var( $wpdb->prepare( $sql, $params ) );
 	}
 
 	/**
@@ -150,6 +148,8 @@ final class Form_Repository {
 
 		$now = current_time( 'mysql' );
 
+		// Dedicated plugin table write; reads are uncached or invalidated below.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$inserted = $wpdb->insert(
 			DB::forms_table(),
 			array(
@@ -219,6 +219,8 @@ final class Form_Repository {
 			$format[]           = '%s';
 		}
 
+		// Dedicated plugin table write; reads are uncached or invalidated below.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->update( DB::forms_table(), $update, array( 'id' => $form_id ), $format, array( '%d' ) );
 
 		self::flush( $form_id );
@@ -265,6 +267,8 @@ final class Form_Repository {
 			return false;
 		}
 
+		// Dedicated plugin table write; reads are uncached or invalidated below.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$deleted = $wpdb->delete( DB::forms_table(), array( 'id' => $form_id ), array( '%d' ) );
 
 		if ( ! $deleted ) {
@@ -272,6 +276,8 @@ final class Form_Repository {
 		}
 
 		self::flush( $form_id );
+		// Dedicated plugin table write; reads are uncached or invalidated below.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->delete( DB::entries_table(), array( 'form_id' => $form_id ), array( '%d' ) );
 
 		/**
@@ -293,7 +299,7 @@ final class Form_Repository {
 
 		$table = DB::forms_table();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$wpdb->query( $wpdb->prepare( "UPDATE {$table} SET views = views + 1 WHERE id = %d", $form_id ) );
+		$wpdb->query( $wpdb->prepare( 'UPDATE %i SET views = views + 1 WHERE id = %d', $table, $form_id ) );
 
 		self::flush( $form_id );
 	}

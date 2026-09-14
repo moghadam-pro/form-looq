@@ -8,6 +8,22 @@ All notable changes to this project are documented here. The format follows
 
 Nothing yet.
 
+## [0.4.3] — 2026-09-14
+
+### Fixed
+
+- Prepare table identifiers with `%i` in repository reads, counters, retention,
+  and legacy table migration. Filter values remain parameterized and ordering
+  remains restricted to an internal allowlist.
+- Use the `form_looq_` prefix for bootstrap and uninstall global variables.
+- Replace discouraged textdomain registration with an explicit local fallback
+  that preserves directory/site translations and the bundled Persian catalog.
+- Document narrowly scoped Plugin Check exceptions for dedicated-table writes,
+  internal dynamic SQL fragments, and display-only redirect parameters. POST
+  submission nonce verification remains enforced; error state uses expiring,
+  random, form-bound, single-use tokens.
+
+
 ## [0.4.2] — 2026-09-07
 
 Fixes from a strict pre-submission review of 0.4.1, focused on Plugin Check
@@ -439,7 +455,7 @@ Initial development foundation, never publicly released.
 - Opt-in data deletion during uninstall.
 - Shortcode embedding, responsive layouts, and automatic LTR/RTL direction.
 
-[Unreleased]: https://github.com/moghadam-pro/form-looq/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/moghadam-pro/form-looq/compare/v0.4.3...HEAD
 [0.4.2]: https://github.com/moghadam-pro/form-looq/releases/tag/v0.4.2
 [0.4.1]: https://github.com/moghadam-pro/form-looq/releases/tag/v0.4.1
 [0.4.0]: https://github.com/moghadam-pro/form-looq/releases/tag/v0.4.0
@@ -449,3 +465,5 @@ Initial development foundation, never publicly released.
 [0.3.0]: https://github.com/moghadam-pro/form-looq/releases/tag/v0.3.0
 [0.2.0]: https://github.com/moghadam-pro/form-looq/releases/tag/v0.2.0
 [0.1.0]: https://github.com/moghadam-pro/form-looq/releases/tag/v0.1.0
+
+[0.4.3]: https://github.com/moghadam-pro/form-looq/releases/tag/v0.4.3

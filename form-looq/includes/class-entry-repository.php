@@ -34,7 +34,7 @@ final class Entry_Repository {
 
 		$table = DB::entries_table();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $entry_id ), ARRAY_A );
+		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE id = %d', $table, $entry_id ), ARRAY_A );
 
 		return $row ? self::hydrate( $row ) : null;
 	}
@@ -55,14 +55,16 @@ final class Entry_Repository {
 		$per_page = max( 1, min( 500, absint( $args['per_page'] ) ) );
 		$offset   = max( 0, ( max( 1, absint( $args['page'] ) ) - 1 ) * $per_page );
 
-		$params   = $clause['params'];
+		$params   = array_merge( array( $table ), $clause['params'] );
 		$params[] = $per_page;
 		$params[] = $offset;
 
-		$sql = 'SELECT * FROM ' . $table . ' WHERE ' . $clause['sql']
+		$sql = 'SELECT * FROM %i WHERE ' . $clause['sql']
 			. ' ORDER BY ' . $orderby . ' ' . $order . ' LIMIT %d OFFSET %d';
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+		// WHERE fragments are internal placeholders; ordering is allowlisted. All values
+		// and the table identifier are prepared. List reads stay fresh after entry writes.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$rows = $wpdb->get_results( $wpdb->prepare( $sql, $params ), ARRAY_A );
 
 		return array_map( array( self::class, 'hydrate' ), is_array( $rows ) ? $rows : array() );
@@ -78,15 +80,13 @@ final class Entry_Repository {
 		$table  = DB::entries_table();
 		$clause = self::build_where( $args );
 
-		$sql = 'SELECT COUNT(*) FROM ' . $table . ' WHERE ' . $clause['sql'];
+		$sql = 'SELECT COUNT(*) FROM %i WHERE ' . $clause['sql'];
 
-		if ( $clause['params'] ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
-			return (int) $wpdb->get_var( $wpdb->prepare( $sql, $clause['params'] ) );
-		}
+		$params = array_merge( array( $table ), $clause['params'] );
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
-		return (int) $wpdb->get_var( $sql );
+		// The WHERE fragments are fixed internally; every value and table identifier is prepared.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+		return (int) $wpdb->get_var( $wpdb->prepare( $sql, $params ) );
 	}
 
 	/**
@@ -105,6 +105,8 @@ final class Entry_Repository {
 
 		$store_ip = ! empty( $form['settings']['store_ip'] );
 
+		// Dedicated plugin table write; reads are uncached or invalidated below.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$inserted = $wpdb->insert(
 			DB::entries_table(),
 			array(
@@ -148,6 +150,8 @@ final class Entry_Repository {
 
 		$status = array_key_exists( $status, self::statuses() ) ? $status : self::STATUS_UNREAD;
 
+		// Dedicated plugin table write; reads are uncached or invalidated below.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		return false !== $wpdb->update(
 			DB::entries_table(),
 			array( 'status' => $status ),
@@ -162,6 +166,8 @@ final class Entry_Repository {
 
 		$note = self::limit( sanitize_textarea_field( $note ), self::MAX_NOTE_LENGTH );
 
+		// Dedicated plugin table write; reads are uncached or invalidated below.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		return false !== $wpdb->update(
 			DB::entries_table(),
 			array( 'note' => $note ),
@@ -179,6 +185,8 @@ final class Entry_Repository {
 			return false;
 		}
 
+		// Dedicated plugin table write; reads are uncached or invalidated below.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$deleted = $wpdb->delete( DB::entries_table(), array( 'id' => $entry_id ), array( '%d' ) );
 		Form_Repository::recount_entries( (int) $entry['form_id'] );
 
@@ -208,7 +216,7 @@ final class Entry_Repository {
 		$cutoff = gmdate( 'Y-m-d H:i:s', time() - ( $days * DAY_IN_SECONDS ) );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$deleted = (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE created_at < %s", $cutoff ) );
+		$deleted = (int) $wpdb->query( $wpdb->prepare( 'DELETE FROM %i WHERE created_at < %s', $table, $cutoff ) );
 
 		if ( $deleted > 0 ) {
 			self::recount_all();
@@ -224,7 +232,7 @@ final class Entry_Repository {
 		$entries = DB::entries_table();
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$wpdb->query( "UPDATE {$forms} f SET f.entries_count = (SELECT COUNT(*) FROM {$entries} e WHERE e.form_id = f.id)" );
+		$wpdb->query( $wpdb->prepare( 'UPDATE %i f SET f.entries_count = (SELECT COUNT(*) FROM %i e WHERE e.form_id = f.id)', $forms, $entries ) );
 
 		// Available since WordPress 6.1 and only on caches that support groups.
 		if ( function_exists( 'wp_cache_flush_group' ) ) {
@@ -238,7 +246,7 @@ final class Entry_Repository {
 		$table = DB::entries_table();
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
+		return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table ) );
 	}
 
 	/**

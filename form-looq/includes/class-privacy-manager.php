@@ -108,6 +108,8 @@ final class Privacy_Manager {
 				continue;
 			}
 
+			// Dedicated entry table; personal-data reads are intentionally uncached.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 			$updated = $wpdb->update(
 				DB::entries_table(),
 				array(
