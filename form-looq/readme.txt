@@ -111,8 +111,7 @@ Not in this release. Export is complete; import is deliberately held back until 
 * Corrected global variable prefixes and documented scoped Plugin Check exceptions.
 * Preserved bundled Persian translations without discouraged textdomain registration.
 
-
-= 0.4.3 =
+= 0.4.2 =
 
 * Fixed: activating or updating the plugin triggered `__( 'Submit', 'form-looq' )` during `plugins_loaded` — before the `init` hook loads this plugin's text domain — logging a "Translation loading … triggered too early" notice. `Settings::defaults()` no longer calls a translation function; the translated fallback is read lazily by a new `Settings::default_submit_label()` instead.
 * Fixed: two `phpcs:ignore` comments for interpolated SQL sat one to three lines above the line the violation is actually reported on (inside a multi-line `$wpdb->prepare()` call), so they silently suppressed nothing. Both now wrap the full statement with `phpcs:disable`/`phpcs:enable` instead of a single-line `phpcs:ignore`.
@@ -197,6 +196,10 @@ Not in this release. Export is complete; import is deliberately held back until 
 == Upgrade Notice ==
 
 = 0.4.3 =
+
+Hardens prepared table identifiers, corrects global prefixes, and resolves Plugin Check warnings while preserving bundled Persian translations. Existing forms and entries are retained.
+
+= 0.4.2 =
 
 Fixes a translation-loaded-too-early notice on activation/update, two SQL-safety suppression comments that weren't actually taking effect, and missing suppression comments on the legacy shortcode aliases.
 
