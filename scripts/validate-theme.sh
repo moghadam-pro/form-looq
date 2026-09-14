@@ -20,14 +20,14 @@ fi
 
 node --check "$theme_dir/assets/js/theme.js"
 
-if rg -n 'fonts\.googleapis|cdnjs\.cloudflare|\[cite:' "$theme_dir"; then
+if grep -RnE 'fonts\.googleapis|cdnjs\.cloudflare|\[cite:' "$theme_dir"; then
   echo "External font/icon dependency or leaked citation marker found." >&2
   exit 1
 fi
 
 for lang in en fa; do
   for route in features demos docs addons download changelog support privacy terms about; do
-    rg -q "'$route' =>" "$theme_dir/inc/content-data.php" || { echo "Missing $lang/$route content" >&2; exit 1; }
+    grep -qF "'$route' =>" "$theme_dir/inc/content-data.php" || { echo "Missing $lang/$route content" >&2; exit 1; }
   done
 done
 
