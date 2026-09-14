@@ -13,6 +13,11 @@ mkdir -p "$BUILD_DIR"
 cp -R "$PLUGIN_DIR"/. "$BUILD_DIR"/
 find "$BUILD_DIR" -type f \( -name '.DS_Store' -o -name '*.log' -o -name '*.map' \) -delete
 
+if find "$BUILD_DIR" -type f \( -name '*.po' -o -name '*.mo' -o -name '*.l10n.php' \) -print -quit | grep -q .; then
+  echo 'Translation catalogs must be distributed through translate.wordpress.org, not bundled in the plugin ZIP.' >&2
+  exit 1
+fi
+
 HEADER_VERSION="$(sed -n 's/^[[:space:]]*\*[[:space:]]*Version:[[:space:]]*//p' "$BUILD_DIR/form-looq.php" | head -n 1 | tr -d '\r')"
 STABLE_TAG="$(sed -n 's/^Stable tag:[[:space:]]*//p' "$BUILD_DIR/readme.txt" | head -n 1 | tr -d '\r')"
 

@@ -44,6 +44,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 $ExcludeNames = @('.DS_Store', 'Thumbs.db')
 $ExcludeExts  = @('.log', '.map')
+$TranslationExts = @('.po', '.mo')
 $DevReferencePattern = 'vendor/|node_modules/|tests/|\.git/'
 $Flagged = @()
 
@@ -54,6 +55,9 @@ try {
     foreach ($file in $files) {
         if ($ExcludeNames -contains $file.Name) { continue }
         if ($ExcludeExts -contains $file.Extension.ToLowerInvariant()) { continue }
+        if ($TranslationExts -contains $file.Extension.ToLowerInvariant() -or $file.Name.EndsWith('.l10n.php')) {
+            throw "Translation catalogs must be distributed through translate.wordpress.org, not bundled in the plugin ZIP: $($file.FullName)"
+        }
 
         $relative = $file.FullName.Substring($PluginDir.Length + 1) -replace '\\', '/'
         $entryPath = "form-looq/$relative"

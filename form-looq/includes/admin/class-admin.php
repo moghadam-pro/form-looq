@@ -14,9 +14,10 @@ defined( 'ABSPATH' ) || exit;
 
 final class Admin {
 	/**
-	 * Menu position 11 places the plugin immediately below Media (10).
+	 * Keep the plugin below content-management items and away from the
+	 * prominent positions occupied by WordPress core menus.
 	 */
-	private const MENU_POSITION = 11;
+	private const MENU_POSITION = 58;
 
 	/**
 	 * @var array<int, string>

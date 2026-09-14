@@ -2,23 +2,22 @@
 /**
  * Plugin Name: Form LOOQ
  * Description: Privacy-first WordPress forms with local submissions, a drag-and-drop builder, and first-class RTL/LTR support.
- * Version: 0.4.3
+ * Version: 0.4.4
  * Author: Sayid Moghadam
- * Author URI: https://sayid.ir
+ * Author URI: https://moghadam.pro
  * Plugin URI: https://formlooq.ir
  * Requires at least: 6.5
  * Requires PHP: 8.1
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: form-looq
- * Domain Path: /languages
  *
  * @package FormLooq
  */
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'FORM_LOOQ_VERSION', '0.4.3' );
+define( 'FORM_LOOQ_VERSION', '0.4.4' );
 define( 'FORM_LOOQ_FILE', __FILE__ );
 define( 'FORM_LOOQ_DIR', plugin_dir_path( __FILE__ ) );
 
@@ -101,25 +100,6 @@ function form_looq_bootstrap(): void {
 	}
 }
 add_action( 'plugins_loaded', 'form_looq_bootstrap' );
-
-/**
- * Load the bundled Persian translation and any site-provided override.
- */
-function form_looq_load_textdomain(): void {
-	// WordPress.org translations and site overrides take priority. The bundled
-	// translation is a fallback for manual installs before directory approval.
-	if ( is_textdomain_loaded( 'form-looq' ) ) {
-		return;
-	}
-	$form_looq_locale = determine_locale();
-	$form_looq_override = WP_LANG_DIR . '/plugins/form-looq-' . $form_looq_locale . '.mo';
-	$form_looq_bundled = FORM_LOOQ_DIR . 'languages/form-looq-' . $form_looq_locale . '.mo';
-	$form_looq_translation = is_readable( $form_looq_override ) ? $form_looq_override : $form_looq_bundled;
-	if ( is_readable( $form_looq_translation ) ) {
-		load_textdomain( 'form-looq', $form_looq_translation, $form_looq_locale );
-	}
-}
-add_action( 'init', 'form_looq_load_textdomain' );
 
 /**
  * Store a submission programmatically.

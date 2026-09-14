@@ -8,6 +8,16 @@ All notable changes to this project are documented here. The format follows
 
 Nothing yet.
 
+## [0.4.4] — 2026-09-14
+
+### Changed
+
+- Move the top-level Forms menu below content-management items so it no longer
+  competes with prominent WordPress core menu positions.
+- Remove bundled PO/MO catalogs and rely on WordPress.org language packs;
+  the Persian PO remains as a development/import source outside the installable
+  plugin, and packaging now rejects catalogs to prevent regressions.
+
 ## [0.4.3] — 2026-09-14
 
 ### Fixed
@@ -147,7 +157,7 @@ safety bypass and an overstated privacy claim.
 ## [0.4.0] — 2026-09-05
 
 Renamed the plugin from MPRO Forms to Form LOOQ and moved it to its own domain,
-`formlooq.ir` (previously `sayid.ir/mpro-forms`).
+`formlooq.ir` (previously `moghadam.pro/mpro-forms`).
 
 ### Changed
 
@@ -165,7 +175,7 @@ Renamed the plugin from MPRO Forms to Form LOOQ and moved it to its own domain,
   - CSS classes and asset handles moved from `mpro-` to `looq-`.
   - The plugin name and description on the Plugins screen show "Form LOOQ" /
     "فرم لوک" for Persian admins.
-- **`Plugin::HOME_URL`** moved from `https://sayid.ir/mpro-forms` to
+- **`Plugin::HOME_URL`** moved from `https://moghadam.pro/mpro-forms` to
   `https://formlooq.ir`.
 
 ### Added
@@ -199,7 +209,7 @@ and privacy bugs.
 ### Removed
 
 - **The outbound catalogue fetch.** The Add-ons and Help screens called
-  `sayid.ir` on every visit, sending the site's own `home_url()` in the
+  `moghadam.pro` on every visit, sending the site's own `home_url()` in the
   user agent so usage could be tracked — opt-out only, and undisclosed as such
   in the privacy policy text. `Remote_Content`, the `addons.json`/`docs.json`
   contract, and the Add-ons screen are gone; Help now ships its content with
@@ -455,7 +465,8 @@ Initial development foundation, never publicly released.
 - Opt-in data deletion during uninstall.
 - Shortcode embedding, responsive layouts, and automatic LTR/RTL direction.
 
-[Unreleased]: https://github.com/moghadam-pro/form-looq/compare/v0.4.3...HEAD
+[Unreleased]: https://github.com/moghadam-pro/form-looq/compare/v0.4.4...HEAD
+[0.4.4]: https://github.com/moghadam-pro/form-looq/compare/v0.4.3...v0.4.4
 [0.4.2]: https://github.com/moghadam-pro/form-looq/releases/tag/v0.4.2
 [0.4.1]: https://github.com/moghadam-pro/form-looq/releases/tag/v0.4.1
 [0.4.0]: https://github.com/moghadam-pro/form-looq/releases/tag/v0.4.0

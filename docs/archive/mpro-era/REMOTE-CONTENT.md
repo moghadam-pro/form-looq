@@ -2,15 +2,15 @@
 
 The Add-ons and Help screens can load their content from the project site. This
 document is the contract those endpoints must satisfy. Upload the two files
-described here to `sayid.ir` and the plugin will pick them up; until then, every
+described here to `moghadam.pro` and the plugin will pick them up; until then, every
 screen falls back to a catalogue bundled in the plugin.
 
 ## Endpoints
 
 | Screen | Human page | JSON endpoint |
 | --- | --- | --- |
-| Add-ons | `https://sayid.ir/mpro-forms/addons` | `https://sayid.ir/mpro-forms/addons.json` |
-| Help | `https://sayid.ir/mpro-forms/docs` | `https://sayid.ir/mpro-forms/docs.json` |
+| Add-ons | `https://moghadam.pro/mpro-forms/addons` | `https://moghadam.pro/mpro-forms/addons.json` |
+| Help | `https://moghadam.pro/mpro-forms/docs` | `https://moghadam.pro/mpro-forms/docs.json` |
 
 Both must be served over HTTPS with `Content-Type: application/json; charset=utf-8`
 and HTTP 200. Any other status is treated as unavailable.
@@ -41,7 +41,7 @@ and HTTP 200. Any other status is treated as unavailable.
       "description": "نظرسنجی تک‌سؤالی با نمایش زندهٔ نتایج.",
       "icon": "chart-bar",
       "status": "planned",
-      "url": "https://sayid.ir/mpro-forms/addons/polls",
+      "url": "https://moghadam.pro/mpro-forms/addons/polls",
       "badge": "به‌زودی"
     }
   ]
@@ -70,11 +70,11 @@ reaches the page, so a compromised endpoint cannot inject markup.
     {
       "title": "شروع کار",
       "description": "اولین فرم را بسازید و روی یک برگه بگذارید.",
-      "url": "https://sayid.ir/mpro-forms/docs/getting-started",
+      "url": "https://moghadam.pro/mpro-forms/docs/getting-started",
       "articles": [
         {
           "title": "ساخت یک فرم",
-          "url": "https://sayid.ir/mpro-forms/docs/creating-a-form",
+          "url": "https://moghadam.pro/mpro-forms/docs/creating-a-form",
           "excerpt": "یک تمپلیت انتخاب کنید، نام فرم را بگذارید و فیلدها را بچینید."
         }
       ]
@@ -112,7 +112,7 @@ will keep requesting it indefinitely.
 ## Testing an endpoint
 
 ```bash
-curl -sS -H 'Accept: application/json' https://sayid.ir/mpro-forms/addons.json | head -40
+curl -sS -H 'Accept: application/json' https://moghadam.pro/mpro-forms/addons.json | head -40
 ```
 
 Inside WordPress, flush the cache to force a refetch:

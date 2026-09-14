@@ -19,11 +19,11 @@ form-looq/               installable WordPress plugin source
   assets/                admin/frontend CSS, JS, and brand assets
   includes/              core runtime classes
     admin/               admin-screen classes
-  languages/             bundled translations
   readme.txt             WordPress.org package metadata
   uninstall.php          opt-in uninstall cleanup
 scripts/                 packaging scripts for Bash and PowerShell
 tests/                   validator, integration, and browser tests
+translations/            development translation sources, excluded from ZIP
 docs/                    canonical engineering documentation
 ```
 

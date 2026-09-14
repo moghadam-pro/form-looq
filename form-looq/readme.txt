@@ -4,7 +4,7 @@ Tags: forms, contact form, form builder, rtl, submissions
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.4.3
+Stable tag: 0.4.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,7 +38,7 @@ Form LOOQ (formerly MPRO Forms) is an open-source WordPress form plugin focused 
 * A dashboard widget with form and entry totals.
 * An Elementor widget so forms can be placed anywhere on an Elementor canvas.
 * An optional add-on catalogue and help screen backed by the project site, off by default, with bundled fallbacks when it's off or unreachable.
-* A bundled Persian (fa_IR) translation.
+* Translation-ready strings for community language packs distributed by WordPress.org.
 
 **Privacy and safety**
 
@@ -62,7 +62,7 @@ Privacy policy: https://formlooq.ir/privacy
 
 1. Upload the `form-looq` folder to the `/wp-content/plugins/` directory, or install the plugin ZIP through the WordPress Plugins screen.
 2. Activate Form LOOQ.
-3. Open Forms in the WordPress admin area — it sits directly below Media.
+3. Open Forms from the WordPress admin menu.
 4. Create a form from a template or from scratch.
 5. Copy its shortcode from the Embed tab into a page, post, or page builder.
 
@@ -106,6 +106,10 @@ Not in this release. Export is complete; import is deliberately held back until 
 
 == Changelog ==
 
+= 0.4.4 =
+* Moved the Forms menu below content-management items to respect the established WordPress admin hierarchy.
+* Removed bundled PO/MO files and now rely on WordPress.org language packs for approved translations.
+
 = 0.4.3 =
 * Prepared database table identifiers in reads, counters, retention, and legacy migration.
 * Corrected global variable prefixes and documented scoped Plugin Check exceptions.
@@ -131,7 +135,7 @@ Not in this release. Export is complete; import is deliberately held back until 
 
 = 0.4.0 =
 
-* Renamed the plugin from MPRO Forms to Form LOOQ, and moved its site from `sayid.ir/mpro-forms` to its own domain, `formlooq.ir`. Every identifier was resynchronised: the slug and text domain are now `form-looq`, the shortcode is `[looq_form]`, hooks are `form_looq_*`, the capability is `looq_manage_forms`, and the tables are `{prefix}looq_forms` and `{prefix}looq_entries`. Installs from before the rename are migrated automatically, and `[mpro_form]` (and the older `[free_mpro_form]`) keep rendering as aliases, so existing content never needs editing.
+* Renamed the plugin from MPRO Forms to Form LOOQ, and moved its site from `moghadam.pro/mpro-forms` to its own domain, `formlooq.ir`. Every identifier was resynchronised: the slug and text domain are now `form-looq`, the shortcode is `[looq_form]`, hooks are `form_looq_*`, the capability is `looq_manage_forms`, and the tables are `{prefix}looq_forms` and `{prefix}looq_entries`. Installs from before the rename are migrated automatically, and `[mpro_form]` (and the older `[free_mpro_form]`) keep rendering as aliases, so existing content never needs editing.
 * Added back the Add-ons and Help screens' catalogue fetch, removed in 0.3.3 over an undisclosed-request concern. It returns as an explicit opt-in this time: off by default, disclosed in Settings → Add-ons before it can be turned on, and pointed at the plugin's own new domain.
 
 = 0.3.3 =
@@ -194,6 +198,10 @@ Not in this release. Export is complete; import is deliberately held back until 
 * Added validation, accessible error states, privacy tools, retention settings, rate limiting, and automated checks.
 
 == Upgrade Notice ==
+
+= 0.4.4 =
+
+Adjusts the admin-menu position and moves translations to WordPress.org language packs. Existing forms and entries are retained.
 
 = 0.4.3 =
 

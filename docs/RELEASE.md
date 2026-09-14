@@ -79,7 +79,6 @@ dist/form-looq.zip
     ├── form-looq.php
     ├── assets/
     ├── includes/
-    ├── languages/
     ├── readme.txt
     └── uninstall.php
 ```
