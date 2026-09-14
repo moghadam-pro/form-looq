@@ -1,0 +1,43 @@
+name: Form LOOQ Theme Quality
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'formlooq-theme/**'
+      - 'docs/theme/**'
+      - 'scripts/build-theme.sh'
+      - 'scripts/validate-theme.sh'
+      - '.github/workflows/theme-quality.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-theme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate theme source
+        run: bash scripts/validate-theme.sh --require-php
+      - name: Build installable theme
+        run: bash scripts/build-theme.sh
+      - name: Verify theme archive
+        run: |
+          set -euo pipefail
+          test "$(unzip -Z1 dist/formlooq-theme.zip | head -n 1)" = 'formlooq-theme/'
+          unzip -Z1 dist/formlooq-theme.zip | grep -q '^formlooq-theme/style.css$'
+          unzip -Z1 dist/formlooq-theme.zip | grep -q '^formlooq-theme/index.php$'
+      - name: Upload theme package
+        uses: actions/upload-artifact@v4
+        with:
+          name: formlooq-theme-package
+          path: dist/formlooq-theme.zip
+          if-no-files-found: error
